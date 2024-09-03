@@ -6,18 +6,31 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"hmtm_bff/graph/model"
+	"hmtmbff/graph/model"
+	"time"
 )
 
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
+// CreateUser is the resolver for the createUser field.
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
+	var user model.User
+	user.Email = input.Email
+	user.ID = "1"
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
+	return &user, nil
 }
 
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
+// Users is the resolver for the users field.
+func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
+	var users = []*model.User{
+		{
+			ID:        "1",
+			Email:     "test",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+	return users, nil
 }
 
 // Mutation returns MutationResolver implementation.

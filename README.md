@@ -1,16 +1,14 @@
 ## Usage
 
 ```shell
-go run ./cmd/hmtm_bff/main.go
+go run ./cmd/hmtmbff/main.go
 ```
-
 
 ## Linters
 
 ```shell
 golangci-lint run --fix
 ```
-
 
 ## Tests
 

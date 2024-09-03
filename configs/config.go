@@ -1,6 +1,6 @@
 package configs
 
-import "hmtm_bff/pkg/loadenv"
+import "hmtmbff/pkg/loadenv"
 
 func GetConfig() *Config {
 	return &Config{
