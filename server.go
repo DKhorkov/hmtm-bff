@@ -1,7 +1,7 @@
 package graphqlserver
 
 import (
-	"hmtm_bff/graph"
+	"hmtmbff/graph"
 	"log"
 	"net/http"
 	"os"
