@@ -1,0 +1,23 @@
+# https://www.howtographql.com/graphql-go/3-mutations/
+
+scalar Time
+
+type User {
+  id: ID!
+  email: String!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type Query {
+  users: [User!]!
+}
+
+input NewUser {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createUser(input: NewUser!): User!
+}
