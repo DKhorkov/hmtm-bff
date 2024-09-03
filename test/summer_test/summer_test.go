@@ -1,4 +1,4 @@
-package summer_test
+package summer_test_test
 
 import (
 	"hmtm_bff/internal/summer"

@@ -5,7 +5,6 @@ go 1.23.0
 require (
 	github.com/99designs/gqlgen v0.17.49
 	github.com/joho/godotenv v1.5.1
-	github.com/sethvargo/go-envconfig v1.1.0
 	github.com/stretchr/testify v1.9.0
 	github.com/vektah/gqlparser/v2 v2.5.16
 )

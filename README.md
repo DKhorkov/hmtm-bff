@@ -15,5 +15,5 @@ golangci-lint run --fix
 ## Tests
 
 ```shell
-go test -v ./test/
+go test -v ./test...
 ```
