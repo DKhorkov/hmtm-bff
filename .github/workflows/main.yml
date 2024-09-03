@@ -28,5 +28,5 @@ jobs:
           go-version: stable
       - name: Install dependencies
         run: go get .
-      - name: Run pytest
+      - name: Run tests
         run: go test -v ./test...
