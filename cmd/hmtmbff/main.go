@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"hmtmbff/configs"
-	graph2 "hmtmbff/graph"
+	"hmtmbff/graph"
 	"log"
 	"net/http"
 	"strconv"
@@ -15,7 +15,7 @@ import (
 func main() {
 	var config = configs.GetConfig()
 
-	srv := handler.NewDefaultServer(graph2.NewExecutableSchema(graph2.Config{Resolvers: &graph2.Resolver{}}))
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
