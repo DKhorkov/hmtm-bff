@@ -1,4 +1,4 @@
-module hmtm_bff
+module hmtmbff
 
 go 1.23.0
 
