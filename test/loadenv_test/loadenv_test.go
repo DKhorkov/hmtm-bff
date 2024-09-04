@@ -1,7 +1,7 @@
 package loadenv_test
 
 import (
-	"hmtm_bff/pkg/loadenv"
+	"hmtmbff/pkg/loadenv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
