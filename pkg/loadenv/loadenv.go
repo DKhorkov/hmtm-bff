@@ -58,9 +58,11 @@ func GetEnvAsSlice(name string, defaultVal []string, separator string) []string 
 	if valStr == "" {
 		return defaultVal
 	}
+
 	if !IsStringIsValidSlice(valStr, separator) {
 		return defaultVal
 	}
+
 	return strings.Split(valStr, separator)
 }
 
@@ -72,5 +74,6 @@ func IsStringIsValidSlice(str string, separator string) bool {
 			slice = append(slice[:i], slice[i+1:]...)
 		}
 	}
+
 	return len(slice) > 1
 }

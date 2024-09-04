@@ -1,6 +1,7 @@
 package loadenv_test
 
 import (
+	"fmt"
 	"hmtmbff/pkg/loadenv"
 	"testing"
 
@@ -8,123 +9,253 @@ import (
 )
 
 func TestGetEnv(t *testing.T) {
-	t.Run("key exists", func(t *testing.T) {
-		t.Setenv("TEST_KEY", "GRAPHQL_PORT")
-		want := "GRAPHQL_PORT"
-		got := loadenv.GetEnv("TEST_KEY", "")
-		assert.Equal(t, want, got, "\nGetEnv should return a value from an environment variable.")
-	})
+	testCases := []struct {
+		name         string
+		envVar       string
+		envValue     string
+		defaultValue string
+		expected     string
+		message      string
+	}{
+		{
+			name:         "key exists",
+			envVar:       "TEST_KEY",
+			envValue:     "GRAPHQL_PORT",
+			defaultValue: "",
+			expected:     "GRAPHQL_PORT",
+			message:      "should return the value from env",
+		},
+		{
+			name:         "key does not exist",
+			envVar:       "NON_EXISTENT_KEY",
+			envValue:     "",
+			defaultValue: "default",
+			expected:     "default",
+			message:      "should return the default value",
+		},
+	}
 
-	t.Run("key does not exist", func(t *testing.T) {
-		want := ""
-		got := loadenv.GetEnv("NON_EXISTENT_KEY", want)
-		assert.Equal(t, want, got, "\nGetEnv should return the default value if the key does not exist.")
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.envValue != "" {
+				t.Setenv(tc.envVar, tc.envValue)
+			}
+			actual := loadenv.GetEnv(tc.envVar, tc.defaultValue)
+			assert.Equal(
+				t,
+				tc.expected,
+				actual,
+				fmt.Sprintf("\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected))
+		})
+	}
 }
 
 func TestGetEnvAsInt(t *testing.T) {
-	t.Run("env var exists and is valid integer", func(t *testing.T) {
-		t.Setenv("TEST_INT", "8081")
-		want := 8081
-		got := loadenv.GetEnvAsInt("TEST_INT", 8080)
-		assert.Equal(t, want, got, "\nGetEnvAsInt should return an integer value from an environment "+
-			"variable.")
-	})
+	testCases := []struct {
+		name         string
+		envVar       string
+		envValue     string
+		defaultValue int
+		expected     int
+		message      string
+	}{
+		{
+			name:         "env var exists and is valid integer",
+			envVar:       "TEST_INT",
+			envValue:     "8081",
+			defaultValue: 8080,
+			expected:     8081,
+			message:      "should return int value from env",
+		},
+		{
+			name:         "env var exists but is invalid integer",
+			envVar:       "TEST_INVALID_INT",
+			envValue:     "abc",
+			defaultValue: 8080,
+			expected:     8080,
+			message:      "should return default value if env is invalid int",
+		},
+		{
+			name:         "env var does not exist",
+			envVar:       "NON_EXISTENT_KEY",
+			envValue:     "",
+			defaultValue: 8080,
+			expected:     8080,
+			message:      "should return default value if env does not exist",
+		},
+	}
 
-	t.Run("env var exists but is invalid integer", func(t *testing.T) {
-		t.Setenv("TEST_INVALID_INT", "abc")
-		want := 8080
-		got := loadenv.GetEnvAsInt("TEST_INVALID_INT", 8080)
-		assert.Equal(t, want, got, "\nGetEnvAsInt should return the default value if the environment"+
-			" variable is not a valid integer.")
-	})
-
-	t.Run("env var does not exist", func(t *testing.T) {
-		want := 8080
-		got := loadenv.GetEnvAsInt("NON_EXISTENT_KEY", 8080)
-		assert.Equal(t, want, got, "\nGetEnvAsInt should return the default value if the environment"+
-			" variable does not exist")
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.envValue != "" {
+				t.Setenv(tc.envVar, tc.envValue)
+			}
+			actual := loadenv.GetEnvAsInt(tc.envVar, tc.defaultValue)
+			assert.Equal(
+				t,
+				tc.expected,
+				actual,
+				fmt.Sprintf("\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected))
+		})
+	}
 }
 
 func TestGetEnvAsSlice(t *testing.T) {
-	t.Run("env var exists but is invalid slice", func(t *testing.T) {
-		t.Setenv("TEST_INVALID_SLICE", "fs")
-		want := []string{"1", "2"}
-		got := loadenv.GetEnvAsSlice("TEST_INVALID_SLICE", []string{"1", "2"}, ",")
-		assert.Equal(t, want, got, "GetEnvAsSlice should return the default value if the environment "+
-			"variable is not a valid slice.")
-	})
+	testCases := []struct {
+		name         string
+		envVar       string
+		envValue     string
+		defaultValue []string
+		separator    string
+		expected     []string
+		message      string
+	}{
+		{
+			name:         "env var exists but is invalid slice",
+			envVar:       "TEST_INVALID_SLICE",
+			envValue:     "fs",
+			defaultValue: []string{"1", "2"},
+			separator:    ",",
+			expected:     []string{"1", "2"},
+			message:      "should return default value if env is invalid slice",
+		},
+		{
+			name:         "env var exists but is invalid slice with different separator",
+			envVar:       "TEST_INVALID_SLICE",
+			envValue:     "fs",
+			defaultValue: []string{"1", "2"},
+			separator:    "|",
+			expected:     []string{"1", "2"},
+			message:      "should return default value if env is invalid slice with different separator",
+		},
+		{
+			name:         "env var exists and is valid slice",
+			envVar:       "TEST_VALID_SLICE",
+			envValue:     "fs,a,ass",
+			defaultValue: []string{"1", "2"},
+			separator:    ",",
+			expected:     []string{"fs", "a", "ass"},
+			message:      "should return slice from env",
+		},
+		{
+			name:         "env var exists and is valid slice with different separator",
+			envVar:       "TEST_VALID_SLICE",
+			envValue:     "fs|a|ass",
+			defaultValue: []string{"1", "2"},
+			separator:    "|",
+			expected:     []string{"fs", "a", "ass"},
+			message:      "should return slice from env with different separator",
+		},
+	}
 
-	t.Run("env var exists but is invalid slice with different separator", func(t *testing.T) {
-		t.Setenv("TEST_INVALID_SLICE", "fs")
-		want := []string{"1", "2"}
-		got := loadenv.GetEnvAsSlice("TEST_INVALID_SLICE", []string{"1", "2"}, "|")
-		assert.Equal(t, want, got, "GetEnvAsSlice should return the default value if the environment "+
-			"variable is not a valid slice with different separator.")
-	})
-
-	t.Run("env var exists and is valid slice", func(t *testing.T) {
-		t.Setenv("TEST_VALID_SLICE", "fs,a,ass")
-		want := []string{"fs", "a", "ass"}
-		got := loadenv.GetEnvAsSlice("TEST_VALID_SLICE", []string{"1", "2"}, ",")
-		assert.Equal(t, want, got, "GetEnvAsSlice should return the slice if the environment "+
-			"variable is a valid slice.")
-	})
-
-	t.Run("env var exists and is valid slice with different separator", func(t *testing.T) {
-		t.Setenv("TEST_VALID_SLICE", "fs|a|ass")
-		want := []string{"fs", "a", "ass"}
-		got := loadenv.GetEnvAsSlice("TEST_VALID_SLICE", []string{"1", "2"}, "|")
-		assert.Equal(t, want, got, "GetEnvAsSlice should return the slice if the environment "+
-			"variable is a valid slice with different separator.")
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.envValue != "" {
+				t.Setenv(tc.envVar, tc.envValue)
+			}
+			actual := loadenv.GetEnvAsSlice(tc.envVar, tc.defaultValue, tc.separator)
+			assert.Equal(
+				t,
+				tc.expected,
+				actual,
+				fmt.Sprintf("\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected))
+		})
+	}
 }
 
 func TestGetEnvAsBool(t *testing.T) {
-	t.Run("env var exists and is true", func(t *testing.T) {
-		t.Setenv("TEST_BOOL_TRUE", "true")
-		got := loadenv.GetEnvAsBool("TEST_BOOL_TRUE", false)
-		assert.Equal(t, true, got, "\nGetEnvAsBool should return true if the environment"+
-			" variable is 'true'.")
-	})
+	testCases := []struct {
+		name         string
+		envVar       string
+		envValue     string
+		defaultValue bool
+		expected     bool
+		message      string
+	}{
+		{
+			name:         "env var exists and is true",
+			envVar:       "TEST_BOOL_TRUE",
+			envValue:     "true",
+			defaultValue: false,
+			expected:     true,
+			message:      "should return true if env is true",
+		},
+		{
+			name:         "env var exists and is false",
+			envVar:       "TEST_BOOL_FALSE",
+			envValue:     "false",
+			defaultValue: false,
+			expected:     false,
+			message:      "should return false if env is false",
+		},
+		{
+			name:         "env var exists but is invalid boolean",
+			envVar:       "TEST_BOOL_INVALID",
+			envValue:     "invalid",
+			defaultValue: false,
+			expected:     false,
+			message:      "should return default value if env is invalid bool",
+		},
+		{
+			name:         "env var does not exist",
+			envVar:       "TEST_BOOL_NOT_EXIST",
+			envValue:     "",
+			defaultValue: true,
+			expected:     true,
+			message:      "should return default value if env does not exist",
+		},
+	}
 
-	t.Run("env var exists and is false", func(t *testing.T) {
-		t.Setenv("TEST_BOOL_FALSE", "false")
-		got := loadenv.GetEnvAsBool("TEST_BOOL_FALSE", false)
-		assert.Equal(t, false, got, "\nGetEnvAsBool should return false if the environment"+
-			" variable is 'false'.")
-	})
-
-	t.Run("env var exists but is invalid boolean", func(t *testing.T) {
-		t.Setenv("TEST_BOOL_INVALID", "invalid")
-		got := loadenv.GetEnvAsBool("TEST_BOOL_INVALID", false)
-		assert.Equal(t, false, got, "\nGetEnvAsBool should return the default value if the"+
-			" environment variable is not a valid boolean.")
-	})
-
-	t.Run("env var does not exist", func(t *testing.T) {
-		got := loadenv.GetEnvAsBool("TEST_BOOL_NOT_EXIST", true)
-		assert.Equal(t, true, got, "\nGetEnvAsBool should return the default value if the"+
-			" environment variable does not exist.")
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.envValue != "" {
+				t.Setenv(tc.envVar, tc.envValue)
+			}
+			actual := loadenv.GetEnvAsBool(tc.envVar, tc.defaultValue)
+			assert.Equal(
+				t,
+				tc.expected,
+				actual,
+				fmt.Sprintf("\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected))
+		})
+	}
 }
 
 func TestIsStringIsValidSlice(t *testing.T) {
-	t.Run("slice is valid", func(t *testing.T) {
-		got := loadenv.IsStringIsValidSlice("Uno,Dos,Tres", ",")
-		assert.True(t, got, "\nTestIsStringIsValidSlice should return 'True' for valid slice")
-	})
+	testCases := []struct {
+		input     string
+		separator string
+		expected  bool
+		message   string
+	}{
+		{
+			input:     "Uno,Dos,Tres",
+			separator: ",",
+			expected:  true,
+			message:   "should return 'True' for valid slice",
+		},
+		{
+			input:     "Uno, ",
+			separator: ",",
+			expected:  false,
+			message:   "should return 'False' for not valid slice",
+		},
+		{
+			input:     "Uno, Dos, Tres",
+			separator: ",",
+			expected:  true,
+			message:   "should return 'True' for valid slice with whitespaces between separated values",
+		},
+	}
 
-	t.Run("slice is not valid", func(t *testing.T) {
-		got := loadenv.IsStringIsValidSlice("Uno,", ",")
-		assert.False(t, got, "\nTestIsStringIsValidSlice should return return 'False' for not "+
-			"valid slice")
-	})
-
-	t.Run("slice is valid with whitespaces", func(t *testing.T) {
-		got := loadenv.IsStringIsValidSlice("Uno, Dos, Tres", ",")
-		assert.True(t, got, "\nTestIsStringIsValidSlice should return 'True' for valid slice with "+
-			"whitespaces between separated values")
-	})
+	for _, tc := range testCases {
+		t.Run(tc.message, func(t *testing.T) {
+			actual := loadenv.IsStringIsValidSlice(tc.input, tc.separator)
+			assert.Equal(
+				t,
+				tc.expected,
+				actual,
+				fmt.Sprintf("\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected))
+		})
+	}
 }
