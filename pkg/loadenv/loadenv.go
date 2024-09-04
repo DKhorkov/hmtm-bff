@@ -53,13 +53,24 @@ func GetEnvAsBool(name string, defaultVal bool) bool {
 }
 
 // GetEnvAsSlice is a helper to read an environment variable into a string slice or return default value.
-func GetEnvAsSlice(name string, defaultVal []string, sep string) []string {
+func GetEnvAsSlice(name string, defaultVal []string, separator string) []string {
 	valStr := GetEnv(name, "")
-
 	if valStr == "" {
 		return defaultVal
 	}
+	if !IsStringIsValidSlice(valStr, separator) {
+		return defaultVal
+	}
+	return strings.Split(valStr, separator)
+}
 
-	val := strings.Split(valStr, sep)
-	return val
+func IsStringIsValidSlice(str string, separator string) bool {
+	str = strings.TrimSpace(str)
+	slice := strings.Split(str, separator)
+	for i := range slice {
+		if slice[i] == "" {
+			slice = append(slice[:i], slice[i+1:]...)
+		}
+	}
+	return len(slice) > 1
 }
