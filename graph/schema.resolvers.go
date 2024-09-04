@@ -7,30 +7,16 @@ package graph
 import (
 	"context"
 	"hmtmbff/graph/model"
-	"time"
 )
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	var user model.User
-	user.Email = input.Email
-	user.ID = "1"
-	user.CreatedAt = time.Now()
-	user.UpdatedAt = time.Now()
-	return &user, nil
+	return r.UsersService.CreateUser(input)
 }
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	var users = []*model.User{
-		{
-			ID:        "1",
-			Email:     "test",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
-	}
-	return users, nil
+	return r.UsersService.GetUsers()
 }
 
 // Mutation returns MutationResolver implementation.
