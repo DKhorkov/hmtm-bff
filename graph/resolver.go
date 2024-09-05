@@ -1,6 +1,6 @@
 package graph
 
-import "hmtmbff/internal/services"
+import "github.com/DKhorkov/hmtm-bff/internal/services"
 
 /*
 Resolver

@@ -1,8 +1,9 @@
 package mocks
 
 import (
-	"hmtmbff/graph/model"
 	"time"
+
+	"github.com/DKhorkov/hmtm-bff/graph/model"
 )
 
 type MockUsersService struct {

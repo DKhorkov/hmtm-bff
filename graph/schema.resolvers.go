@@ -6,7 +6,8 @@ package graph
 
 import (
 	"context"
-	"hmtmbff/graph/model"
+
+	"github.com/DKhorkov/hmtm-bff/graph/model"
 )
 
 // CreateUser is the resolver for the createUser field.

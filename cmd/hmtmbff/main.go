@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"hmtmbff/configs"
-	"hmtmbff/graph"
-	"hmtmbff/internal/mocks"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/DKhorkov/hmtm-bff/configs"
+	"github.com/DKhorkov/hmtm-bff/graph"
+	"github.com/DKhorkov/hmtm-bff/internal/mocks"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
