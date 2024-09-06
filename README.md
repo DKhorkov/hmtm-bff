@@ -4,7 +4,7 @@
 
 To run app and it's dependencies in docker, use next command:
 ```bash
-make -C docker prod
+make -C scripts prod
 ```
 
 ### Run via source files:

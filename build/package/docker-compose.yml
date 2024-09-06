@@ -5,7 +5,7 @@ services:
     container_name: hmtmbff
     image: hmtmbff
     build:
-      context: ../
-      dockerfile: ./docker/Dockerfile
+      context: ../..
+      dockerfile: ./build/package/Dockerfile
     ports:
       - "8080:8080"
