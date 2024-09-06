@@ -1,4 +1,4 @@
-module hmtmbff
+module github.com/DKhorkov/hmtm-bff
 
 go 1.23.0
 

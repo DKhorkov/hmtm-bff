@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  hmtmbff:
+    container_name: hmtmbff
+    image: hmtmbff
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8080:8080"
