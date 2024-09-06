@@ -17,14 +17,3 @@ COPY .env .
 COPY --from=builder /build/hmtmbff /app/hmtmbff
 
 CMD ["./hmtmbff"]
-
-
-
-
-
-#WORKDIR /app
-#
-#COPY . /app
-#
-#RUN go build -o hmtmbff ./cmd/hmtmbff/main.go
-#CMD ["./hmtmbff"]
