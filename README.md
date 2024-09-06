@@ -1,5 +1,15 @@
 ## Usage
 
+### Run via docker:
+
+To run app and it's dependencies in docker, use next command:
+```bash
+make -C docker prod
+```
+
+### Run via source files:
+
+To run application via source files, use next commands:
 ```shell
 go run ./cmd/hmtmbff/main.go
 ```

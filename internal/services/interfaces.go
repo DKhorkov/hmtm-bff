@@ -1,6 +1,6 @@
 package services
 
-import "hmtmbff/graph/model"
+import "github.com/DKhorkov/hmtm-bff/graph/model"
 
 type UsersService interface {
 	GetUsers() ([]*model.User, error)
