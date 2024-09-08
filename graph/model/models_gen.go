@@ -2,10 +2,6 @@
 
 package model
 
-import (
-	"time"
-)
-
 type Mutation struct {
 }
 
@@ -15,11 +11,4 @@ type NewUser struct {
 }
 
 type Query struct {
-}
-
-type User struct {
-	ID        string    `json:"id"`
-	Email     string    `json:"email"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
 }

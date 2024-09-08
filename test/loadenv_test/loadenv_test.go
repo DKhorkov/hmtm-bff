@@ -1,9 +1,9 @@
 package loadenv_test
 
 import (
-	"fmt"
-	"hmtmbff/pkg/loadenv"
 	"testing"
+
+	"github.com/DKhorkov/hmtm-bff/pkg/loadenv"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -45,7 +45,7 @@ func TestGetEnv(t *testing.T) {
 				t,
 				tc.expected,
 				actual,
-				fmt.Sprintf("\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected))
+				"\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected)
 		})
 	}
 }
@@ -95,7 +95,7 @@ func TestGetEnvAsInt(t *testing.T) {
 				t,
 				tc.expected,
 				actual,
-				fmt.Sprintf("\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected))
+				"\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected)
 		})
 	}
 }
@@ -158,7 +158,7 @@ func TestGetEnvAsSlice(t *testing.T) {
 				t,
 				tc.expected,
 				actual,
-				fmt.Sprintf("\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected))
+				"\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected)
 		})
 	}
 }
@@ -216,7 +216,7 @@ func TestGetEnvAsBool(t *testing.T) {
 				t,
 				tc.expected,
 				actual,
-				fmt.Sprintf("\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected))
+				"\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected)
 		})
 	}
 }
@@ -255,7 +255,7 @@ func TestIsStringIsValidSlice(t *testing.T) {
 				t,
 				tc.expected,
 				actual,
-				fmt.Sprintf("\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected))
+				"\n%s - actual: '%v', expected: '%v'", tc.message, actual, tc.expected)
 		})
 	}
 }
