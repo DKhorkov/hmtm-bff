@@ -1,11 +1,13 @@
-package tests
+package tests_test
 
 import (
+	"testing"
+	"time"
+
 	"github.com/DKhorkov/hmtm-bff/graph"
 	"github.com/DKhorkov/hmtm-bff/graph/model"
 	"github.com/DKhorkov/hmtm-bff/internal/mocks"
-	"testing"
-	"time"
+	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -40,7 +42,7 @@ func TestCreateUser(t *testing.T) {
 			r := &graph.Resolver{UsersService: &mocks.MockUsersService{}}
 			actual, err := r.UsersService.CreateUser(tc.input)
 
-			assert.NoError(
+			require.NoError(
 				t,
 				err,
 				"%s - error: %v", tc.message, err)
@@ -66,9 +68,8 @@ func TestGetUsersWithoutExistingUsers(t *testing.T) {
 
 	users, err := r.UsersService.GetUsers()
 
-	assert.NoError(t, err, "Should return no error")
-	assert.Len(t, users, 0, "Should return an empty list")
-	assert.Empty(t, users, "Users shouldn't be empty")
+	require.NoError(t, err, "Should return no error")
+	assert.Empty(t, users, "Should return an empty list")
 }
 
 func TestGetUsersWithExistingUsers(t *testing.T) {
@@ -84,19 +85,19 @@ func TestGetUsersWithExistingUsers(t *testing.T) {
 
 	for i, user := range testUsers {
 		newUser, err := r.UsersService.CreateUser(model.NewUser{Email: user[0], Password: user[1]})
-		assert.NoError(t, err, "Should create user without error")
+		require.NoError(t, err, "Should create user without error")
 
 		assert.Equal(t, newUser.ID, i+1, "Should return correct ID for the user")
 
 		assert.NotNil(t, newUser.CreatedAt, "Should return CreatedAt for the user")
 		assert.NotNil(t, newUser.UpdatedAt, "Should return UpdatedAt for the user")
 
-		assert.True(t, !newUser.CreatedAt.IsZero(), "CreatedAt should be not zero")
-		assert.True(t, !newUser.UpdatedAt.IsZero(), "UpdatedAt should be not zero")
+		assert.False(t, newUser.CreatedAt.IsZero(), "CreatedAt should be not zero")
+		assert.False(t, newUser.UpdatedAt.IsZero(), "UpdatedAt should be not zero")
 	}
 
 	users, err := r.UsersService.GetUsers()
-	assert.NoError(t, err, "Should return no error")
+	require.NoError(t, err, "Should return no error")
 	assert.Len(t, users, len(testUsers), "Should return the correct number of users")
 
 	for i, user := range users {
@@ -105,4 +106,4 @@ func TestGetUsersWithExistingUsers(t *testing.T) {
 	}
 }
 
-//ID i+1 возвращается так, т.к. на данный момент логика генерации ID: len(service.usersStorage) + 1
+// ID i+1 возвращается так, т.к. на данный момент логика генерации ID: len(service.usersStorage) + 1
