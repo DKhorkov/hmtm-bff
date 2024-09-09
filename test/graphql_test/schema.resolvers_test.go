@@ -2,8 +2,9 @@ package tests
 
 import (
 	"context"
-	"hmtmbff/graph"
-	"hmtmbff/graph/model"
+	"github.com/DKhorkov/hmtm-bff/graph"
+	"github.com/DKhorkov/hmtm-bff/graph/model"
+	"github.com/DKhorkov/hmtm-bff/internal/mocks"
 	"testing"
 	"time"
 
@@ -26,7 +27,7 @@ func TestCreateUser(t *testing.T) {
 				Password: "password",
 			},
 			expected: &model.User{
-				ID:        "1",
+				ID:        1,
 				Email:     "test@example.com",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
@@ -37,49 +38,98 @@ func TestCreateUser(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &graph.Resolver{}
+			r := &graph.Resolver{UsersService: &mocks.MockUsersService{}}
 			actual, err := r.Mutation().CreateUser(context.Background(), tc.input)
 
-			assert.NoError(t, err, "%s - error: %v", tc.message, err)
-
-			actual.CreatedAt = time.Now().Add(-1 * time.Second)
-			actual.UpdatedAt = time.Now().Add(-1 * time.Second)
-
-			time.Sleep(1 * time.Second)
-
-			assert.Equal(t, tc.expected.ID, actual.ID, "\n%s - actual: %v, expected: %v", tc.message, actual.ID, tc.expected.ID)
-			assert.Equal(t, tc.expected.Email, actual.Email, "\n%s - actual: %v, expected: %v", tc.message, actual.Email, tc.expected.Email)
-			assert.WithinDuration(t, actual.CreatedAt, time.Now(), 3*time.Second)
-			assert.WithinDuration(t, actual.UpdatedAt, time.Now(), 3*time.Second)
+			assert.NoError(
+				t,
+				err,
+				"%s - error: %v", tc.message, err)
+			assert.Equal(
+				t,
+				tc.expected.ID,
+				actual.ID,
+				"\n%s - actual: %v, expected: %v", tc.message, actual.ID, tc.expected.ID)
+			assert.Equal(
+				t,
+				tc.expected.Email,
+				actual.Email,
+				"\n%s - actual: %v, expected: %v", tc.message, actual.Email, tc.expected.Email)
 		})
 	}
 }
 
-// Тест корректности данных получаемого списка пользователей.
-func TestUsers(t *testing.T) {
+// Тесты на получение списка с пользователями и пустого списка.
+func TestGetUsers(t *testing.T) {
 	testCases := []struct {
 		name     string
-		expected []*model.User
+		storage  []*model.User
+		expected int
+		isEmpty  bool
 		message  string
 	}{
 		{
-			name:     "should return a list of users",
-			expected: []*model.User{{ID: "1", Email: "test@example.com"}},
-			message:  "should return a list of users with correct data",
+			name: "GetUsers returns all users",
+			storage: []*model.User{
+				{Email: "test1@hamster.com", ID: 1},
+				{Email: "test2@wopwop.com", ID: 2},
+				{Email: "test3@gogogo.com", ID: 3},
+			},
+			expected: 3,
+			isEmpty:  false,
+			message:  "Should return three users",
+		},
+		{
+			name:     "GetUsers returns empty list",
+			storage:  []*model.User{},
+			expected: 0,
+			isEmpty:  true,
+			message:  "Should return an empty list",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &graph.Resolver{}
-			actual, err := r.Query().Users(context.Background())
+			s := &mocks.MockUsersService{
+				UsersStorage: tc.storage,
+			}
 
-			assert.NoError(t, err, "\n%s - error: %v", tc.message, err)
-			assert.Equal(t, len(tc.expected), len(actual), "\n%s - actual: %v, expected: %v", tc.message, len(actual), len(tc.expected))
+			r := &graph.Resolver{
+				UsersService: s,
+			}
 
-			for i, expectedUser := range tc.expected {
-				assert.Equal(t, expectedUser.ID, actual[i].ID, "\n%s - actual: %v, expected: %v", tc.message, actual[i].ID, expectedUser.ID)
-				assert.Equal(t, expectedUser.Email, actual[i].Email, "\n%s - actual: %v, expected: %v", tc.message, actual[i].Email, expectedUser.Email)
+			users, err := r.Query().Users(context.Background())
+
+			assert.NoError(
+				t,
+				err,
+				"%s - error: %v", tc.message, err)
+			assert.Len(
+				t,
+				users,
+				tc.expected,
+				"%s - actual: %v, expected: %v", tc.message, len(users), tc.expected)
+			if tc.isEmpty {
+				assert.Empty(
+					t,
+					users,
+					"%s - users shouldn't be empty", tc.message)
+			} else {
+				assert.Equal(
+					t,
+					users[0].Email,
+					"test1@hamster.com",
+					"%s - actual: %v, expected: %v", tc.message, users[0].Email, "test1@hamster.com")
+				assert.Equal(
+					t,
+					users[1].Email,
+					"test2@wopwop.com",
+					"%s - actual: %v, expected: %v", tc.message, users[1].Email, "test2@wopwop.com")
+				assert.Equal(
+					t,
+					users[2].Email,
+					"test3@gogogo.com",
+					"%s - actual: %v, expected: %v", tc.message, users[2].Email, "test3@gogogo.com")
 			}
 		})
 	}
