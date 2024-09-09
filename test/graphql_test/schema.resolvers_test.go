@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"github.com/DKhorkov/hmtm-bff/graph"
 	"github.com/DKhorkov/hmtm-bff/graph/model"
 	"github.com/DKhorkov/hmtm-bff/internal/mocks"
@@ -39,7 +38,7 @@ func TestCreateUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			r := &graph.Resolver{UsersService: &mocks.MockUsersService{}}
-			actual, err := r.Mutation().CreateUser(context.Background(), tc.input)
+			actual, err := r.UsersService.CreateUser(tc.input)
 
 			assert.NoError(
 				t,
@@ -60,77 +59,50 @@ func TestCreateUser(t *testing.T) {
 }
 
 // Тесты на получение списка с пользователями и пустого списка.
-func TestGetUsers(t *testing.T) {
-	testCases := []struct {
-		name     string
-		storage  []*model.User
-		expected int
-		isEmpty  bool
-		message  string
-	}{
-		{
-			name: "GetUsers returns all users",
-			storage: []*model.User{
-				{Email: "test1@hamster.com", ID: 1},
-				{Email: "test2@wopwop.com", ID: 2},
-				{Email: "test3@gogogo.com", ID: 3},
-			},
-			expected: 3,
-			isEmpty:  false,
-			message:  "Should return three users",
-		},
-		{
-			name:     "GetUsers returns empty list",
-			storage:  []*model.User{},
-			expected: 0,
-			isEmpty:  true,
-			message:  "Should return an empty list",
-		},
+func TestGetUsersWithoutExistingUsers(t *testing.T) {
+	r := &graph.Resolver{
+		UsersService: &mocks.MockUsersService{},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			s := &mocks.MockUsersService{
-				UsersStorage: tc.storage,
-			}
+	users, err := r.UsersService.GetUsers()
 
-			r := &graph.Resolver{
-				UsersService: s,
-			}
+	assert.NoError(t, err, "Should return no error")
+	assert.Len(t, users, 0, "Should return an empty list")
+	assert.Empty(t, users, "Users shouldn't be empty")
+}
 
-			users, err := r.Query().Users(context.Background())
+func TestGetUsersWithExistingUsers(t *testing.T) {
+	r := &graph.Resolver{
+		UsersService: &mocks.MockUsersService{},
+	}
 
-			assert.NoError(
-				t,
-				err,
-				"%s - error: %v", tc.message, err)
-			assert.Len(
-				t,
-				users,
-				tc.expected,
-				"%s - actual: %v, expected: %v", tc.message, len(users), tc.expected)
-			if tc.isEmpty {
-				assert.Empty(
-					t,
-					users,
-					"%s - users shouldn't be empty", tc.message)
-			} else {
-				assert.Equal(
-					t,
-					users[0].Email,
-					"test1@hamster.com",
-					"%s - actual: %v, expected: %v", tc.message, users[0].Email, "test1@hamster.com")
-				assert.Equal(
-					t,
-					users[1].Email,
-					"test2@wopwop.com",
-					"%s - actual: %v, expected: %v", tc.message, users[1].Email, "test2@wopwop.com")
-				assert.Equal(
-					t,
-					users[2].Email,
-					"test3@gogogo.com",
-					"%s - actual: %v, expected: %v", tc.message, users[2].Email, "test3@gogogo.com")
-			}
-		})
+	testUsers := [][]string{
+		{"test1@hamster.com", "password1"},
+		{"test2@wopwop.com", "password2"},
+		{"test3@gogogo.com", "password3"},
+	}
+
+	for i, user := range testUsers {
+		newUser, err := r.UsersService.CreateUser(model.NewUser{Email: user[0], Password: user[1]})
+		assert.NoError(t, err, "Should create user without error")
+
+		assert.Equal(t, newUser.ID, i+1, "Should return correct ID for the user")
+
+		assert.NotNil(t, newUser.CreatedAt, "Should return CreatedAt for the user")
+		assert.NotNil(t, newUser.UpdatedAt, "Should return UpdatedAt for the user")
+
+		assert.True(t, !newUser.CreatedAt.IsZero(), "CreatedAt should be not zero")
+		assert.True(t, !newUser.UpdatedAt.IsZero(), "UpdatedAt should be not zero")
+	}
+
+	users, err := r.UsersService.GetUsers()
+	assert.NoError(t, err, "Should return no error")
+	assert.Len(t, users, len(testUsers), "Should return the correct number of users")
+
+	for i, user := range users {
+		assert.Equal(t, user.Email, testUsers[i][0], "Should return correct email for the user")
+		assert.Equal(t, user.ID, i+1, "Should return correct ID for the user")
 	}
 }
+
+//ID i+1 возвращается так, т.к. на данный момент логика генерации ID: len(service.usersStorage) + 1
