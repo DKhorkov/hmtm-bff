@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Тест создания пользователя.
 func TestCreateUser(t *testing.T) {
 	testCases := []struct {
 		name     string
@@ -60,12 +59,8 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
-// Тесты на получение списка с пользователями и пустого списка.
 func TestGetUsersWithoutExistingUsers(t *testing.T) {
-	r := &graph.Resolver{
-		UsersService: &mocks.MockUsersService{},
-	}
-
+	r := &graph.Resolver{UsersService: &mocks.MockUsersService{}}
 	users, err := r.UsersService.GetUsers()
 
 	require.NoError(t, err, "Should return no error")
@@ -73,18 +68,18 @@ func TestGetUsersWithoutExistingUsers(t *testing.T) {
 }
 
 func TestGetUsersWithExistingUsers(t *testing.T) {
-	r := &graph.Resolver{
-		UsersService: &mocks.MockUsersService{},
-	}
-
-	testUsers := [][]string{
+	r := &graph.Resolver{UsersService: &mocks.MockUsersService{}}
+	testUsers := []struct {
+		Email    string
+		Password string
+	}{
 		{"test1@hamster.com", "password1"},
 		{"test2@wopwop.com", "password2"},
 		{"test3@gogogo.com", "password3"},
 	}
 
 	for i, user := range testUsers {
-		newUser, err := r.UsersService.CreateUser(model.NewUser{Email: user[0], Password: user[1]})
+		newUser, err := r.UsersService.CreateUser(model.NewUser{Email: user.Email, Password: user.Password})
 		require.NoError(t, err, "Should create user without error")
 
 		assert.Equal(t, newUser.ID, i+1, "Should return correct ID for the user")
@@ -101,9 +96,7 @@ func TestGetUsersWithExistingUsers(t *testing.T) {
 	assert.Len(t, users, len(testUsers), "Should return the correct number of users")
 
 	for i, user := range users {
-		assert.Equal(t, user.Email, testUsers[i][0], "Should return correct email for the user")
+		assert.Equal(t, user.Email, testUsers[i].Email, "Should return correct email for the user")
 		assert.Equal(t, user.ID, i+1, "Should return correct ID for the user")
 	}
 }
-
-// ID i+1 возвращается так, т.к. на данный момент логика генерации ID: len(service.usersStorage) + 1
