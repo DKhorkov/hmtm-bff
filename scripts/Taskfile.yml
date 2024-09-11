@@ -48,3 +48,9 @@ tasks:
     desc: "Generate GraphQL base files."
     cmds:
       - "go run github.com/99designs/gqlgen generate"
+
+  test:
+    desc: "Run Go tests"
+    dir: ../
+    cmds:
+      - go test ./test/... -v

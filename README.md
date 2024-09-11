@@ -31,5 +31,5 @@ golangci-lint run -v --fix
 ## Tests
 
 ```shell
-go test -v ./test...
+task -d scripts test
 ```
