@@ -10,6 +10,7 @@ help:
 	@echo "make clean                        - cleanup docker kitchen."
 	@echo "make network                      - create docker network for project."
 	@echo "make prod                         - run docker for production purposes."
+	@echo "make graphql_gen                  - generate GraphQL base files."
 
 network:
 	sudo docker network create hmtmbff_network
@@ -24,3 +25,6 @@ clean:
 	sudo docker system prune -a --volumes
 
 prod: build run
+
+graphql_generate:
+	go run github.com/99designs/gqlgen generate

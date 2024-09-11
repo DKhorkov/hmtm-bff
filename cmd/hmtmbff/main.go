@@ -7,7 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/DKhorkov/hmtm-bff/configs"
+	"github.com/DKhorkov/hmtm-bff/internal/config"
+
 	"github.com/DKhorkov/hmtm-bff/graph"
 	"github.com/DKhorkov/hmtm-bff/internal/mocks"
 
@@ -16,7 +17,7 @@ import (
 )
 
 func main() {
-	var config = configs.GetConfig()
+	settings := config.GetConfig()
 
 	graphqlServer := handler.NewDefaultServer(
 		graph.NewExecutableSchema(
@@ -32,10 +33,10 @@ func main() {
 	http.Handle("/query", graphqlServer)
 
 	httpServer := &http.Server{
-		Addr:              fmt.Sprintf(":%d", config.Graphql.Port),
-		ReadHeaderTimeout: time.Duration(config.HTTP.ReadHeaderTimeout) * time.Second,
+		Addr:              fmt.Sprintf(":%d", settings.Graphql.Port),
+		ReadHeaderTimeout: time.Duration(settings.HTTP.ReadHeaderTimeout) * time.Second,
 	}
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", strconv.Itoa(config.Graphql.Port))
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", strconv.Itoa(settings.Graphql.Port))
 	log.Fatal(httpServer.ListenAndServe())
 }

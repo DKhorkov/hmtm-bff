@@ -20,5 +20,5 @@ input NewUser {
 }
 
 type Mutation {
-  createUser(input: NewUser!): User!
+  createUser(input: NewUser!): Int!
 }

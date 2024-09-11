@@ -14,6 +14,13 @@ To run application via source files, use next commands:
 go run ./cmd/hmtmbff/main.go
 ```
 
+## GraphQL
+
+### Base files generation:
+```shell
+make -C scripts graphql_generate
+```
+
 ## Linters
 
 ```shell

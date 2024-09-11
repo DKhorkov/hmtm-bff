@@ -6,12 +6,11 @@ package graph
 
 import (
 	"context"
-
 	"github.com/DKhorkov/hmtm-bff/graph/model"
 )
 
 // CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (int, error) {
 	return r.UsersService.CreateUser(input)
 }
 

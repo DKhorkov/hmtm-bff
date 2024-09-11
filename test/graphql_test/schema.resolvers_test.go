@@ -48,13 +48,8 @@ func TestCreateUser(t *testing.T) {
 			assert.Equal(
 				t,
 				tc.expected.ID,
-				actual.ID,
-				"\n%s - actual: %v, expected: %v", tc.message, actual.ID, tc.expected.ID)
-			assert.Equal(
-				t,
-				tc.expected.Email,
-				actual.Email,
-				"\n%s - actual: %v, expected: %v", tc.message, actual.Email, tc.expected.Email)
+				actual,
+				"\n%s - actual: %v, expected: %v", tc.message, actual, tc.expected.ID)
 		})
 	}
 }
@@ -78,25 +73,19 @@ func TestGetUsersWithExistingUsers(t *testing.T) {
 		{"test3@gogogo.com", "password3"},
 	}
 
-	for i, user := range testUsers {
-		newUser, err := r.UsersService.CreateUser(model.NewUser{Email: user.Email, Password: user.Password})
+	for index, user := range testUsers {
+		createdUserID, err := r.UsersService.CreateUser(model.NewUser{Email: user.Email, Password: user.Password})
 		require.NoError(t, err, "Should create user without error")
 
-		assert.Equal(t, newUser.ID, i+1, "Should return correct ID for the user")
-
-		assert.NotNil(t, newUser.CreatedAt, "Should return CreatedAt for the user")
-		assert.NotNil(t, newUser.UpdatedAt, "Should return UpdatedAt for the user")
-
-		assert.False(t, newUser.CreatedAt.IsZero(), "CreatedAt should be not zero")
-		assert.False(t, newUser.UpdatedAt.IsZero(), "UpdatedAt should be not zero")
+		assert.Equal(t, createdUserID, index+1, "Should return correct ID for the user")
 	}
 
 	users, err := r.UsersService.GetUsers()
 	require.NoError(t, err, "Should return no error")
 	assert.Len(t, users, len(testUsers), "Should return the correct number of users")
 
-	for i, user := range users {
-		assert.Equal(t, user.Email, testUsers[i].Email, "Should return correct email for the user")
-		assert.Equal(t, user.ID, i+1, "Should return correct ID for the user")
+	for index, user := range users {
+		assert.Equal(t, user.Email, testUsers[index].Email, "Should return correct email for the user")
+		assert.Equal(t, user.ID, index+1, "Should return correct ID for the user")
 	}
 }

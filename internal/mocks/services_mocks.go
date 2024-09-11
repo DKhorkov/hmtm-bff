@@ -10,7 +10,7 @@ type MockUsersService struct {
 	usersStorage []*model.User
 }
 
-func (service *MockUsersService) CreateUser(newUser model.NewUser) (*model.User, error) {
+func (service *MockUsersService) CreateUser(newUser model.NewUser) (int, error) {
 	var user model.User
 	user.Email = newUser.Email
 	user.ID = len(service.usersStorage) + 1
@@ -18,7 +18,7 @@ func (service *MockUsersService) CreateUser(newUser model.NewUser) (*model.User,
 	user.UpdatedAt = time.Now()
 
 	service.usersStorage = append(service.usersStorage, &user)
-	return &user, nil
+	return user.ID, nil
 }
 
 func (service *MockUsersService) GetUsers() ([]*model.User, error) {
