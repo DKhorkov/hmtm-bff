@@ -1,0 +1,56 @@
+version: "3"
+
+tasks:
+
+  help:
+    desc: "Calling help messages"
+    cmds:
+      - "task help_msg -s"
+
+  help_msg:
+    desc: "Show help message"
+    cmds:
+      - echo "task prod                     - Build and run application"
+      - echo "task help                     - Show this help message"
+      - echo "task build                    - Build docker and it's environment"
+      - echo "task run                      - Run docker"
+      - echo "task clean                    - Cleanup docker kitchen"
+      - echo "task network                  - Create docker network for project"
+      - echo "task graphql_gen              - Generate GraphQL base files."
+
+  network:
+    desc: "Create docker network for project"
+    cmds:
+      - "docker network create hmtmbff_network"
+
+  build:
+    desc: "Build docker and it's environment"
+    cmds:
+      - "docker compose -f ../build/package/docker-compose.yml build"
+
+  run:
+    desc: "Run docker"
+    cmds:
+      - "docker compose -f ../build/package/docker-compose.yml up"
+
+  clean:
+    desc: "Cleanup docker kitchen"
+    cmds:
+      - "docker system prune -a --volumes"
+
+  prod:
+    desc: "Build and run application"
+    cmds:
+      - "task build"
+      - "task run"
+
+  graphql_generate:
+    desc: "Generate GraphQL base files."
+    cmds:
+      - "go run github.com/99designs/gqlgen generate"
+
+  test:
+    desc: "Run Go tests"
+    dir: ../
+    cmds:
+      - go test ./test/... -v
