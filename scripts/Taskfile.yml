@@ -33,13 +33,13 @@ tasks:
     cmd: docker compose -f ../build/package/docker-compose.yml build
 
   docker_run:
-    desc: "Launches docker container."
+    desc: "Launch docker container."
     aliases:
       - run
     cmd: docker compose -f ../build/package/docker-compose.yml up
 
   docker_clean:
-    desc: "Cleans docker containers, images and volumes."
+    desc: "Clean docker containers, images and volumes."
     aliases:
       - clean
     cmd: docker system prune -a --volumes
