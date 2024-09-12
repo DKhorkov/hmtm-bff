@@ -4,7 +4,7 @@
 
 To run app and it's dependencies in docker, use next command:
 ```bash
-task -d scripts prod
+task -d scripts docker_prod
 ```
 
 ### Run via source files:
@@ -24,11 +24,11 @@ task -d scripts graphql_generate
 ## Linters
 
 ```shell
- task -d scripts lint
+ task -d scripts linters
 ```
 
 ## Tests
 
 ```shell
-task -d scripts test
+task -d scripts tests
 ```

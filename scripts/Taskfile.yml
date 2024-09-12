@@ -2,12 +2,12 @@ version: "3"
 
 tasks:
   help:
-    desc: "Calling help messages."
+    desc: "Show help message."
     cmd:
      task: help_msg
 
   help_msg:
-    desc: "Show help message"
+    desc: "Print possible commands to STDOUT."
     internal: true
     cmds:
       - echo "task help                     - Show this help message."
@@ -24,52 +24,46 @@ tasks:
     desc: "Create docker network for project."
     aliases:
       - network
-    cmds:
-      - docker network create hmtmbff_network
+    cmd: docker network create hmtmbff_network
 
   docker_build:
-    desc: "Builds docker container."
+    desc: "Build docker container."
     aliases:
       - build
-    cmds:
-      - docker compose -f ../build/package/docker-compose.yml build
+    cmd: docker compose -f ../build/package/docker-compose.yml build
 
   docker_run:
     desc: "Launches docker container."
     aliases:
       - run
-    cmds:
-      - docker compose -f ../build/package/docker-compose.yml up
+    cmd: docker compose -f ../build/package/docker-compose.yml up
 
   docker_clean:
     desc: "Cleans docker containers, images and volumes."
     aliases:
       - clean
-    cmds:
-      - docker system prune -a --volumes
+    cmd: docker system prune -a --volumes
 
   docker_prod:
     desc: "Docker aggregation."
     aliases:
       - prod
     cmds:
-      - task build
-      - task run
+      - task: docker_build
+      - task: docker_run
 
   graphql_generate:
     desc: "Generate GraphQL base files."
     aliases:
       - graphql
-    cmds:
-      - go run github.com/99designs/gqlgen generate
+    cmd: go run github.com/99designs/gqlgen generate
 
   tests:
     desc: "Run tests."
     aliases:
       - test
     dir: ../
-    cmds:
-      - go test ./test/... -v
+    cmd: go test ./test/... -v
 
   linters:
     desc: "Run linters."
