@@ -4,7 +4,7 @@
 
 To run app and it's dependencies in docker, use next command:
 ```bash
-make -C scripts prod
+task -d scripts docker_prod -v
 ```
 
 ### Run via source files:
@@ -18,17 +18,17 @@ go run ./cmd/hmtmbff/main.go
 
 ### Base files generation:
 ```shell
-make -C scripts graphql_generate
+task -d scripts graphql_generate -v
 ```
 
 ## Linters
 
 ```shell
-golangci-lint run -v --fix
+ task -d scripts linters -v
 ```
 
 ## Tests
 
 ```shell
-go test -v ./test...
+task -d scripts tests -v
 ```

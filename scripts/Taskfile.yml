@@ -1,0 +1,73 @@
+version: "3"
+
+tasks:
+  help:
+    desc: "Show help message."
+    cmd:
+     task: help_msg
+
+  help_msg:
+    desc: "Print possible commands to STDOUT."
+    internal: true
+    cmds:
+      - echo "task help                     - Show this help message."
+      - echo "task network                  - Create docker network for project."
+      - echo "task graphql                  - Generate GraphQL base files."
+      - echo "task build                    - Builds docker container."
+      - echo "task run                      - Launches docker container."
+      - echo "task prod                     - Docker build and run."
+      - echo "task clean                    - Cleans docker containers, images and volumes."
+      - echo "task lint                     - Run Go linters."
+      - echo "task test                     - Run Go tests."
+
+  docker_network:
+    desc: "Create docker network for project."
+    aliases:
+      - network
+    cmd: docker network create hmtmbff_network
+
+  docker_build:
+    desc: "Build docker container."
+    aliases:
+      - build
+    cmd: docker compose -f ../build/package/docker-compose.yml build
+
+  docker_run:
+    desc: "Launch docker container."
+    aliases:
+      - run
+    cmd: docker compose -f ../build/package/docker-compose.yml up
+
+  docker_clean:
+    desc: "Clean docker containers, images and volumes."
+    aliases:
+      - clean
+    cmd: docker system prune -a --volumes
+
+  docker_prod:
+    desc: "Docker build and run."
+    aliases:
+      - prod
+    cmds:
+      - task: docker_build
+      - task: docker_run
+
+  graphql_generate:
+    desc: "Generate GraphQL base files."
+    aliases:
+      - graphql
+    cmd: go run github.com/99designs/gqlgen generate
+
+  tests:
+    desc: "Run tests."
+    aliases:
+      - test
+    dir: ../
+    cmd: go test ./test/... -v
+
+  linters:
+    desc: "Run linters."
+    aliases:
+      - lint
+    dir: ../
+    cmd: golangci-lint run -v --fix
