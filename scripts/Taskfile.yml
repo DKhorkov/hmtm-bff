@@ -11,12 +11,12 @@ tasks:
     internal: true
     cmds:
       - echo "task help                     - Show this help message."
-      - echo "task prod                     - Docker aggregation."
-      - echo "task build                    - Builds docker container."
-      - echo "task run                      - Launches docker container."
-      - echo "task clean                    - Cleans docker containers, images and volumes."
       - echo "task network                  - Create docker network for project."
       - echo "task graphql                  - Generate GraphQL base files."
+      - echo "task build                    - Builds docker container."
+      - echo "task run                      - Launches docker container."
+      - echo "task prod                     - Docker aggregation."
+      - echo "task clean                    - Cleans docker containers, images and volumes."
       - echo "task lint                     - Run Go linters."
       - echo "task test                     - Run Go tests."
 
