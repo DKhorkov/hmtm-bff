@@ -24,7 +24,7 @@ task -d scripts graphql_generate
 ## Linters
 
 ```shell
-golangci-lint run -v --fix
+ task -d scripts lint
 ```
 
 ## Tests
