@@ -25,43 +25,43 @@ tasks:
     aliases:
       - network
     cmds:
-      - "docker network create hmtmbff_network"
+      - docker network create hmtmbff_network
 
   docker_build:
     desc: "Builds docker container."
     aliases:
       - build
     cmds:
-      - "docker compose -f ../build/package/docker-compose.yml build"
+      - docker compose -f ../build/package/docker-compose.yml build
 
   docker_run:
     desc: "Launches docker container."
     aliases:
       - run
     cmds:
-      - "docker compose -f ../build/package/docker-compose.yml up"
+      - docker compose -f ../build/package/docker-compose.yml up
 
   docker_clean:
     desc: "Cleans docker containers, images and volumes."
     aliases:
       - clean
     cmds:
-      - "docker system prune -a --volumes"
+      - docker system prune -a --volumes
 
   docker_prod:
     desc: "Docker aggregation."
     aliases:
       - prod
     cmds:
-      - "task build"
-      - "task run"
+      - task build
+      - task run
 
   graphql_generate:
     desc: "Generate GraphQL base files."
     aliases:
       - graphql
     cmds:
-      - "go run github.com/99designs/gqlgen generate"
+      - go run github.com/99designs/gqlgen generate
 
   tests:
     desc: "Run tests."
