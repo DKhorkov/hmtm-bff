@@ -15,7 +15,7 @@ tasks:
       - echo "task graphql                  - Generate GraphQL base files."
       - echo "task build                    - Builds docker container."
       - echo "task run                      - Launches docker container."
-      - echo "task prod                     - Docker aggregation."
+      - echo "task prod                     - Docker build and run."
       - echo "task clean                    - Cleans docker containers, images and volumes."
       - echo "task lint                     - Run Go linters."
       - echo "task test                     - Run Go tests."
@@ -45,7 +45,7 @@ tasks:
     cmd: docker system prune -a --volumes
 
   docker_prod:
-    desc: "Docker aggregation."
+    desc: "Docker build and run."
     aliases:
       - prod
     cmds:
