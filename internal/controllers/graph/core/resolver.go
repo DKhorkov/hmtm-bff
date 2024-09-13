@@ -1,6 +1,8 @@
-package graph
+package graphqlcore
 
-import "github.com/DKhorkov/hmtm-bff/internal/services"
+import (
+	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
+)
 
 /*
 Resolver
@@ -11,5 +13,5 @@ It serves as dependency injection for your app, add any dependencies you require
 https://stackoverflow.com/questions/62348857/unit-testing-graphql-in-golang
 */
 type Resolver struct {
-	UsersService services.UsersService
+	UseCases interfaces.UseCases
 }

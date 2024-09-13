@@ -205,7 +205,7 @@ linters-settings:
     context: "scope"
 
   tenv:
-    # The option `all` will run against whole test files (`_test.go`) regardless of method/function signatures.
+    # The option `all` will run against whole tests files (`_test.go`) regardless of method/function signatures.
     # Otherwise, only methods that take `*testing.T`, `*testing.B`, and `testing.TB` as arguments are checked.
     # Default: false
     all: true
@@ -282,7 +282,7 @@ linters:
     - testableexamples # checks if examples are testable (have an expected output)
     - testifylint # checks usage of github.com/stretchr/testify
     - testpackage # makes you use a separate _test package
-    - tparallel # detects inappropriate usage of t.Parallel() method in your Go test codes
+    - tparallel # detects inappropriate usage of t.Parallel() method in your Go tests codes
     - unconvert # removes unnecessary type conversions
     - unparam # reports unused function parameters
     - usestdlibvars # detects the possibility to use variables/constants from the Go standard library
@@ -324,9 +324,9 @@ linters:
     #- maintidx # measures the maintainability index of each function
     #- misspell # [useless] finds commonly misspelled English words in comments
     #- nlreturn # [too strict and mostly code is not more readable] checks for a new line before return and branch statements to increase code clarity
-    #- paralleltest # [too many false positives] detects missing usage of t.Parallel() method in your Go test
+    #- paralleltest # [too many false positives] detects missing usage of t.Parallel() method in your Go tests
     #- tagliatelle # checks the struct tags
-    #- thelper # detects golang test helpers without t.Helper() call and checks the consistency of test helpers
+    #- thelper # detects golang tests helpers without t.Helper() call and checks the consistency of tests helpers
     #- wsl # [too strict and mostly code is not more readable] whitespace linter forces you to use empty lines
 
 
@@ -341,6 +341,9 @@ issues:
       linters: [ godot ]
     - source: "//noinspection"
       linters: [ gocritic ]
+    - path: "internal/repositories/sso_repository.go"
+      linters:
+        - revive
     - path: "_test\\.go"
       linters:
         - bodyclose

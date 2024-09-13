@@ -24,25 +24,25 @@ tasks:
     desc: "Create docker network for project."
     aliases:
       - network
-    cmd: docker network create hmtmbff_network
+    cmd: sudo docker network create hmtmbff_network
 
   docker_build:
     desc: "Build docker container."
     aliases:
       - build
-    cmd: docker compose -f ../build/package/docker-compose.yml build
+    cmd: sudo docker compose -f ../build/package/docker-compose.yml build
 
   docker_run:
     desc: "Launch docker container."
     aliases:
       - run
-    cmd: docker compose -f ../build/package/docker-compose.yml up
+    cmd: sudo docker compose -f ../build/package/docker-compose.yml up
 
   docker_clean:
     desc: "Clean docker containers, images and volumes."
     aliases:
       - clean
-    cmd: docker system prune -a --volumes
+    cmd: sudo docker system prune -a --volumes
 
   docker_prod:
     desc: "Docker build and run."
@@ -59,11 +59,14 @@ tasks:
     cmd: go run github.com/99designs/gqlgen generate
 
   tests:
-    desc: "Run tests."
+    desc: "Run tests and save coverage to ./tests/coverage folder."
     aliases:
       - test
     dir: ../
-    cmd: go test ./test/... -v
+    cmds:
+      - mkdir -p ./tests/coverage
+      - go test -v -coverprofile ./tests/coverage/coverage.out -coverpkg=./... ./tests...
+      - go tool cover -html ./tests/coverage/coverage.out -o ./tests/coverage/coverage.html
 
   linters:
     desc: "Run linters."

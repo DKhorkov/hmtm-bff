@@ -12,6 +12,8 @@ FROM alpine AS runner
 
 WORKDIR /app
 
+COPY .env .
+
 COPY --from=builder /build/hmtmbff /app/hmtmbff
 
 CMD ["./hmtmbff"]
