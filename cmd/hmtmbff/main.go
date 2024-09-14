@@ -1,41 +1,28 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-	"strconv"
-	"time"
-
-	"github.com/DKhorkov/hmtm-bff/configs"
-	"github.com/DKhorkov/hmtm-bff/graph"
-	"github.com/DKhorkov/hmtm-bff/internal/mocks"
-
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/DKhorkov/hmtm-bff/internal/app"
+	"github.com/DKhorkov/hmtm-bff/internal/config"
+	graphqlcontroller "github.com/DKhorkov/hmtm-bff/internal/controllers/graph"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
+	"github.com/DKhorkov/hmtm-bff/internal/services"
+	"github.com/DKhorkov/hmtm-bff/internal/usecases"
 )
 
 func main() {
-	var config = configs.GetConfig()
+	settings := config.New()
 
-	graphqlServer := handler.NewDefaultServer(
-		graph.NewExecutableSchema(
-			graph.Config{
-				Resolvers: &graph.Resolver{
-					UsersService: &mocks.MockUsersService{},
-				},
-			},
-		),
+	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*entities.User{}}
+	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+	useCases := &usecases.CommonUseCases{SsoService: ssoService}
+	controller := graphqlcontroller.New(
+		settings.HTTP.Host,
+		settings.HTTP.Port,
+		settings.HTTP.ReadHeaderTimeout,
+		useCases,
 	)
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", graphqlServer)
-
-	httpServer := &http.Server{
-		Addr:              fmt.Sprintf(":%d", config.Graphql.Port),
-		ReadHeaderTimeout: time.Duration(config.HTTP.ReadHeaderTimeout) * time.Second,
-	}
-
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", strconv.Itoa(config.Graphql.Port))
-	log.Fatal(httpServer.ListenAndServe())
+	application := app.New(controller)
+	application.Run()
 }
