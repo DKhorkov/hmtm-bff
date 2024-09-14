@@ -1,27 +1,27 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - graph/*.graphqls
+  - internal/controllers/graph/core/*.graphqls
 
 # Where should the generated server code go?
 exec:
-  filename: graph/generated.go
-  package: graph
+  filename: internal/controllers/graph/core/generated.go
+  package: graphqlcore
 
 # Uncomment to enable federation
 # federation:
-#   filename: graph/federation.go
+#   filename: internal/controllers/graph/federation.go
 #   package: graph
 
 # Where should any generated models go?
 model:
-  filename: graph/model/models_gen.go
-  package: model
+  filename: internal/controllers/graph/schemas/schemas_gen.go
+  package: schemas
 
 # Where should the resolver implementations go?
 resolver:
   layout: follow-schema
-  dir: graph
-  package: graph
+  dir: internal/controllers/graph/core
+  package: graphqlcore
   filename_template: "{name}.resolvers.go"
   # Optional: turn on to not generate template comments above resolvers
   # omit_template_comment: false
@@ -66,7 +66,7 @@ resolver:
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-  - "github.com/DKhorkov/hmtm-bff/graph/model"
+  - "github.com/DKhorkov/hmtm-bff/internal/entities"
 
 # This section declares type mapping between the GraphQL and go type systems
 #
@@ -87,4 +87,4 @@ models:
       - github.com/99designs/gqlgen/graphql.Int32
   User:
     model:
-      - github.com/DKhorkov/hmtm-bff/graph/model.User
+      - github.com/DKhorkov/hmtm-bff/internal/entities.User

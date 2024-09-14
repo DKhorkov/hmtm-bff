@@ -1,42 +1,28 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-	"strconv"
-	"time"
-
+	"github.com/DKhorkov/hmtm-bff/internal/app"
 	"github.com/DKhorkov/hmtm-bff/internal/config"
-
-	"github.com/DKhorkov/hmtm-bff/graph"
-	"github.com/DKhorkov/hmtm-bff/internal/mocks"
-
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
+	graphqlcontroller "github.com/DKhorkov/hmtm-bff/internal/controllers/graph"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
+	"github.com/DKhorkov/hmtm-bff/internal/services"
+	"github.com/DKhorkov/hmtm-bff/internal/usecases"
 )
 
 func main() {
 	settings := config.GetConfig()
+	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*entities.User{}}
+	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+	useCases := &usecases.CommonUseCases{SsoService: ssoService}
 
-	graphqlServer := handler.NewDefaultServer(
-		graph.NewExecutableSchema(
-			graph.Config{
-				Resolvers: &graph.Resolver{
-					UsersService: &mocks.MockUsersService{},
-				},
-			},
-		),
+	controller := graphqlcontroller.New(
+		settings.HTTP.Host,
+		settings.HTTP.Port,
+		settings.HTTP.ReadHeaderTimeout,
+		useCases,
 	)
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", graphqlServer)
-
-	httpServer := &http.Server{
-		Addr:              fmt.Sprintf(":%d", settings.Graphql.Port),
-		ReadHeaderTimeout: time.Duration(settings.HTTP.ReadHeaderTimeout) * time.Second,
-	}
-
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", strconv.Itoa(settings.Graphql.Port))
-	log.Fatal(httpServer.ListenAndServe())
+	application := app.New(controller)
+	application.Run()
 }

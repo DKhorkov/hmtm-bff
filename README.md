@@ -29,6 +29,8 @@ task -d scripts graphql_generate -v
 
 ## Tests
 
+To run test use next commands. Coverage info will be
+recorded to ```tests/coverage``` folder:
 ```shell
 task -d scripts tests -v
 ```
