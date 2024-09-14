@@ -35,16 +35,6 @@ func (repo *MockedSsoRepository) GetUserByID(id int) (*entities.User, error) {
 	return nil, &customerrors.UserNotFoundError{}
 }
 
-func (repo *MockedSsoRepository) GetUserByEmail(email string) (*entities.User, error) {
-	for _, user := range repo.UsersStorage {
-		if user.Email == email {
-			return user, nil
-		}
-	}
-
-	return nil, &customerrors.UserNotFoundError{}
-}
-
 func (repo *MockedSsoRepository) GetAllUsers() ([]*entities.User, error) {
 	var users []*entities.User
 	for _, user := range repo.UsersStorage {

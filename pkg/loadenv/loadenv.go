@@ -1,7 +1,6 @@
 package loadenv
 
 import (
-	"log/slog"
 	"os"
 	"strconv"
 	"strings"
@@ -18,7 +17,7 @@ https://pkg.go.dev/github.com/joho/godotenv#section-readme
 https://habr.com/ru/articles/446468/
 */
 func init() {
-	logger := logging.GetInstance(slog.LevelDebug)
+	logger := logging.GetInstance(logging.LogLevels.DEBUG)
 	// loads values from .env into the system.
 	if err := godotenv.Load(); err != nil {
 		logger.Info("No .env file found")

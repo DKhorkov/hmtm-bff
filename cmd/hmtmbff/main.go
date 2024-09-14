@@ -11,11 +11,11 @@ import (
 )
 
 func main() {
-	settings := config.GetConfig()
+	settings := config.New()
+
 	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*entities.User{}}
 	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
 	useCases := &usecases.CommonUseCases{SsoService: ssoService}
-
 	controller := graphqlcontroller.New(
 		settings.HTTP.Host,
 		settings.HTTP.Port,

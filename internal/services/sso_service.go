@@ -1,8 +1,6 @@
 package services
 
 import (
-	"errors"
-
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
@@ -20,16 +18,12 @@ func (service *CommonSsoService) GetUserByID(id int) (*entities.User, error) {
 }
 
 func (service *CommonSsoService) LoginUser(userData entities.LoginUserDTO) (string, error) {
-	user, err := service.SsoRepository.GetUserByEmail(userData.Email)
+	token, err := service.SsoRepository.LoginUser(userData)
 	if err != nil {
 		return "", err
 	}
 
-	if user.Password != userData.Password {
-		return "", errors.New("incorrect password")
-	}
-
-	return "someToken", nil
+	return token, nil
 }
 
 func (service *CommonSsoService) RegisterUser(userData entities.RegisterUserDTO) (int, error) {
