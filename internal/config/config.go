@@ -2,7 +2,7 @@ package config
 
 import "github.com/DKhorkov/hmtm-bff/pkg/loadenv"
 
-func GetConfig() *Config {
+func New() *Config {
 	return &Config{
 		HTTP: HTTPConfigs{
 			Host:              loadenv.GetEnv("HOST", "0.0.0.0"),

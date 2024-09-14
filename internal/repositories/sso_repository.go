@@ -16,10 +16,6 @@ func (repo *GrpcSsoRepository) GetUserByID(id int) (*entities.User, error) {
 	return nil, &customerrors.UserNotFoundError{}
 }
 
-func (repo *GrpcSsoRepository) GetUserByEmail(email string) (*entities.User, error) {
-	return nil, &customerrors.UserNotFoundError{}
-}
-
 func (repo *GrpcSsoRepository) GetAllUsers() ([]*entities.User, error) {
 	return []*entities.User{}, nil
 }
