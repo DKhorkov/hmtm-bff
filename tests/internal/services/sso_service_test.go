@@ -4,7 +4,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
+
 	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/services"
 
@@ -16,14 +17,14 @@ import (
 func TestRegisterUser(t *testing.T) {
 	testCases := []struct {
 		name     string
-		input    entities.RegisterUserDTO
+		input    ssoentities.RegisterUserDTO
 		expected int
 		message  string
 	}{
 		{
 			name: "should register a new user",
-			input: entities.RegisterUserDTO{
-				Credentials: entities.LoginUserDTO{
+			input: ssoentities.RegisterUserDTO{
+				Credentials: ssoentities.LoginUserDTO{
 					Email:    "tests@example.com",
 					Password: "password",
 				},
@@ -33,7 +34,7 @@ func TestRegisterUser(t *testing.T) {
 		},
 	}
 
-	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*entities.User{}}
+	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*ssoentities.User{}}
 	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -53,7 +54,7 @@ func TestRegisterUser(t *testing.T) {
 }
 
 func TestGetAllUsersWithoutExistingUsers(t *testing.T) {
-	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*entities.User{}}
+	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*ssoentities.User{}}
 	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
 	users, err := ssoService.GetAllUsers()
 
@@ -62,28 +63,28 @@ func TestGetAllUsersWithoutExistingUsers(t *testing.T) {
 }
 
 func TestGetAllUsersWithExistingUsers(t *testing.T) {
-	testUsers := [3]entities.RegisterUserDTO{
+	testUsers := [3]ssoentities.RegisterUserDTO{
 		{
-			Credentials: entities.LoginUserDTO{
+			Credentials: ssoentities.LoginUserDTO{
 				Email:    "test1@example.com",
 				Password: "password1",
 			},
 		},
 		{
-			Credentials: entities.LoginUserDTO{
+			Credentials: ssoentities.LoginUserDTO{
 				Email:    "test2@example.com",
 				Password: "password2",
 			},
 		},
 		{
-			Credentials: entities.LoginUserDTO{
+			Credentials: ssoentities.LoginUserDTO{
 				Email:    "test3@example.com",
 				Password: "password3",
 			},
 		},
 	}
 
-	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*entities.User{}}
+	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*ssoentities.User{}}
 	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
 	for index, userData := range testUsers {
 		registeredUserID, err := ssoService.RegisterUser(userData)

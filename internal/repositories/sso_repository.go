@@ -1,25 +1,25 @@
 package repositories
 
 import (
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
+	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
 )
 
 type GrpcSsoRepository struct {
 }
 
-func (repo *GrpcSsoRepository) RegisterUser(userData entities.RegisterUserDTO) (int, error) {
+func (repo *GrpcSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
 	return 0, nil
 }
 
-func (repo *GrpcSsoRepository) GetUserByID(id int) (*entities.User, error) {
+func (repo *GrpcSsoRepository) GetUserByID(id int) (*ssoentities.User, error) {
 	return nil, &customerrors.UserNotFoundError{}
 }
 
-func (repo *GrpcSsoRepository) GetAllUsers() ([]*entities.User, error) {
-	return []*entities.User{}, nil
+func (repo *GrpcSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
+	return []*ssoentities.User{}, nil
 }
 
-func (repo *GrpcSsoRepository) LoginUser(userData entities.LoginUserDTO) (string, error) {
+func (repo *GrpcSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (string, error) {
 	return "", nil
 }

@@ -1,26 +1,26 @@
 package usecases
 
 import (
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
+	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
 )
 
 type CommonUseCases struct {
 	SsoService interfaces.SsoService
 }
 
-func (useCases *CommonUseCases) RegisterUser(userData entities.RegisterUserDTO) (int, error) {
+func (useCases *CommonUseCases) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
 	return useCases.SsoService.RegisterUser(userData)
 }
 
-func (useCases *CommonUseCases) LoginUser(userData entities.LoginUserDTO) (string, error) {
+func (useCases *CommonUseCases) LoginUser(userData ssoentities.LoginUserDTO) (string, error) {
 	return useCases.SsoService.LoginUser(userData)
 }
 
-func (useCases *CommonUseCases) GetUserByID(id int) (*entities.User, error) {
+func (useCases *CommonUseCases) GetUserByID(id int) (*ssoentities.User, error) {
 	return useCases.SsoService.GetUserByID(id)
 }
 
-func (useCases *CommonUseCases) GetAllUsers() ([]*entities.User, error) {
+func (useCases *CommonUseCases) GetAllUsers() ([]*ssoentities.User, error) {
 	return useCases.SsoService.GetAllUsers()
 }
