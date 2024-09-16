@@ -1,10 +1,12 @@
 package interfaces
 
-import "github.com/DKhorkov/hmtm-bff/internal/entities"
+import (
+	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
+)
 
 type SsoRepository interface {
-	GetUserByID(id int) (*entities.User, error)
-	GetAllUsers() ([]*entities.User, error)
-	RegisterUser(user entities.RegisterUserDTO) (int, error)
-	LoginUser(userData entities.LoginUserDTO) (string, error)
+	GetUserByID(id int) (*ssoentities.User, error)
+	GetAllUsers() ([]*ssoentities.User, error)
+	RegisterUser(user ssoentities.RegisterUserDTO) (int, error)
+	LoginUser(userData ssoentities.LoginUserDTO) (string, error)
 }
