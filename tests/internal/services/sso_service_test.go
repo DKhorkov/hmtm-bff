@@ -1,11 +1,9 @@
 package services__test
 
 import (
+	"github.com/DKhorkov/hmtm-bff/internal/errors"
 	"sort"
 	"testing"
-	"time"
-
-	"github.com/DKhorkov/hmtm-bff/internal/errors"
 
 	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
 
@@ -147,8 +145,8 @@ func TestGetUserByID_NotFound(t *testing.T) {
 	ssoService := &services.CommonSsoService{
 		SsoRepository: &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
-				1: {ID: 1, Email: "test@example.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
-				2: {ID: 2, Email: "test@example.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+				1: {ID: 1, Email: "test@example.com"},
+				2: {ID: 2, Email: "test@example.com"},
 			},
 		},
 	}
