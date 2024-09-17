@@ -1,4 +1,4 @@
-package cotroller
+package cotroller_test
 
 import (
 	"testing"
@@ -32,13 +32,10 @@ func TestRegisterUserResolver(t *testing.T) {
 	}
 
 	_, err := resolvers.UseCases.RegisterUser(userData)
-	assert.Nil(
+	require.NoError(
 		t,
 		err,
 		"Error registering user")
-	require.NoError(
-		t,
-		err)
 
 	assert.Len(
 		t,
@@ -113,10 +110,10 @@ func TestShouldReturnTheCorrectUserIDWhenThereAreExistingUsers(t *testing.T) {
 			userID,
 			"expected user ID to be 4, got %d", userID)
 
-		assert.Equal(
+		assert.Len(
 			t,
-			4,
 			len(ssoRepository.UsersStorage),
+			4,
 			"expected UsersStorage to have 4 elements, got %d", len(ssoRepository.UsersStorage))
 	})
 }
@@ -174,13 +171,10 @@ func TestLoginUserResolver(t *testing.T) {
 			Password: "password",
 		}
 
-		user, _ := ssoRepository.UsersStorage[1]
-
+		user := ssoRepository.UsersStorage[1]
 		result, err := resolvers.UseCases.LoginUser(userData)
-
-		assert.Equal(
+		require.NoError(
 			t,
-			nil,
 			err,
 			"should return an error")
 		assert.Nil(
@@ -210,7 +204,7 @@ func TestGetUserResolver(t *testing.T) {
 		resolvers := &core.Resolver{UseCases: useCases}
 
 		user, err := resolvers.UseCases.GetUserByID(1)
-		assert.NoError(
+		require.NoError(
 			t,
 			err,
 			"unexpected error during user retrieval")
@@ -266,15 +260,15 @@ func TestGetAllUsersResolver(t *testing.T) {
 		resolvers := &core.Resolver{UseCases: useCases}
 
 		users, err := resolvers.UseCases.GetAllUsers()
-		assert.NoError(
+		require.NoError(
 			t,
 			err,
 			"unexpected error during user retrieval")
 
-		assert.Equal(
+		assert.Len(
 			t,
-			2,
 			len(users),
+			2,
 			"expected to get 2 users, got %d", len(users))
 	})
 }

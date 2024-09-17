@@ -1,4 +1,4 @@
-package usecases
+package usecases_test
 
 import (
 	"testing"
@@ -26,12 +26,12 @@ func TestRegisterUser(t *testing.T) {
 			},
 		}
 
-		userId, err := useCases.RegisterUser(userData)
+		userID, err := useCases.RegisterUser(userData)
 		require.NoError(t, err)
 
-		assert.Equal(t, 1, userId)
-		assert.NotNil(t, ssoRepository.UsersStorage[userId])
-		assert.Equal(t, "test@example.com", ssoRepository.UsersStorage[userId].Email)
+		assert.Equal(t, 1, userID)
+		assert.NotNil(t, ssoRepository.UsersStorage[userID])
+		assert.Equal(t, "test@example.com", ssoRepository.UsersStorage[userID].Email)
 	})
 }
 
@@ -123,7 +123,7 @@ func TestGetAllUsersWithExistingUsers(t *testing.T) {
 		usersResult, err := useCases.GetAllUsers()
 		require.NoError(t, err)
 
-		assert.Equal(t, 2, len(usersResult))
+		assert.Len(t, usersResult, 2, "expected to get 2 users")
 	})
 }
 
