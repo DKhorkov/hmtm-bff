@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/DKhorkov/hmtm-bff/pkg/loadenv"
 	"time"
+
+	"github.com/DKhorkov/hmtm-bff/pkg/loadenv"
 )
 
 func New() *Config {

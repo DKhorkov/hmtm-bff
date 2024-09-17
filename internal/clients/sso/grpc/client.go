@@ -3,6 +3,9 @@ package ssogrpcclient
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"time"
+
 	"github.com/DKhorkov/hmtm-sso/pkg/logging"
 	"github.com/DKhorkov/hmtm-sso/protobuf/generated/go/sso"
 	grpclogging "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
@@ -10,8 +13,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	"log/slog"
-	"time"
 )
 
 type Client struct {
@@ -25,7 +26,6 @@ func New(
 	retriesCount int,
 	retriesTimeout time.Duration,
 ) (*Client, error) {
-
 	logger := logging.GetInstance(logging.LogLevels.DEBUG)
 
 	// Options for interceptors (перехватчики / middlewares) for retries purposes:

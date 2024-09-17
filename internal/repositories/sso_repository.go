@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+
 	ssogrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/sso/grpc"
 	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
 	"github.com/DKhorkov/hmtm-sso/protobuf/generated/go/sso"
@@ -27,7 +28,7 @@ func (repo *GrpcSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO
 		return 0, err
 	}
 
-	return int(response.UserID), nil
+	return int(response.GetUserID()), nil
 }
 
 func (repo *GrpcSsoRepository) GetUserByID(id int) (*ssoentities.User, error) {
@@ -43,10 +44,10 @@ func (repo *GrpcSsoRepository) GetUserByID(id int) (*ssoentities.User, error) {
 	}
 
 	return &ssoentities.User{
-		ID:        int(response.UserID),
-		Email:     response.Email,
-		CreatedAt: response.CreatedAt.AsTime(),
-		UpdatedAt: response.UpdatedAt.AsTime(),
+		ID:        int(response.GetUserID()),
+		Email:     response.GetEmail(),
+		CreatedAt: response.GetCreatedAt().AsTime(),
+		UpdatedAt: response.GetUpdatedAt().AsTime(),
 	}, nil
 }
 
@@ -60,13 +61,13 @@ func (repo *GrpcSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
 		return nil, err
 	}
 
-	users := make([]*ssoentities.User, len(response.Users))
-	for index, user := range response.Users {
+	users := make([]*ssoentities.User, len(response.GetUsers()))
+	for index, user := range response.GetUsers() {
 		users[index] = &ssoentities.User{
-			ID:        int(user.UserID),
-			Email:     user.Email,
-			CreatedAt: user.CreatedAt.AsTime(),
-			UpdatedAt: user.UpdatedAt.AsTime(),
+			ID:        int(user.GetUserID()),
+			Email:     user.GetEmail(),
+			CreatedAt: user.GetCreatedAt().AsTime(),
+			UpdatedAt: user.GetUpdatedAt().AsTime(),
 		}
 	}
 
@@ -86,5 +87,5 @@ func (repo *GrpcSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (str
 		return "", err
 	}
 
-	return response.Token, nil
+	return response.GetToken(), nil
 }
