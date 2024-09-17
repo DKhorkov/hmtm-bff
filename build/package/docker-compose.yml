@@ -1,9 +1,9 @@
 version: '3'
 
 services:
-  hmtmbff:
-    container_name: hmtmbff
-    image: hmtmbff
+  hmtm_bff:
+    container_name: hmtm_bff
+    image: hmtm_bff
     build:
       context: ../..
       dockerfile: ./build/package/Dockerfile

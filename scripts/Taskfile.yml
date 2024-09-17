@@ -24,7 +24,7 @@ tasks:
     desc: "Create docker network for project."
     aliases:
       - network
-    cmd: sudo docker network create hmtmbff_network
+    cmd: sudo docker network create hmtm_network
 
   docker_build:
     desc: "Build docker container."
