@@ -90,12 +90,8 @@ func TestGetUserByID_NotFound(t *testing.T) {
 
 	userResult, err := useCases.GetUserByID(id)
 
-	if _, ok := err.(*errors.UserNotFoundError); ok {
-		assert.True(t, ok)
-		assert.Equal(t, "user not found", err)
-	} else {
-		t.Errorf("Expected error of type *errors.UserNotFoundError, got %T", err)
-	}
+	assert.IsType(t, &errors.UserNotFoundError{}, err)
+	assert.Equal(t, "user not found", err.Error())
 
 	assert.Nil(t, userResult)
 }
