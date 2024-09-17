@@ -112,7 +112,7 @@ func TestShouldReturnTheCorrectUserIDWhenThereAreExistingUsers(t *testing.T) {
 
 		assert.Len(
 			t,
-			len(ssoRepository.UsersStorage),
+			ssoRepository.UsersStorage,
 			4,
 			"expected UsersStorage to have 4 elements, got %d", len(ssoRepository.UsersStorage))
 	})
@@ -267,7 +267,7 @@ func TestGetAllUsersResolver(t *testing.T) {
 
 		assert.Len(
 			t,
-			len(users),
+			users,
 			2,
 			"expected to get 2 users, got %d", len(users))
 	})
