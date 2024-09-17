@@ -119,7 +119,7 @@ func TestGetUserByID(t *testing.T) {
 		{
 			name:     "should find user by ID",
 			input:    4,
-			expected: &ssoentities.User{ID: 4, Email: "test@example4.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+			expected: &ssoentities.User{ID: 4, Email: "test@example4.com"},
 		},
 	}
 
@@ -127,10 +127,10 @@ func TestGetUserByID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ssoRepository := &mocks.MockedSsoRepository{
 				UsersStorage: map[int]*ssoentities.User{
-					1: {ID: 1, Email: "test@example.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
-					2: {ID: 2, Email: "test@example2.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
-					3: {ID: 3, Email: "test@example3.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
-					4: {ID: 4, Email: "test@example4.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+					1: {ID: 1, Email: "test@example.com"},
+					2: {ID: 2, Email: "test@example2.com"},
+					3: {ID: 3, Email: "test@example3.com"},
+					4: {ID: 4, Email: "test@example4.com"},
 				},
 			}
 			ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
