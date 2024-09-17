@@ -1,10 +1,11 @@
 package services__test
 
 import (
-	"github.com/DKhorkov/hmtm-bff/internal/errors"
 	"sort"
 	"testing"
 	"time"
+
+	"github.com/DKhorkov/hmtm-bff/internal/errors"
 
 	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
 

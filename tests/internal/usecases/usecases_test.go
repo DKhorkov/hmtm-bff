@@ -1,14 +1,15 @@
 package usecases
 
 import (
+	"testing"
+	"time"
+
 	"github.com/DKhorkov/hmtm-bff/internal/errors"
 	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/usecases"
 	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 func TestRegisterUser(t *testing.T) {

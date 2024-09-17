@@ -1,6 +1,9 @@
 package cotroller
 
 import (
+	"testing"
+	"time"
+
 	core "github.com/DKhorkov/hmtm-bff/internal/controllers/graph/core"
 	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/services"
@@ -8,8 +11,6 @@ import (
 	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 func TestRegisterUserResolver(t *testing.T) {
