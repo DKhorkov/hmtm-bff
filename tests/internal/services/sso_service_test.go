@@ -1,8 +1,10 @@
 package services__test
 
 import (
+	"github.com/DKhorkov/hmtm-bff/internal/errors"
 	"sort"
 	"testing"
+	"time"
 
 	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
 
@@ -104,5 +106,99 @@ func TestGetAllUsersWithExistingUsers(t *testing.T) {
 	for index, user := range users {
 		assert.Equal(t, user.Email, testUsers[index].Credentials.Email, "Should return correct email for user")
 		assert.Equal(t, user.ID, index+1, "Should return correct ID for user")
+	}
+}
+
+func TestGetUserByID(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    int
+		expected *ssoentities.User
+	}{
+		{
+			name:     "should find user by ID",
+			input:    4,
+			expected: &ssoentities.User{ID: 4, Email: "test@example4.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ssoRepository := &mocks.MockedSsoRepository{
+				UsersStorage: map[int]*ssoentities.User{
+					1: {ID: 1, Email: "test@example.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+					2: {ID: 2, Email: "test@example2.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+					3: {ID: 3, Email: "test@example3.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+					4: {ID: 4, Email: "test@example4.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+				},
+			}
+			ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+
+			actual, err := ssoService.GetUserByID(tc.input)
+
+			require.NoError(t, err, "Should return no error")
+			assert.Equal(t, tc.expected, actual, "\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
+		})
+	}
+}
+
+func TestGetUserByID_NotFound(t *testing.T) {
+	ssoService := &services.CommonSsoService{
+		SsoRepository: &mocks.MockedSsoRepository{
+			UsersStorage: map[int]*ssoentities.User{
+				1: {ID: 1, Email: "test@example.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+				2: {ID: 2, Email: "test@example.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+			},
+		},
+	}
+
+	id := 3
+
+	_, err := ssoService.GetUserByID(id)
+
+	assert.IsType(t, &errors.UserNotFoundError{}, err)
+	assert.Equal(t, "user not found", err.Error())
+}
+
+func TestGetUserByID_Nil(t *testing.T) {
+	ssoService := &services.CommonSsoService{
+		SsoRepository: &mocks.MockedSsoRepository{
+			UsersStorage: map[int]*ssoentities.User{
+				1: nil,
+			},
+		},
+	}
+
+	id := 1
+
+	_, err := ssoService.GetUserByID(id)
+
+	assert.IsType(t, &errors.UserNotFoundError{}, err)
+	assert.Equal(t, "user not found", err.Error())
+}
+
+func TestLoginUser(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    ssoentities.LoginUserDTO
+		expected string
+	}{
+		{
+			name:     "should return token",
+			input:    ssoentities.LoginUserDTO{Email: "test@example.com", Password: "password"},
+			expected: "test@example.com_password",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ssoRepository := &mocks.MockedSsoRepository{}
+			ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+
+			actual, err := ssoService.LoginUser(tc.input)
+
+			require.NoError(t, err, "Should return no error")
+			assert.Equal(t, tc.expected, actual, "\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
+		})
 	}
 }
