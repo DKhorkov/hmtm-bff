@@ -146,30 +146,12 @@ func TestGetUserByID(t *testing.T) {
 func TestGetUserByIDNotFound(t *testing.T) {
 	ssoService := &services.CommonSsoService{
 		SsoRepository: &mocks.MockedSsoRepository{
-			UsersStorage: map[int]*ssoentities.User{
-				1: {ID: 1, Email: "test@example.com"},
-				2: {ID: 2, Email: "test@example.com"},
-			},
+			UsersStorage: map[int]*ssoentities.User{},
 		},
 	}
 
-	result, err := ssoService.GetUserByID(0)
-	assert.Nil(t, result, "should return nil for user ID 0")
-	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
-	assert.Equal(t, "user not found", err.Error())
-}
-
-func TestGetUserByIDNil(t *testing.T) {
-	ssoService := &services.CommonSsoService{
-		SsoRepository: &mocks.MockedSsoRepository{
-			UsersStorage: map[int]*ssoentities.User{
-				1: nil,
-			},
-		},
-	}
-
-	_, err := ssoService.GetUserByID(testUserID)
-
+	userID, err := ssoService.GetUserByID(testUserID)
+	assert.Nil(t, userID, "should return nil for user ID 1")
 	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())
 }

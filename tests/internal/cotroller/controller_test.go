@@ -75,6 +75,7 @@ func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
 				Password: "password",
 			},
 		}
+
 		userID, err := resolvers.UseCases.RegisterUser(userData)
 		require.NoError(
 			t,
@@ -115,7 +116,6 @@ func TestLoginUserResolver(t *testing.T) {
 			t,
 			err,
 			"unexpected error during user login")
-
 		assert.Equal(
 			t,
 			"test@example.com_testPassword",
@@ -155,7 +155,7 @@ func TestGetUserResolver(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
 				1: {
-					ID:        1,
+					ID:        testUserID,
 					Email:     "test@example.com",
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -188,7 +188,11 @@ func TestGetUserResolver(t *testing.T) {
 		useCases := &usecases.CommonUseCases{SsoService: ssoService}
 		resolvers := &graphqlcore.Resolver{UseCases: useCases}
 
-		_, err := resolvers.UseCases.GetUserByID(testUserID)
+		user, err := resolvers.UseCases.GetUserByID(testUserID)
+		assert.Nil(
+			t,
+			user,
+			"should return nul if user doesn't exist")
 		assert.Error(
 			t,
 			err,

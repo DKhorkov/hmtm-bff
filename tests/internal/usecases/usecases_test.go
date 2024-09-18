@@ -21,6 +21,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 
 		useCases := &usecases.CommonUseCases{SsoService: ssoRepository}
+
 		userData := ssoentities.RegisterUserDTO{
 			Credentials: ssoentities.LoginUserDTO{
 				Email:    "test@example.com",
@@ -43,6 +44,7 @@ func TestLoginUser(t *testing.T) {
 		}
 
 		useCases := &usecases.CommonUseCases{SsoService: ssoRepository}
+
 		userData := ssoentities.LoginUserDTO{
 			Email:    "test@example.com",
 			Password: "password",
@@ -59,7 +61,7 @@ func TestGetUserByID(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
 				1: {
-					ID:        1,
+					ID:        testUserID,
 					Email:     "test@example.com",
 					Password:  "password",
 					CreatedAt: time.Now(),
