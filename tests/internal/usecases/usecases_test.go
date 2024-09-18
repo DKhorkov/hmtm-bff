@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DKhorkov/hmtm-bff/internal/errors"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/usecases"
 	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
@@ -89,7 +89,7 @@ func TestGetUserByIDNotFound(t *testing.T) {
 
 	userID := 3
 	userResult, err := useCases.GetUserByID(userID)
-	assert.IsType(t, &errors.UserNotFoundError{}, err)
+	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())
 	assert.Nil(t, userResult)
 }

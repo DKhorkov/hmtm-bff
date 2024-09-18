@@ -1,9 +1,10 @@
 package services__test
 
 import (
-	"github.com/DKhorkov/hmtm-bff/internal/errors"
 	"sort"
 	"testing"
+
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 
 	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
 
@@ -15,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testUserId = 1
+const testUserID = 1
 
 func TestRegisterUser(t *testing.T) {
 	testCases := []struct {
@@ -42,7 +43,6 @@ func TestRegisterUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			actual, err := ssoService.RegisterUser(tc.input)
-
 			require.NoError(
 				t,
 				err,
@@ -155,7 +155,7 @@ func TestGetUserByIDNotFound(t *testing.T) {
 
 	result, err := ssoService.GetUserByID(0)
 	assert.Nil(t, result, "should return nil for user ID 0")
-	assert.IsType(t, &errors.UserNotFoundError{}, err)
+	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())
 }
 
@@ -168,9 +168,9 @@ func TestGetUserByIDNil(t *testing.T) {
 		},
 	}
 
-	_, err := ssoService.GetUserByID(testUserId)
+	_, err := ssoService.GetUserByID(testUserID)
 
-	assert.IsType(t, &errors.UserNotFoundError{}, err)
+	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())
 }
 
