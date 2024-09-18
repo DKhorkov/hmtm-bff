@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const testUserId = 1
+
 func TestRegisterUser(t *testing.T) {
 	testCases := []struct {
 		name     string
@@ -131,17 +133,17 @@ func TestGetUserByID(t *testing.T) {
 					4: {ID: 4, Email: "test@example4.com"},
 				},
 			}
+
 			ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
 
 			actual, err := ssoService.GetUserByID(tc.input)
-
 			require.NoError(t, err, "Should return no error")
 			assert.Equal(t, tc.expected, actual, "\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
 		})
 	}
 }
 
-func TestGetUserByID_NotFound(t *testing.T) {
+func TestGetUserByIDNotFound(t *testing.T) {
 	ssoService := &services.CommonSsoService{
 		SsoRepository: &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
@@ -151,15 +153,13 @@ func TestGetUserByID_NotFound(t *testing.T) {
 		},
 	}
 
-	id := 3
-
-	_, err := ssoService.GetUserByID(id)
-
+	result, err := ssoService.GetUserByID(0)
+	assert.Nil(t, result, "should return nil for user ID 0")
 	assert.IsType(t, &errors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())
 }
 
-func TestGetUserByID_Nil(t *testing.T) {
+func TestGetUserByIDNil(t *testing.T) {
 	ssoService := &services.CommonSsoService{
 		SsoRepository: &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
@@ -168,9 +168,7 @@ func TestGetUserByID_Nil(t *testing.T) {
 		},
 	}
 
-	id := 1
-
-	_, err := ssoService.GetUserByID(id)
+	_, err := ssoService.GetUserByID(testUserId)
 
 	assert.IsType(t, &errors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())
@@ -195,7 +193,6 @@ func TestLoginUser(t *testing.T) {
 			ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
 
 			actual, err := ssoService.LoginUser(tc.input)
-
 			require.NoError(t, err, "Should return no error")
 			assert.Equal(t, tc.expected, actual, "\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
 		})
