@@ -1,4 +1,4 @@
-package cotroller_test
+package cotrollers_test
 
 import (
 	"testing"
@@ -13,9 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testUserID = 1
-
 func TestRegisterUserResolverWithoutExistingUsers(t *testing.T) {
+	const testUserID = 1
 	ssoRepository := &mocks.MockedSsoRepository{
 		UsersStorage: make(map[int]*ssoentities.User),
 	}
@@ -36,7 +35,6 @@ func TestRegisterUserResolverWithoutExistingUsers(t *testing.T) {
 		t,
 		err,
 		"Error registering user")
-
 	assert.Equal(t, testUserID, result, "should return user ID as 1")
 }
 
@@ -90,11 +88,12 @@ func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
 }
 
 func TestLoginUserResolver(t *testing.T) {
+	const testUserID = 1
 	t.Run("should return a valid token when login is successful", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
-				1: {
-					ID:        1,
+				testUserID: {
+					ID:        testUserID,
 					Email:     "test@example.com",
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -151,10 +150,11 @@ func TestLoginUserResolver(t *testing.T) {
 }
 
 func TestGetUserResolver(t *testing.T) {
+	const testUserID = 1
 	t.Run("should return a valid user when user exists", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
-				1: {
+				testUserID: {
 					ID:        testUserID,
 					Email:     "test@example.com",
 					CreatedAt: time.Now(),
@@ -189,14 +189,15 @@ func TestGetUserResolver(t *testing.T) {
 		resolvers := &graphqlcore.Resolver{UseCases: useCases}
 
 		user, err := resolvers.UseCases.GetUserByID(testUserID)
-		assert.Nil(
-			t,
-			user,
-			"should return nul if user doesn't exist")
 		assert.Error(
 			t,
 			err,
 			"expected error, got nil")
+
+		assert.Nil(
+			t,
+			user,
+			"should return nul if user doesn't exist")
 	})
 }
 

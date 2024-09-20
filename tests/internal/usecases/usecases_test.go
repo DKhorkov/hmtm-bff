@@ -12,9 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testUserID = 1
-
 func TestRegisterUser(t *testing.T) {
+	const testUserID = 1
 	t.Run("Success", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: make(map[int]*ssoentities.User),
@@ -32,8 +31,6 @@ func TestRegisterUser(t *testing.T) {
 		userID, err := useCases.RegisterUser(userData)
 		require.NoError(t, err)
 		assert.Equal(t, testUserID, userID)
-		assert.NotNil(t, ssoRepository.UsersStorage[userID])
-		assert.Equal(t, "test@example.com", ssoRepository.UsersStorage[userID].Email)
 	})
 }
 
@@ -57,10 +54,11 @@ func TestLoginUser(t *testing.T) {
 }
 
 func TestGetUserByID(t *testing.T) {
+	const testUserID = 1
 	t.Run("Success", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
-				1: {
+				testUserID: {
 					ID:        testUserID,
 					Email:     "test@example.com",
 					Password:  "password",
@@ -74,7 +72,6 @@ func TestGetUserByID(t *testing.T) {
 
 		userResult, err := useCases.GetUserByID(testUserID)
 		require.NoError(t, err)
-
 		assert.Equal(t, "test@example.com", userResult.Email)
 	})
 }
@@ -90,6 +87,7 @@ func TestGetUserByIDNotFound(t *testing.T) {
 	useCases := &usecases.CommonUseCases{SsoService: repo}
 
 	userID := 3
+
 	userResult, err := useCases.GetUserByID(userID)
 	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())

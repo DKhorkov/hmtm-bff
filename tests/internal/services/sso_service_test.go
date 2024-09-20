@@ -16,9 +16,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testUserID = 1
-
 func TestRegisterUser(t *testing.T) {
+	const testUserID = 1
 	testCases := []struct {
 		name     string
 		input    ssoentities.RegisterUserDTO
@@ -33,7 +32,7 @@ func TestRegisterUser(t *testing.T) {
 					Password: "password",
 				},
 			},
-			expected: 1,
+			expected: testUserID,
 			message:  "should return a new user id",
 		},
 	}
@@ -43,10 +42,7 @@ func TestRegisterUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			actual, err := ssoService.RegisterUser(tc.input)
-			require.NoError(
-				t,
-				err,
-				"%s - error: %v", tc.message, err)
+			require.NoError(t, err, "%s - error: %v", tc.message, err)
 			assert.Equal(
 				t,
 				tc.expected,
@@ -60,7 +56,6 @@ func TestGetAllUsersWithoutExistingUsers(t *testing.T) {
 	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*ssoentities.User{}}
 	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
 	users, err := ssoService.GetAllUsers()
-
 	require.NoError(t, err, "Should return no error")
 	assert.Empty(t, users, "Should return an empty list")
 }
@@ -105,7 +100,11 @@ func TestGetAllUsersWithExistingUsers(t *testing.T) {
 	})
 
 	for index, user := range users {
-		assert.Equal(t, user.Email, testUsers[index].Credentials.Email, "Should return correct email for user")
+		assert.Equal(
+			t,
+			user.Email,
+			testUsers[index].Credentials.Email,
+			"Should return correct email for user")
 		assert.Equal(t, user.ID, index+1, "Should return correct ID for user")
 	}
 }
@@ -144,6 +143,7 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestGetUserByIDNotFound(t *testing.T) {
+	const testUserID = 1
 	ssoService := &services.CommonSsoService{
 		SsoRepository: &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{},
@@ -176,7 +176,11 @@ func TestLoginUser(t *testing.T) {
 
 			actual, err := ssoService.LoginUser(tc.input)
 			require.NoError(t, err, "Should return no error")
-			assert.Equal(t, tc.expected, actual, "\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
+			assert.Equal(
+				t,
+				tc.expected,
+				actual,
+				"\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
 		})
 	}
 }
