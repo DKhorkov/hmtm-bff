@@ -1,9 +1,10 @@
 package cotrollers_test
 
 import (
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"testing"
 	"time"
+
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 
 	graphqlcore "github.com/DKhorkov/hmtm-bff/internal/controllers/graph/core"
 	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"

@@ -1,9 +1,10 @@
 package usecases_test
 
 import (
-	"github.com/DKhorkov/hmtm-bff/internal/services"
 	"testing"
 	"time"
+
+	"github.com/DKhorkov/hmtm-bff/internal/services"
 
 	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
