@@ -1,4 +1,4 @@
-package cotrollers_test
+package graphqlcotrollers_test
 
 import (
 	"testing"
@@ -18,6 +18,7 @@ import (
 func TestRegisterUserResolverWithoutExistingUsers(t *testing.T) {
 	const testUserID = 1
 	const testUserEmail = "test@example.com"
+
 	ssoRepository := &mocks.MockedSsoRepository{
 		UsersStorage: make(map[int]*ssoentities.User),
 	}
@@ -37,8 +38,8 @@ func TestRegisterUserResolverWithoutExistingUsers(t *testing.T) {
 	require.NoError(
 		t,
 		err,
-		"Error registering user")
-	assert.Equal(t, testUserID, result, "should return user ID as 1")
+		result, "Error registering user")
+	assert.Equal(t, testUserID, result, "should return userID=%d", testUserID)
 }
 
 func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
@@ -78,21 +79,22 @@ func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
 		}
 
 		userID, err := resolvers.UseCases.RegisterUser(userData)
+		currentUsersCount := len(ssoRepository.UsersStorage)
 		require.NoError(
 			t,
 			err,
 			"unexpected error: %v", err)
-
 		assert.Equal(t,
-			4,
+			currentUsersCount+1,
 			userID,
-			"expected user ID to be 4, got %d", userID)
+			"expected userID to be %d, got %d", currentUsersCount+1, userID)
 	})
 }
 
 func TestLoginUserResolver(t *testing.T) {
 	const testUserID = 1
 	const testUserEmail = "test@example.com"
+
 	t.Run("should return a valid token when login is successful", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
@@ -201,6 +203,7 @@ func TestLoginUserResolver(t *testing.T) {
 func TestGetUserResolver(t *testing.T) {
 	const testUserID = 1
 	const testUserEmail = "test@example.com"
+
 	t.Run("should return a valid user when user exists", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
@@ -243,7 +246,6 @@ func TestGetUserResolver(t *testing.T) {
 			t,
 			err,
 			"expected error, got nil")
-
 		assert.Nil(
 			t,
 			user,

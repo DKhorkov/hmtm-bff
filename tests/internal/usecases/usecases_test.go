@@ -17,12 +17,14 @@ import (
 func TestRegisterUser(t *testing.T) {
 	const testUserID = 1
 	const testUserEmail = "test@example.com"
+
 	t.Run("Success", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: make(map[int]*ssoentities.User),
 		}
 
-		useCases := &usecases.CommonUseCases{SsoService: ssoRepository}
+		ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+		useCases := &usecases.CommonUseCases{SsoService: ssoService}
 
 		userData := ssoentities.RegisterUserDTO{
 			Credentials: ssoentities.LoginUserDTO{
@@ -44,6 +46,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 
 		ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+		useCases := &usecases.CommonUseCases{SsoService: ssoService}
 
 		userData := ssoentities.RegisterUserDTO{
 			Credentials: ssoentities.LoginUserDTO{
@@ -52,7 +55,7 @@ func TestRegisterUser(t *testing.T) {
 			},
 		}
 
-		userID, err := ssoService.RegisterUser(userData)
+		userID, err := useCases.RegisterUser(userData)
 		require.Error(t, err)
 		assert.Equal(t, 0, userID)
 		assert.IsType(t, &customerrors.UserAlreadyExistsError{}, err)
@@ -63,6 +66,7 @@ func TestLoginUser(t *testing.T) {
 	const testUserID = 1
 	const testUserEmail = "test@example.com"
 	const testUserPassword = "password"
+
 	t.Run("Success", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
@@ -74,13 +78,14 @@ func TestLoginUser(t *testing.T) {
 		}
 
 		ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+		useCases := &usecases.CommonUseCases{SsoService: ssoService}
 
 		userData := ssoentities.LoginUserDTO{
 			Email:    testUserEmail,
 			Password: testUserPassword,
 		}
 
-		token, err := ssoService.LoginUser(userData)
+		token, err := useCases.LoginUser(userData)
 		require.NoError(t, err)
 		assert.Equal(t, "someToken", token)
 	})
@@ -91,13 +96,14 @@ func TestLoginUser(t *testing.T) {
 		}
 
 		ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+		useCases := &usecases.CommonUseCases{SsoService: ssoService}
 
 		userData := ssoentities.LoginUserDTO{
 			Email:    testUserEmail,
 			Password: testUserPassword,
 		}
 
-		token, err := ssoService.LoginUser(userData)
+		token, err := useCases.LoginUser(userData)
 		require.Error(t, err)
 		assert.Equal(t, "", token)
 		assert.IsType(t, &customerrors.UserNotFoundError{}, err)
@@ -114,13 +120,14 @@ func TestLoginUser(t *testing.T) {
 		}
 
 		ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+		useCases := &usecases.CommonUseCases{SsoService: ssoService}
 
 		userData := ssoentities.LoginUserDTO{
 			Email:    testUserEmail,
 			Password: "wrongPassword",
 		}
 
-		token, err := ssoService.LoginUser(userData)
+		token, err := useCases.LoginUser(userData)
 		require.Error(t, err)
 		assert.Equal(t, "", token)
 		assert.IsType(t, &customerrors.InvalidPasswordError{}, err)
@@ -130,6 +137,7 @@ func TestLoginUser(t *testing.T) {
 func TestGetUserByID(t *testing.T) {
 	const testUserID = 1
 	const testUserEmail = "test@example.com"
+
 	t.Run("Success", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
@@ -143,7 +151,8 @@ func TestGetUserByID(t *testing.T) {
 			},
 		}
 
-		useCases := &usecases.CommonUseCases{SsoService: ssoRepository}
+		ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+		useCases := &usecases.CommonUseCases{SsoService: ssoService}
 
 		user, err := useCases.GetUserByID(testUserID)
 		require.NoError(t, err)
@@ -153,17 +162,27 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestGetUserByIDNotFound(t *testing.T) {
-	repo := &mocks.MockedSsoRepository{
+	ssoRepository := &mocks.MockedSsoRepository{
 		UsersStorage: map[int]*ssoentities.User{
-			1: {ID: 1, Email: "test@example.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
-			2: {ID: 2, Email: "test@example.com", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+			1: {
+				ID:        1,
+				Email:     "test@example.com",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+			2: {
+				ID:        2,
+				Email:     "test@example.com",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
 		},
 	}
 
-	useCases := &usecases.CommonUseCases{SsoService: repo}
+	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+	useCases := &usecases.CommonUseCases{SsoService: ssoService}
 
 	userID := 3
-
 	user, err := useCases.GetUserByID(userID)
 	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())
@@ -191,7 +210,8 @@ func TestGetAllUsersWithExistingUsers(t *testing.T) {
 			},
 		}
 
-		useCases := &usecases.CommonUseCases{SsoService: ssoRepository}
+		ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+		useCases := &usecases.CommonUseCases{SsoService: ssoService}
 
 		users, err := useCases.GetAllUsers()
 		require.NoError(t, err)
@@ -205,7 +225,8 @@ func TestGetAllUsersWithoutExistingUsers(t *testing.T) {
 		UsersStorage: make(map[int]*ssoentities.User),
 	}
 
-	useCases := &usecases.CommonUseCases{SsoService: ssoRepository}
+	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+	useCases := &usecases.CommonUseCases{SsoService: ssoService}
 
 	users, err := useCases.GetAllUsers()
 	require.NoError(t, err)

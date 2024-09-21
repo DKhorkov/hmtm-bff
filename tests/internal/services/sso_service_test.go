@@ -18,6 +18,7 @@ import (
 
 func TestRegisterUser(t *testing.T) {
 	const testUserID = 1
+
 	testCases := []struct {
 		name     string
 		input    ssoentities.RegisterUserDTO
@@ -42,7 +43,10 @@ func TestRegisterUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			actual, err := ssoService.RegisterUser(tc.input)
-			require.NoError(t, err, "%s - error: %v", tc.message, err)
+			require.NoError(
+				t,
+				err,
+				"%s - error: %v", tc.message, err)
 			assert.Equal(
 				t,
 				tc.expected,
@@ -137,13 +141,15 @@ func TestGetUserByID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			actual, err := ssoService.GetUserByID(tc.input)
 			require.NoError(t, err, "Should return no error")
-			assert.Equal(t, tc.expected, actual, "\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
+			assert.Equal(t, tc.expected,
+				actual, "\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
 		})
 	}
 }
 
 func TestGetUserByIDNotFound(t *testing.T) {
 	const testUserID = 1
+
 	ssoService := &services.CommonSsoService{
 		SsoRepository: &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{},
@@ -158,28 +164,28 @@ func TestGetUserByIDNotFound(t *testing.T) {
 
 func TestLoginUser(t *testing.T) {
 	testCases := []struct {
-		name     string
-		input    ssoentities.LoginUserDTO
-		expected string
-		wantErr  error
+		name          string
+		input         ssoentities.LoginUserDTO
+		expected      string
+		expectedError error
 	}{
 		{
-			name:     "should return token",
-			input:    ssoentities.LoginUserDTO{Email: "test@example.com", Password: "password"},
-			expected: "someToken",
-			wantErr:  nil,
+			name:          "should return token",
+			input:         ssoentities.LoginUserDTO{Email: "test@example.com", Password: "password"},
+			expected:      "someToken",
+			expectedError: nil,
 		},
 		{
-			name:     "should return error if user not found",
-			input:    ssoentities.LoginUserDTO{Email: "nonexistent@example.com", Password: "password"},
-			expected: "",
-			wantErr:  &customerrors.UserNotFoundError{},
+			name:          "should return error if user not found",
+			input:         ssoentities.LoginUserDTO{Email: "nonexistent@example.com", Password: "password"},
+			expected:      "",
+			expectedError: &customerrors.UserNotFoundError{},
 		},
 		{
-			name:     "should return error if password incorrect",
-			input:    ssoentities.LoginUserDTO{Email: "test@example.com", Password: "wrongPassword"},
-			expected: "",
-			wantErr:  &customerrors.InvalidPasswordError{},
+			name:          "should return error if password is incorrect",
+			input:         ssoentities.LoginUserDTO{Email: "test@example.com", Password: "wrongPassword"},
+			expected:      "",
+			expectedError: &customerrors.InvalidPasswordError{},
 		},
 	}
 
@@ -197,17 +203,17 @@ func TestLoginUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			actual, err := ssoService.LoginUser(tc.input)
-			if tc.wantErr != nil {
+			if tc.expectedError != nil {
 				require.Error(t, err, "Should return an error")
-				assert.Equal(t, tc.wantErr, err)
+				assert.IsType(t, tc.expectedError, err)
 			} else {
 				require.NoError(t, err, "Should return no error")
-				assert.Equal(
-					t,
-					tc.expected,
-					actual,
-					"\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
 			}
+			assert.Equal(
+				t,
+				tc.expected,
+				actual,
+				"\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
 		})
 	}
 }

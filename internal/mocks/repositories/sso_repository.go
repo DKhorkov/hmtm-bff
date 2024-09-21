@@ -34,9 +34,11 @@ func (repo *MockedSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (s
 			if user.Password != userData.Password {
 				return "", &customerrors.InvalidPasswordError{}
 			}
+
 			return "someToken", nil
 		}
 	}
+
 	return "", &customerrors.UserNotFoundError{}
 }
 
