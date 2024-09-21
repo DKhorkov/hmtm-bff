@@ -71,8 +71,6 @@ func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
 		useCases := &usecases.CommonUseCases{SsoService: ssoService}
 		resolvers := &graphqlcore.Resolver{UseCases: useCases}
 
-		currentUsersLength := len(ssoRepository.UsersStorage)
-
 		userData := ssoentities.RegisterUserDTO{
 			Credentials: ssoentities.LoginUserDTO{
 				Email:    "new@example.com",
@@ -80,15 +78,16 @@ func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
 			},
 		}
 
+		currentUsersLength := len(ssoRepository.UsersStorage)
 		userID, err := resolvers.UseCases.RegisterUser(userData)
 
 		require.NoError(
 			t,
 			err,
 			"unexpected error: %v", err)
-		assert.Equal(t,
+		assert.Len(t,
+			ssoRepository.UsersStorage,
 			currentUsersLength+1,
-			len(ssoRepository.UsersStorage),
 			"expected userID to be %d, got %d", currentUsersLength, userID)
 	})
 }
