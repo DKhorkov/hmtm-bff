@@ -80,7 +80,6 @@ func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
 
 		currentUsersLength := len(ssoRepository.UsersStorage)
 		userID, err := resolvers.UseCases.RegisterUser(userData)
-
 		require.NoError(
 			t,
 			err,
