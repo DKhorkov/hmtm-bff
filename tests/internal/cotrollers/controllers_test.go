@@ -1,6 +1,7 @@
 package cotrollers_test
 
 import (
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"testing"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 
 func TestRegisterUserResolverWithoutExistingUsers(t *testing.T) {
 	const testUserID = 1
+	const testUserEmail = "test@example.com"
 	ssoRepository := &mocks.MockedSsoRepository{
 		UsersStorage: make(map[int]*ssoentities.User),
 	}
@@ -25,7 +27,7 @@ func TestRegisterUserResolverWithoutExistingUsers(t *testing.T) {
 
 	userData := ssoentities.RegisterUserDTO{
 		Credentials: ssoentities.LoginUserDTO{
-			Email:    "test@example.com",
+			Email:    testUserEmail,
 			Password: "testPassword",
 		},
 	}
@@ -89,14 +91,16 @@ func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
 
 func TestLoginUserResolver(t *testing.T) {
 	const testUserID = 1
+	const testUserEmail = "test@example.com"
 	t.Run("should return a valid token when login is successful", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
 				testUserID: {
 					ID:        testUserID,
-					Email:     "test@example.com",
+					Email:     testUserEmail,
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
+					Password:  "testPassword",
 				},
 			},
 		}
@@ -106,7 +110,7 @@ func TestLoginUserResolver(t *testing.T) {
 		resolvers := &graphqlcore.Resolver{UseCases: useCases}
 
 		userData := ssoentities.LoginUserDTO{
-			Email:    "test@example.com",
+			Email:    testUserEmail,
 			Password: "testPassword",
 		}
 
@@ -117,12 +121,12 @@ func TestLoginUserResolver(t *testing.T) {
 			"unexpected error during user login")
 		assert.Equal(
 			t,
-			"test@example.com_testPassword",
+			"someToken",
 			token,
-			"expected token to be 'test@example.com_password', got '%s'", token)
+			"expected token to be 'someToken', got '%s'", token)
 	})
 
-	t.Run("should return an error when login fails", func(t *testing.T) {
+	t.Run("should return an error when user not found", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{},
 		}
@@ -132,31 +136,76 @@ func TestLoginUserResolver(t *testing.T) {
 		resolvers := &graphqlcore.Resolver{UseCases: useCases}
 
 		userData := ssoentities.LoginUserDTO{
-			Email:    "test@example.com",
+			Email:    testUserEmail,
 			Password: "password",
 		}
 
-		user := ssoRepository.UsersStorage[testUserID]
-		result, err := resolvers.UseCases.LoginUser(userData)
-		require.NoError(
+		token, err := resolvers.UseCases.LoginUser(userData)
+		require.Error(
 			t,
 			err,
 			"should return an error")
-		assert.Nil(
+		assert.Equal(
 			t,
-			user,
-			"should return an nil, got '%s'", result)
+			"",
+			token,
+			"should return an empty token")
+		assert.IsType(
+			t,
+			&customerrors.UserNotFoundError{},
+			err,
+			"should return a UserNotFoundError")
+	})
+
+	t.Run("should return error when login fails", func(t *testing.T) {
+		ssoRepository := &mocks.MockedSsoRepository{
+			UsersStorage: map[int]*ssoentities.User{
+				testUserID: {
+					ID:        testUserID,
+					Email:     testUserEmail,
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+					Password:  "testPassword",
+				},
+			},
+		}
+
+		ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+		useCases := &usecases.CommonUseCases{SsoService: ssoService}
+		resolvers := &graphqlcore.Resolver{UseCases: useCases}
+
+		userData := ssoentities.LoginUserDTO{
+			Email:    testUserEmail,
+			Password: "wrongPassword",
+		}
+
+		token, err := resolvers.UseCases.LoginUser(userData)
+		require.Error(
+			t,
+			err,
+			"should return an error")
+		assert.Equal(
+			t,
+			"",
+			token,
+			"should return an empty token")
+		assert.IsType(
+			t,
+			&customerrors.InvalidPasswordError{},
+			err,
+			"should return a InvalidPasswordError")
 	})
 }
 
 func TestGetUserResolver(t *testing.T) {
 	const testUserID = 1
+	const testUserEmail = "test@example.com"
 	t.Run("should return a valid user when user exists", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
 				testUserID: {
 					ID:        testUserID,
-					Email:     "test@example.com",
+					Email:     testUserEmail,
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
@@ -174,7 +223,7 @@ func TestGetUserResolver(t *testing.T) {
 			"unexpected error during user retrieval")
 		assert.Equal(
 			t,
-			"test@example.com",
+			testUserEmail,
 			user.Email,
 			"expected user email to be 'test@example.com', got '%s'", user.Email)
 	})
@@ -189,7 +238,7 @@ func TestGetUserResolver(t *testing.T) {
 		resolvers := &graphqlcore.Resolver{UseCases: useCases}
 
 		user, err := resolvers.UseCases.GetUserByID(testUserID)
-		assert.Error(
+		require.Error(
 			t,
 			err,
 			"expected error, got nil")
@@ -229,11 +278,7 @@ func TestGetAllUsersResolver(t *testing.T) {
 			t,
 			err,
 			"unexpected error during user retrieval")
-
-		assert.Len(
-			t,
-			users,
-			2,
-			"expected to get 2 users, got %d", len(users))
+		assert.Len(t, users, len(ssoRepository.UsersStorage),
+			"expected to get %d users, got %d", len(ssoRepository.UsersStorage), len(users))
 	})
 }
