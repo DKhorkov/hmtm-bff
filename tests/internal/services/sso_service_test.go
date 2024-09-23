@@ -219,6 +219,7 @@ func TestLoginUser(t *testing.T) {
 			} else {
 				require.NoError(t, err, "Should return no error")
 			}
+
 			assert.Equal(
 				t,
 				tc.expected,

@@ -215,7 +215,10 @@ func TestGetAllUsersWithExistingUsers(t *testing.T) {
 
 		users, err := useCases.GetAllUsers()
 		require.NoError(t, err)
-		assert.Len(t, users, len(ssoRepository.UsersStorage),
+		assert.Len(
+			t,
+			users,
+			len(ssoRepository.UsersStorage),
 			"expected to get %d users, got %d", len(ssoRepository.UsersStorage), len(users))
 	})
 }
