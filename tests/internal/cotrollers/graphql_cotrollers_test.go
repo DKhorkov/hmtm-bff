@@ -233,8 +233,8 @@ func TestGetUserResolver(t *testing.T) {
 			"unexpected error during user retrieval")
 		assert.Equal(
 			t,
-			user.ID,
 			testUserID,
+			user.ID,
 			"expected user ID to be '%d', got '%d'", testUserID, user.ID)
 		assert.Equal(
 			t,
