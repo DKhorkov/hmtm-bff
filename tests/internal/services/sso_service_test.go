@@ -89,20 +89,40 @@ func TestGetAllUsersWithExistingUsers(t *testing.T) {
 	for index, userData := range testUsers {
 		registeredUserID, err := ssoService.RegisterUser(userData)
 		require.NoError(t, err, "Should create user without error")
-		assert.Equal(t, registeredUserID, index+1, "Should return correct ID for registered user")
+		assert.Equal(
+			t,
+			registeredUserID,
+			index+1,
+			"Should return correct ID for registered user",
+		)
 	}
 
 	users, err := ssoService.GetAllUsers()
 	require.NoError(t, err, "Should return no error")
-	assert.Len(t, users, len(testUsers), "Should return correct number of users")
+	assert.Len(
+		t,
+		users,
+		len(testUsers),
+		"Should return correct number of users")
 
 	// Sorting slice of users to avoid IDs and Emails mismatch errors due to slice structure:
-	sort.Slice(users, func(i, j int) bool {
-		return users[i].ID < users[j].ID
-	})
+	sort.Slice(
+		users,
+		func(i, j int) bool {
+			return users[i].ID < users[j].ID
+		},
+	)
 
 	for index, user := range users {
-		assert.Equal(t, user.Email, testUsers[index].Credentials.Email, "Should return correct email for user")
-		assert.Equal(t, user.ID, index+1, "Should return correct ID for user")
+		assert.Equal(
+			t,
+			user.Email,
+			testUsers[index].Credentials.Email,
+			"Should return correct email for user")
+		assert.Equal(
+			t,
+			user.ID,
+			index+1,
+			"Should return correct ID for user")
 	}
 }

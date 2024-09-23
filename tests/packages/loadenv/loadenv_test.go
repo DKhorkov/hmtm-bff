@@ -23,7 +23,7 @@ func TestGetEnv(t *testing.T) {
 			envValue:     "GRAPHQL_PORT",
 			defaultValue: "",
 			expected:     "GRAPHQL_PORT",
-			message:      "should return the value from env",
+			message:      "should return value from env",
 		},
 		{
 			name:         "key does not exist",
@@ -31,7 +31,7 @@ func TestGetEnv(t *testing.T) {
 			envValue:     "",
 			defaultValue: "default",
 			expected:     "default",
-			message:      "should return the default value",
+			message:      "should return default value",
 		},
 	}
 

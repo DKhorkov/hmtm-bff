@@ -8,7 +8,7 @@ import (
 
 func New() *Config {
 	return &Config{
-		HTTP: HTTPConfigs{
+		HTTP: HTTPConfig{
 			Host: loadenv.GetEnv("HOST", "0.0.0.0"),
 			Port: loadenv.GetEnvAsInt("PORT", 8080),
 			ReadHeaderTimeout: time.Second * time.Duration(
@@ -28,7 +28,7 @@ func New() *Config {
 	}
 }
 
-type HTTPConfigs struct {
+type HTTPConfig struct {
 	Host              string
 	Port              int
 	ReadHeaderTimeout time.Duration
@@ -46,6 +46,6 @@ type ClientsConfig struct {
 }
 
 type Config struct {
-	HTTP    HTTPConfigs
+	HTTP    HTTPConfig
 	Clients ClientsConfig
 }
