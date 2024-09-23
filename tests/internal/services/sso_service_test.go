@@ -4,6 +4,8 @@ import (
 	"sort"
 	"testing"
 
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
+
 	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
 
 	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
@@ -15,6 +17,8 @@ import (
 )
 
 func TestRegisterUser(t *testing.T) {
+	const testUserID = 1
+
 	testCases := []struct {
 		name     string
 		input    ssoentities.RegisterUserDTO
@@ -29,7 +33,7 @@ func TestRegisterUser(t *testing.T) {
 					Password: "password",
 				},
 			},
-			expected: 1,
+			expected: testUserID,
 			message:  "should return a new user id",
 		},
 	}
@@ -39,7 +43,6 @@ func TestRegisterUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			actual, err := ssoService.RegisterUser(tc.input)
-
 			require.NoError(
 				t,
 				err,
@@ -56,8 +59,8 @@ func TestRegisterUser(t *testing.T) {
 func TestGetAllUsersWithoutExistingUsers(t *testing.T) {
 	ssoRepository := &mocks.MockedSsoRepository{UsersStorage: map[int]*ssoentities.User{}}
 	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
-	users, err := ssoService.GetAllUsers()
 
+	users, err := ssoService.GetAllUsers()
 	require.NoError(t, err, "Should return no error")
 	assert.Empty(t, users, "Should return an empty list")
 }
@@ -89,21 +92,12 @@ func TestGetAllUsersWithExistingUsers(t *testing.T) {
 	for index, userData := range testUsers {
 		registeredUserID, err := ssoService.RegisterUser(userData)
 		require.NoError(t, err, "Should create user without error")
-		assert.Equal(
-			t,
-			registeredUserID,
-			index+1,
-			"Should return correct ID for registered user",
-		)
+		assert.Equal(t, registeredUserID, index+1, "Should return correct ID for registered user")
 	}
 
 	users, err := ssoService.GetAllUsers()
 	require.NoError(t, err, "Should return no error")
-	assert.Len(
-		t,
-		users,
-		len(testUsers),
-		"Should return correct number of users")
+	assert.Len(t, users, len(testUsers), "Should return correct number of users")
 
 	// Sorting slice of users to avoid IDs and Emails mismatch errors due to slice structure:
 	sort.Slice(
@@ -124,5 +118,116 @@ func TestGetAllUsersWithExistingUsers(t *testing.T) {
 			user.ID,
 			index+1,
 			"Should return correct ID for user")
+	}
+}
+
+func TestGetUserByID(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    int
+		expected *ssoentities.User
+	}{
+		{
+			name:     "should find user by ID",
+			input:    4,
+			expected: &ssoentities.User{ID: 4, Email: "test@example4.com"},
+		},
+	}
+
+	ssoRepository := &mocks.MockedSsoRepository{
+		UsersStorage: map[int]*ssoentities.User{
+			1: {ID: 1, Email: "test@example.com"},
+			2: {ID: 2, Email: "test@example2.com"},
+			3: {ID: 3, Email: "test@example3.com"},
+			4: {ID: 4, Email: "test@example4.com"},
+		},
+	}
+
+	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual, err := ssoService.GetUserByID(tc.input)
+			require.NoError(t, err, "Should return no error")
+			assert.Equal(
+				t,
+				tc.expected,
+				actual,
+				"\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
+		})
+	}
+}
+
+func TestGetUserByIDNotFound(t *testing.T) {
+	const testUserID = 1
+
+	ssoService := &services.CommonSsoService{
+		SsoRepository: &mocks.MockedSsoRepository{
+			UsersStorage: map[int]*ssoentities.User{},
+		},
+	}
+
+	userID, err := ssoService.GetUserByID(testUserID)
+	assert.Nil(
+		t,
+		userID,
+		"should return nil for user with ID=%d", testUserID)
+	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
+	assert.Equal(t, "user not found", err.Error())
+}
+
+func TestLoginUser(t *testing.T) {
+	testCases := []struct {
+		name          string
+		input         ssoentities.LoginUserDTO
+		expected      string
+		expectedError error
+	}{
+		{
+			name:          "should return token",
+			input:         ssoentities.LoginUserDTO{Email: "test@example.com", Password: "password"},
+			expected:      "someToken",
+			expectedError: nil,
+		},
+		{
+			name:          "should return error if user not found",
+			input:         ssoentities.LoginUserDTO{Email: "nonexistent@example.com", Password: "password"},
+			expected:      "",
+			expectedError: &customerrors.UserNotFoundError{},
+		},
+		{
+			name:          "should return error if password is incorrect",
+			input:         ssoentities.LoginUserDTO{Email: "test@example.com", Password: "wrongPassword"},
+			expected:      "",
+			expectedError: &customerrors.InvalidPasswordError{},
+		},
+	}
+
+	ssoRepository := &mocks.MockedSsoRepository{
+		UsersStorage: map[int]*ssoentities.User{
+			1: {
+				Email:    "test@example.com",
+				Password: "password",
+			},
+		},
+	}
+
+	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual, err := ssoService.LoginUser(tc.input)
+			if tc.expectedError != nil {
+				require.Error(t, err, "Should return an error")
+				assert.IsType(t, tc.expectedError, err)
+			} else {
+				require.NoError(t, err, "Should return no error")
+			}
+
+			assert.Equal(
+				t,
+				tc.expected,
+				actual,
+				"\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
+		})
 	}
 }

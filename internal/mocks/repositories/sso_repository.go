@@ -12,6 +12,12 @@ type MockedSsoRepository struct {
 }
 
 func (repo *MockedSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
+	for _, user := range repo.UsersStorage {
+		if user.Email == userData.Credentials.Email {
+			return 0, &customerrors.UserAlreadyExistsError{}
+		}
+	}
+
 	var user ssoentities.User
 	user.Email = userData.Credentials.Email
 	user.ID = len(repo.UsersStorage) + 1
@@ -23,7 +29,17 @@ func (repo *MockedSsoRepository) RegisterUser(userData ssoentities.RegisterUserD
 }
 
 func (repo *MockedSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (string, error) {
-	return userData.Email + "_" + userData.Password, nil
+	for _, user := range repo.UsersStorage {
+		if user.Email == userData.Email {
+			if user.Password != userData.Password {
+				return "", &customerrors.InvalidPasswordError{}
+			}
+
+			return "someToken", nil
+		}
+	}
+
+	return "", &customerrors.UserNotFoundError{}
 }
 
 func (repo *MockedSsoRepository) GetUserByID(id int) (*ssoentities.User, error) {
