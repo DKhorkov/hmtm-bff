@@ -38,8 +38,13 @@ func TestRegisterUserResolverWithoutExistingUsers(t *testing.T) {
 	require.NoError(
 		t,
 		err,
-		result, "Error registering user")
-	assert.Equal(t, testUserID, result, "should return userID=%d", testUserID)
+		result,
+		"Error registering user")
+	assert.Equal(
+		t,
+		testUserID,
+		result,
+		"should return userID=%d", testUserID)
 }
 
 func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
@@ -84,7 +89,8 @@ func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
 			t,
 			err,
 			"unexpected error: %v", err)
-		assert.Len(t,
+		assert.Len(
+			t,
 			ssoRepository.UsersStorage,
 			currentUsersLength+1,
 			"expected userID to be %d, got %d", currentUsersLength, userID)
@@ -227,6 +233,11 @@ func TestGetUserResolver(t *testing.T) {
 			"unexpected error during user retrieval")
 		assert.Equal(
 			t,
+			user.ID,
+			testUserID,
+			"expected user ID to be '%d', got '%d'", testUserID, user.ID)
+		assert.Equal(
+			t,
 			testUserEmail,
 			user.Email,
 			"expected user email to be 'test@example.com', got '%s'", user.Email)
@@ -281,7 +292,10 @@ func TestGetAllUsersResolver(t *testing.T) {
 			t,
 			err,
 			"unexpected error during user retrieval")
-		assert.Len(t, users, len(ssoRepository.UsersStorage),
+		assert.Len(
+			t,
+			users,
+			len(ssoRepository.UsersStorage),
 			"expected to get %d users, got %d", len(ssoRepository.UsersStorage), len(users))
 	})
 }

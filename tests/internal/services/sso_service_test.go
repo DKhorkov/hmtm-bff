@@ -110,7 +110,11 @@ func TestGetAllUsersWithExistingUsers(t *testing.T) {
 			user.Email,
 			testUsers[index].Credentials.Email,
 			"Should return correct email for user")
-		assert.Equal(t, user.ID, index+1, "Should return correct ID for user")
+		assert.Equal(
+			t,
+			user.ID,
+			index+1,
+			"Should return correct ID for user")
 	}
 }
 
@@ -141,8 +145,11 @@ func TestGetUserByID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			actual, err := ssoService.GetUserByID(tc.input)
 			require.NoError(t, err, "Should return no error")
-			assert.Equal(t, tc.expected,
-				actual, "\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
+			assert.Equal(
+				t,
+				tc.expected,
+				actual,
+				"\n%s - actual: %v, expected: %v", tc.name, actual, tc.expected)
 		})
 	}
 }
@@ -157,7 +164,10 @@ func TestGetUserByIDNotFound(t *testing.T) {
 	}
 
 	userID, err := ssoService.GetUserByID(testUserID)
-	assert.Nil(t, userID, "should return nil for user with ID=%d", testUserID)
+	assert.Nil(
+		t,
+		userID,
+		"should return nil for user with ID=%d", testUserID)
 	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())
 }
