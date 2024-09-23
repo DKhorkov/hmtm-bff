@@ -18,12 +18,7 @@ func (service *CommonSsoService) GetUserByID(id int) (*ssoentities.User, error) 
 }
 
 func (service *CommonSsoService) LoginUser(userData ssoentities.LoginUserDTO) (string, error) {
-	token, err := service.SsoRepository.LoginUser(userData)
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
+	return service.SsoRepository.LoginUser(userData)
 }
 
 func (service *CommonSsoService) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
