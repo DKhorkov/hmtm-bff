@@ -100,9 +100,12 @@ func TestGetAllUsersWithExistingUsers(t *testing.T) {
 	assert.Len(t, users, len(testUsers), "Should return correct number of users")
 
 	// Sorting slice of users to avoid IDs and Emails mismatch errors due to slice structure:
-	sort.Slice(users, func(i, j int) bool {
-		return users[i].ID < users[j].ID
-	})
+	sort.Slice(
+		users,
+		func(i, j int) bool {
+			return users[i].ID < users[j].ID
+		},
+	)
 
 	for index, user := range users {
 		assert.Equal(
