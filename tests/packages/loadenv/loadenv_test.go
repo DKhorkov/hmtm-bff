@@ -1,4 +1,4 @@
-package loadenv_test
+package loadenv__test
 
 import (
 	"testing"

@@ -1,4 +1,4 @@
-package graphqlcotrollers_test
+package graphqlcontoller__test
 
 import (
 	"testing"
