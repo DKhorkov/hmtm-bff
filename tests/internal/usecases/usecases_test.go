@@ -15,8 +15,10 @@ import (
 )
 
 func TestRegisterUser(t *testing.T) {
-	const testUserID = 1
-	const testUserEmail = "test@example.com"
+	const (
+		testUserID    = 1
+		testUserEmail = "test@example.com"
+	)
 
 	t.Run("Success", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
@@ -63,9 +65,11 @@ func TestRegisterUser(t *testing.T) {
 }
 
 func TestLoginUser(t *testing.T) {
-	const testUserID = 1
-	const testUserEmail = "test@example.com"
-	const testUserPassword = "password"
+	const (
+		testUserID       = 1
+		testUserEmail    = "test@example.com"
+		testUserPassword = "password"
+	)
 
 	t.Run("Success", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
@@ -135,8 +139,10 @@ func TestLoginUser(t *testing.T) {
 }
 
 func TestGetUserByID(t *testing.T) {
-	const testUserID = 1
-	const testUserEmail = "test@example.com"
+	const (
+		testUserID    = 1
+		testUserEmail = "test@example.com"
+	)
 
 	t.Run("Success", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{

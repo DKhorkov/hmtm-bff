@@ -16,8 +16,10 @@ import (
 )
 
 func TestRegisterUserResolverWithoutExistingUsers(t *testing.T) {
-	const testUserID = 1
-	const testUserEmail = "test@example.com"
+	const (
+		testUserID    = 1
+		testUserEmail = "test@example.com"
+	)
 
 	ssoRepository := &mocks.MockedSsoRepository{
 		UsersStorage: make(map[int]*ssoentities.User),
@@ -98,8 +100,10 @@ func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
 }
 
 func TestLoginUserResolver(t *testing.T) {
-	const testUserID = 1
-	const testUserEmail = "test@example.com"
+	const (
+		testUserID    = 1
+		testUserEmail = "test@example.com"
+	)
 
 	t.Run("should return a valid token when login is successful", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
@@ -207,8 +211,10 @@ func TestLoginUserResolver(t *testing.T) {
 }
 
 func TestGetUserResolver(t *testing.T) {
-	const testUserID = 1
-	const testUserEmail = "test@example.com"
+	const (
+		testUserID    = 1
+		testUserEmail = "test@example.com"
+	)
 
 	t.Run("should return a valid user when user exists", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
