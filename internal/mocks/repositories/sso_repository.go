@@ -3,8 +3,9 @@ package mocks
 import (
 	"time"
 
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
-	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
+	ssoerrors "github.com/DKhorkov/hmtm-sso/pkg/errors"
+
+	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 )
 
 type MockedSsoRepository struct {
@@ -14,7 +15,7 @@ type MockedSsoRepository struct {
 func (repo *MockedSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
 	for _, user := range repo.UsersStorage {
 		if user.Email == userData.Credentials.Email {
-			return 0, &customerrors.UserAlreadyExistsError{}
+			return 0, &ssoerrors.UserAlreadyExistsError{}
 		}
 	}
 
@@ -32,14 +33,14 @@ func (repo *MockedSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (s
 	for _, user := range repo.UsersStorage {
 		if user.Email == userData.Email {
 			if user.Password != userData.Password {
-				return "", &customerrors.InvalidPasswordError{}
+				return "", &ssoerrors.InvalidPasswordError{}
 			}
 
 			return "someToken", nil
 		}
 	}
 
-	return "", &customerrors.UserNotFoundError{}
+	return "", &ssoerrors.UserNotFoundError{}
 }
 
 func (repo *MockedSsoRepository) GetUserByID(id int) (*ssoentities.User, error) {
@@ -48,7 +49,7 @@ func (repo *MockedSsoRepository) GetUserByID(id int) (*ssoentities.User, error) 
 		return user, nil
 	}
 
-	return nil, &customerrors.UserNotFoundError{}
+	return nil, &ssoerrors.UserNotFoundError{}
 }
 
 func (repo *MockedSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {

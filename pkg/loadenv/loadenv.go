@@ -1,11 +1,10 @@
 package loadenv
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/DKhorkov/hmtm-sso/pkg/logging"
 
 	"github.com/joho/godotenv"
 )
@@ -17,10 +16,9 @@ https://pkg.go.dev/github.com/joho/godotenv#section-readme
 https://habr.com/ru/articles/446468/
 */
 func init() {
-	logger := logging.GetInstance(logging.LogLevels.DEBUG)
 	// loads values from .env into the system.
 	if err := godotenv.Load(); err != nil {
-		logger.Info("No .env file found")
+		fmt.Println("No .env file found")
 	}
 }
 

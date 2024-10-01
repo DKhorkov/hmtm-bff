@@ -16,7 +16,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/DKhorkov/hmtm-bff/internal/controllers/graph/schemas"
-	"github.com/DKhorkov/hmtm-sso/entities"
+	"github.com/DKhorkov/hmtm-sso/pkg/entities"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )

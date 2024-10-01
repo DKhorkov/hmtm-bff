@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/DKhorkov/hmtm-bff/internal/controllers/graph/schemas"
-	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
+	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 )
 
 // RegisterUser is the resolver for the registerUser field.

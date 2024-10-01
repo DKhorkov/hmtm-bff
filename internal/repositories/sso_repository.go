@@ -4,7 +4,7 @@ import (
 	"context"
 
 	ssogrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/sso/grpc"
-	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
+	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 	"github.com/DKhorkov/hmtm-sso/protobuf/generated/go/sso"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

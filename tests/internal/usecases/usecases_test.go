@@ -4,12 +4,13 @@ import (
 	"testing"
 	"time"
 
+	ssoerrors "github.com/DKhorkov/hmtm-sso/pkg/errors"
+
 	"github.com/DKhorkov/hmtm-bff/internal/services"
 
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/usecases"
-	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
+	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -60,7 +61,7 @@ func TestRegisterUser(t *testing.T) {
 		userID, err := useCases.RegisterUser(userData)
 		require.Error(t, err)
 		assert.Equal(t, 0, userID)
-		assert.IsType(t, &customerrors.UserAlreadyExistsError{}, err)
+		assert.IsType(t, &ssoerrors.UserAlreadyExistsError{}, err)
 	})
 }
 
@@ -110,7 +111,7 @@ func TestLoginUser(t *testing.T) {
 		token, err := useCases.LoginUser(userData)
 		require.Error(t, err)
 		assert.Equal(t, "", token)
-		assert.IsType(t, &customerrors.UserNotFoundError{}, err)
+		assert.IsType(t, &ssoerrors.UserNotFoundError{}, err)
 	})
 
 	t.Run("InvalidPassword", func(t *testing.T) {
@@ -134,7 +135,7 @@ func TestLoginUser(t *testing.T) {
 		token, err := useCases.LoginUser(userData)
 		require.Error(t, err)
 		assert.Equal(t, "", token)
-		assert.IsType(t, &customerrors.InvalidPasswordError{}, err)
+		assert.IsType(t, &ssoerrors.InvalidPasswordError{}, err)
 	})
 }
 
@@ -190,7 +191,7 @@ func TestGetUserByIDNotFound(t *testing.T) {
 
 	userID := 3
 	user, err := useCases.GetUserByID(userID)
-	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
+	assert.IsType(t, &ssoerrors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())
 	assert.Nil(t, user)
 }

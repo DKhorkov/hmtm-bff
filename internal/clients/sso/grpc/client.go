@@ -25,9 +25,8 @@ func New(
 	port int,
 	retriesCount int,
 	retriesTimeout time.Duration,
+	logger *slog.Logger,
 ) (*Client, error) {
-	logger := logging.GetInstance(logging.LogLevels.DEBUG)
-
 	// Options for interceptors (перехватчики / middlewares) for retries purposes:
 	retryOptions := []grpcretry.CallOption{
 		grpcretry.WithCodes(codes.NotFound, codes.Aborted, codes.DeadlineExceeded),

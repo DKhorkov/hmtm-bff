@@ -61,7 +61,13 @@ func (controller *Controller) Stop() {
 	controller.logger.Info("Graceful shutdown completed.")
 }
 
-func New(host string, port int, readHeaderTimeout time.Duration, useCases interfaces.UseCases) *Controller {
+func New(
+	host string,
+	port int,
+	readHeaderTimeout time.Duration,
+	useCases interfaces.UseCases,
+	logger *slog.Logger,
+) *Controller {
 	graphqlServer := handler.NewDefaultServer(
 		graphqlcore.NewExecutableSchema(
 			graphqlcore.Config{
@@ -84,6 +90,6 @@ func New(host string, port int, readHeaderTimeout time.Duration, useCases interf
 		httpServer: httpServer,
 		port:       port,
 		host:       host,
-		logger:     logging.GetInstance(logging.LogLevels.DEBUG),
+		logger:     logger,
 	}
 }

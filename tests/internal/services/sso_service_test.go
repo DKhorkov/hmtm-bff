@@ -4,16 +4,12 @@ import (
 	"sort"
 	"testing"
 
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
-
-	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
-
 	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/services"
-
-	"github.com/stretchr/testify/require"
-
+	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
+	ssoerrors "github.com/DKhorkov/hmtm-sso/pkg/errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRegisterUser(t *testing.T) {
@@ -171,7 +167,7 @@ func TestGetUserByIDNotFound(t *testing.T) {
 		t,
 		userID,
 		"should return nil for user with ID=%d", testUserID)
-	assert.IsType(t, &customerrors.UserNotFoundError{}, err)
+	assert.IsType(t, &ssoerrors.UserNotFoundError{}, err)
 	assert.Equal(t, "user not found", err.Error())
 }
 
@@ -192,13 +188,13 @@ func TestLoginUser(t *testing.T) {
 			name:          "should return error if user not found",
 			input:         ssoentities.LoginUserDTO{Email: "nonexistent@example.com", Password: "password"},
 			expected:      "",
-			expectedError: &customerrors.UserNotFoundError{},
+			expectedError: &ssoerrors.UserNotFoundError{},
 		},
 		{
 			name:          "should return error if password is incorrect",
 			input:         ssoentities.LoginUserDTO{Email: "test@example.com", Password: "wrongPassword"},
 			expected:      "",
-			expectedError: &customerrors.InvalidPasswordError{},
+			expectedError: &ssoerrors.InvalidPasswordError{},
 		},
 	}
 

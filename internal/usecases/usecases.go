@@ -2,7 +2,7 @@ package usecases
 
 import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
+	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 )
 
 type CommonUseCases struct {

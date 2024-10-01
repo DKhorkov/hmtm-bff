@@ -4,7 +4,7 @@ tasks:
   help:
     desc: "Show help message."
     cmd:
-     task: help_msg
+      task: help_msg
 
   help_msg:
     desc: "Print possible commands to STDOUT."
@@ -49,8 +49,16 @@ tasks:
     aliases:
       - prod
     cmds:
+      - task: create_logs_folder
       - task: docker_build
       - task: docker_run
+
+  create_logs_folder:
+    desc: "Create logs folder for docker volume purposes."
+    internal: true
+    dir: ../
+    cmds:
+      - mkdir -p logs
 
   graphql_generate:
     desc: "Generate GraphQL base files."

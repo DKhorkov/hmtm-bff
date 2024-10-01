@@ -1,7 +1,11 @@
 package config
 
 import (
+	"fmt"
+	"log/slog"
 	"time"
+
+	"github.com/DKhorkov/hmtm-sso/pkg/logging"
 
 	"github.com/DKhorkov/hmtm-bff/pkg/loadenv"
 )
@@ -25,6 +29,10 @@ func New() *Config {
 				),
 			},
 		},
+		Logging: LoggingConfig{
+			Level:       logging.LogLevels.DEBUG,
+			LogFilePath: fmt.Sprintf("logs/%s.log", time.Now().Format("02-01-2006")),
+		},
 	}
 }
 
@@ -45,7 +53,13 @@ type ClientsConfig struct {
 	SSO Client
 }
 
+type LoggingConfig struct {
+	Level       slog.Level
+	LogFilePath string
+}
+
 type Config struct {
 	HTTP    HTTPConfig
 	Clients ClientsConfig
+	Logging LoggingConfig
 }

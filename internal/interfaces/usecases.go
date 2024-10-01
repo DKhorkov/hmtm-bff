@@ -1,7 +1,7 @@
 package interfaces
 
 import (
-	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
+	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 )
 
 type UseCases interface {

@@ -4,13 +4,12 @@ import (
 	"testing"
 	"time"
 
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
-
 	graphqlcore "github.com/DKhorkov/hmtm-bff/internal/controllers/graph/core"
 	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/services"
 	"github.com/DKhorkov/hmtm-bff/internal/usecases"
-	ssoentities "github.com/DKhorkov/hmtm-sso/entities"
+	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
+	ssoerrors "github.com/DKhorkov/hmtm-sso/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -165,7 +164,7 @@ func TestLoginUserResolver(t *testing.T) {
 			"should return an empty token")
 		assert.IsType(
 			t,
-			&customerrors.UserNotFoundError{},
+			&ssoerrors.UserNotFoundError{},
 			err,
 			"should return a UserNotFoundError")
 	})
@@ -204,7 +203,7 @@ func TestLoginUserResolver(t *testing.T) {
 			"should return an empty token")
 		assert.IsType(
 			t,
-			&customerrors.InvalidPasswordError{},
+			&ssoerrors.InvalidPasswordError{},
 			err,
 			"should return a InvalidPasswordError")
 	})

@@ -8,16 +8,22 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/services"
 	"github.com/DKhorkov/hmtm-bff/internal/usecases"
+	"github.com/DKhorkov/hmtm-sso/pkg/logging"
 )
 
 func main() {
 	settings := config.New()
+	logger := logging.GetInstance(
+		settings.Logging.Level,
+		settings.Logging.LogFilePath,
+	)
 
 	grpcClient, err := ssogrpcclient.New(
 		settings.Clients.SSO.Host,
 		settings.Clients.SSO.Port,
 		settings.Clients.SSO.RetriesCount,
 		settings.Clients.SSO.RetryTimeout,
+		logger,
 	)
 
 	if err != nil {
@@ -32,6 +38,7 @@ func main() {
 		settings.HTTP.Port,
 		settings.HTTP.ReadHeaderTimeout,
 		useCases,
+		logger,
 	)
 
 	application := app.New(controller)
