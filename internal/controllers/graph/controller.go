@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"time"
 
+	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
+	"github.com/DKhorkov/hmtm-bff/internal/config"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
+	"github.com/rs/cors"
 
-	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	graphqlcore "github.com/DKhorkov/hmtm-bff/internal/controllers/graph/core"
 	"github.com/DKhorkov/hmtm-sso/pkg/logging"
@@ -62,13 +63,12 @@ func (controller *Controller) Stop() {
 }
 
 func New(
-	host string,
-	port int,
-	readHeaderTimeout time.Duration,
+	httpConfig config.HTTPConfig,
+	corsConfig config.CORSConfig,
 	useCases interfaces.UseCases,
 	logger *slog.Logger,
 ) *Controller {
-	graphqlServer := handler.NewDefaultServer(
+	graphqlServer := graphqlhandler.NewDefaultServer(
 		graphqlcore.NewExecutableSchema(
 			graphqlcore.Config{
 				Resolvers: &graphqlcore.Resolver{
@@ -78,18 +78,30 @@ func New(
 		),
 	)
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query")) // TODO should be deleted on prod
-	http.Handle("/query", graphqlServer)
+	mux := http.NewServeMux()
+	mux.Handle("/", playground.Handler("GraphQL playground", "/query")) // TODO should be deleted on prod
+	mux.Handle("/query", graphqlServer)
+
+	httpHandler := cors.New(
+		cors.Options{
+			AllowedOrigins:   corsConfig.AllowedOrigins,
+			AllowedMethods:   corsConfig.AllowedMethods,
+			AllowedHeaders:   corsConfig.AllowedHeaders,
+			MaxAge:           corsConfig.MaxAge,
+			AllowCredentials: corsConfig.AllowCredentials,
+		},
+	).Handler(mux)
 
 	httpServer := &http.Server{
-		Addr:              fmt.Sprintf("%s:%d", host, port),
-		ReadHeaderTimeout: readHeaderTimeout,
+		Addr:              fmt.Sprintf("%s:%d", httpConfig.Host, httpConfig.Port),
+		ReadHeaderTimeout: httpConfig.ReadHeaderTimeout,
+		Handler:           httpHandler,
 	}
 
 	return &Controller{
 		httpServer: httpServer,
-		port:       port,
-		host:       host,
+		host:       httpConfig.Host,
+		port:       httpConfig.Port,
 		logger:     logger,
 	}
 }

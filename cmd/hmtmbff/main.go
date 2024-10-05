@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/DKhorkov/hmtm-bff/internal/app"
 	ssogrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/sso/grpc"
 	"github.com/DKhorkov/hmtm-bff/internal/config"
@@ -18,6 +20,9 @@ func main() {
 		settings.Logging.LogFilePath,
 	)
 
+	// App configs info for frontend purposes:
+	logger.Info(fmt.Sprintf("Application settings: %+v", settings))
+
 	grpcClient, err := ssogrpcclient.New(
 		settings.Clients.SSO.Host,
 		settings.Clients.SSO.Port,
@@ -34,9 +39,8 @@ func main() {
 	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
 	useCases := &usecases.CommonUseCases{SsoService: ssoService}
 	controller := graphqlcontroller.New(
-		settings.HTTP.Host,
-		settings.HTTP.Port,
-		settings.HTTP.ReadHeaderTimeout,
+		settings.HTTP,
+		settings.CORS,
 		useCases,
 		logger,
 	)

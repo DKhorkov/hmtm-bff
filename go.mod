@@ -7,6 +7,7 @@ require (
 	github.com/DKhorkov/hmtm-sso v0.0.10
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/joho/godotenv v1.5.1
+	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.9.0
 	github.com/vektah/gqlparser/v2 v2.5.16
 	google.golang.org/grpc v1.65.0

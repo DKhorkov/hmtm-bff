@@ -1,25 +1,6 @@
 version: "3"
 
 tasks:
-  help:
-    desc: "Show help message."
-    cmd:
-      task: help_msg
-
-  help_msg:
-    desc: "Print possible commands to STDOUT."
-    internal: true
-    cmds:
-      - echo "task help                     - Show this help message."
-      - echo "task network                  - Create docker network for project."
-      - echo "task graphql                  - Generate GraphQL base files."
-      - echo "task build                    - Builds docker container."
-      - echo "task run                      - Launches docker container."
-      - echo "task prod                     - Docker build and run."
-      - echo "task clean                    - Cleans docker containers, images and volumes."
-      - echo "task lint                     - Run Go linters."
-      - echo "task test                     - Run Go tests."
-
   docker_network:
     desc: "Create docker network for project."
     aliases:
@@ -37,6 +18,12 @@ tasks:
     aliases:
       - run
     cmd: sudo docker compose -f ../build/package/docker-compose.yml up
+
+  docker_stop:
+    desc: "Stop all docker containers."
+    aliases:
+      - stop
+    cmd:  sudo docker stop $(sudo docker ps -a -q)
 
   docker_clean:
     desc: "Clean docker containers, images and volumes."
