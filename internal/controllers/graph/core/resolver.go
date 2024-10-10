@@ -1,6 +1,8 @@
 package graphqlcore
 
 import (
+	"log/slog"
+
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
@@ -14,4 +16,5 @@ https://stackoverflow.com/questions/62348857/unit-testing-graphql-in-golang
 */
 type Resolver struct {
 	UseCases interfaces.UseCases
+	Logger   *slog.Logger
 }

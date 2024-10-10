@@ -73,6 +73,7 @@ func New(
 			graphqlcore.Config{
 				Resolvers: &graphqlcore.Resolver{
 					UseCases: useCases,
+					Logger:   logger,
 				},
 			},
 		),

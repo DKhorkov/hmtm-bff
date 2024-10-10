@@ -6,6 +6,7 @@ package graphqlcore
 
 import (
 	"context"
+	"github.com/DKhorkov/hmtm-sso/pkg/logging"
 	"strconv"
 
 	"github.com/DKhorkov/hmtm-bff/internal/controllers/graph/schemas"
@@ -14,6 +15,16 @@ import (
 
 // RegisterUser is the resolver for the registerUser field.
 func (r *mutationResolver) RegisterUser(ctx context.Context, input schemas.RegisterUser) (int, error) {
+	r.Logger.Info(
+		"Received new request",
+		"Request",
+		input,
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
 	userData := ssoentities.RegisterUserDTO{
 		Credentials: ssoentities.LoginUserDTO{
 			Email:    input.Credentials.Email,
@@ -26,6 +37,16 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input schemas.Regis
 
 // LoginUser is the resolver for the loginUser field.
 func (r *mutationResolver) LoginUser(ctx context.Context, input *schemas.LoginUser) (string, error) {
+	r.Logger.Info(
+		"Received new request",
+		"Request",
+		input,
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
 	userData := ssoentities.LoginUserDTO{
 		Email:    input.Email,
 		Password: input.Password,
@@ -36,11 +57,29 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input *schemas.LoginUs
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*ssoentities.User, error) {
+	r.Logger.Info(
+		"Received new request",
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
 	return r.UseCases.GetAllUsers()
 }
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id string) (*ssoentities.User, error) {
+	r.Logger.Info(
+		"Received new request",
+		"Request",
+		id,
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
 	userId, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
