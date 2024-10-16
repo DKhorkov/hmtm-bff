@@ -13,8 +13,16 @@ func (useCases *CommonUseCases) RegisterUser(userData ssoentities.RegisterUserDT
 	return useCases.SsoService.RegisterUser(userData)
 }
 
-func (useCases *CommonUseCases) LoginUser(userData ssoentities.LoginUserDTO) (string, error) {
+func (useCases *CommonUseCases) LoginUser(userData ssoentities.LoginUserDTO) (*ssoentities.TokensDTO, error) {
 	return useCases.SsoService.LoginUser(userData)
+}
+
+func (useCases *CommonUseCases) GetMe(accessToken string) (*ssoentities.User, error) {
+	return useCases.SsoService.GetMe(accessToken)
+}
+
+func (useCases *CommonUseCases) RefreshTokens(refreshTokensData ssoentities.TokensDTO) (*ssoentities.TokensDTO, error) {
+	return useCases.SsoService.RefreshTokens(refreshTokensData)
 }
 
 func (useCases *CommonUseCases) GetUserByID(id int) (*ssoentities.User, error) {

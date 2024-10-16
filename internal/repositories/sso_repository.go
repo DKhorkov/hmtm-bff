@@ -74,7 +74,7 @@ func (repo *GrpcSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
 	return users, nil
 }
 
-func (repo *GrpcSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (string, error) {
+func (repo *GrpcSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (*ssoentities.TokensDTO, error) {
 	response, err := repo.Client.Auth.Login(
 		context.Background(),
 		&sso.LoginRequest{
@@ -84,8 +84,48 @@ func (repo *GrpcSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (str
 	)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return response.GetToken(), nil
+	return &ssoentities.TokensDTO{
+		AccessToken:  response.GetAccessToken(),
+		RefreshToken: response.GetRefreshToken(),
+	}, nil
+}
+
+func (repo *GrpcSsoRepository) GetMe(accessToken string) (*ssoentities.User, error) {
+	response, err := repo.Client.Users.GetMe(
+		context.Background(),
+		&sso.GetMeRequest{AccessToken: accessToken},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &ssoentities.User{
+		ID:        int(response.GetUserID()),
+		Email:     response.GetEmail(),
+		CreatedAt: response.GetCreatedAt().AsTime(),
+		UpdatedAt: response.GetUpdatedAt().AsTime(),
+	}, nil
+}
+
+func (repo *GrpcSsoRepository) RefreshTokens(refreshTokensData ssoentities.TokensDTO) (*ssoentities.TokensDTO, error) {
+	response, err := repo.Client.Auth.RefreshTokens(
+		context.Background(),
+		&sso.RefreshTokensRequest{
+			AccessToken:  refreshTokensData.AccessToken,
+			RefreshToken: refreshTokensData.RefreshToken,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &ssoentities.TokensDTO{
+		AccessToken:  response.GetAccessToken(),
+		RefreshToken: response.GetRefreshToken(),
+	}, nil
 }

@@ -175,25 +175,28 @@ func TestLoginUser(t *testing.T) {
 	testCases := []struct {
 		name          string
 		input         ssoentities.LoginUserDTO
-		expected      string
+		expected      *ssoentities.TokensDTO
 		expectedError error
 	}{
 		{
-			name:          "should return token",
-			input:         ssoentities.LoginUserDTO{Email: "test@example.com", Password: "password"},
-			expected:      "someToken",
+			name:  "should return token",
+			input: ssoentities.LoginUserDTO{Email: "test@example.com", Password: "password"},
+			expected: &ssoentities.TokensDTO{
+				AccessToken:  "AccessToken",
+				RefreshToken: "RefreshToken",
+			},
 			expectedError: nil,
 		},
 		{
 			name:          "should return error if user not found",
 			input:         ssoentities.LoginUserDTO{Email: "nonexistent@example.com", Password: "password"},
-			expected:      "",
+			expected:      nil,
 			expectedError: &ssoerrors.UserNotFoundError{},
 		},
 		{
 			name:          "should return error if password is incorrect",
 			input:         ssoentities.LoginUserDTO{Email: "test@example.com", Password: "wrongPassword"},
-			expected:      "",
+			expected:      nil,
 			expectedError: &ssoerrors.InvalidPasswordError{},
 		},
 	}

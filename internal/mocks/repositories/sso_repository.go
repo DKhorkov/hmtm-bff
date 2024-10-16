@@ -29,18 +29,21 @@ func (repo *MockedSsoRepository) RegisterUser(userData ssoentities.RegisterUserD
 	return user.ID, nil
 }
 
-func (repo *MockedSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (string, error) {
+func (repo *MockedSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (*ssoentities.TokensDTO, error) {
 	for _, user := range repo.UsersStorage {
 		if user.Email == userData.Email {
 			if user.Password != userData.Password {
-				return "", &ssoerrors.InvalidPasswordError{}
+				return nil, &ssoerrors.InvalidPasswordError{}
 			}
 
-			return "someToken", nil
+			return &ssoentities.TokensDTO{
+				AccessToken:  "AccessToken",
+				RefreshToken: "RefreshToken",
+			}, nil
 		}
 	}
 
-	return "", &ssoerrors.UserNotFoundError{}
+	return nil, &ssoerrors.UserNotFoundError{}
 }
 
 func (repo *MockedSsoRepository) GetUserByID(id int) (*ssoentities.User, error) {
@@ -59,4 +62,19 @@ func (repo *MockedSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
 	}
 
 	return users, nil
+}
+
+func (repo *MockedSsoRepository) RefreshTokens(refreshTokensData ssoentities.TokensDTO) (*ssoentities.TokensDTO, error) {
+	return &ssoentities.TokensDTO{
+		AccessToken:  "AccessToken",
+		RefreshToken: "RefreshToken",
+	}, nil
+}
+
+func (repo *MockedSsoRepository) GetMe(accessToken string) (*ssoentities.User, error) {
+	if len(repo.UsersStorage) == 0 {
+		return nil, &ssoerrors.UserNotFoundError{}
+	}
+
+	return repo.UsersStorage[0], nil
 }

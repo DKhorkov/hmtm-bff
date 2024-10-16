@@ -126,16 +126,20 @@ func TestLoginUserResolver(t *testing.T) {
 			Password: "testPassword",
 		}
 
-		token, err := resolvers.UseCases.LoginUser(userData)
+		expected := &ssoentities.TokensDTO{
+			AccessToken:  "AccessToken",
+			RefreshToken: "RefreshToken",
+		}
+
+		tokens, err := resolvers.UseCases.LoginUser(userData)
 		require.NoError(
 			t,
 			err,
 			"unexpected error during user login")
 		assert.Equal(
 			t,
-			"someToken",
-			token,
-			"expected token to be 'someToken', got '%s'", token)
+			expected,
+			tokens)
 	})
 
 	t.Run("should return an error when user not found", func(t *testing.T) {
@@ -152,16 +156,12 @@ func TestLoginUserResolver(t *testing.T) {
 			Password: "password",
 		}
 
-		token, err := resolvers.UseCases.LoginUser(userData)
+		tokens, err := resolvers.UseCases.LoginUser(userData)
 		require.Error(
 			t,
 			err,
 			"should return an error")
-		assert.Equal(
-			t,
-			"",
-			token,
-			"should return an empty token")
+		assert.Nil(t, tokens)
 		assert.IsType(
 			t,
 			&ssoerrors.UserNotFoundError{},
@@ -191,16 +191,12 @@ func TestLoginUserResolver(t *testing.T) {
 			Password: "wrongPassword",
 		}
 
-		token, err := resolvers.UseCases.LoginUser(userData)
+		tokens, err := resolvers.UseCases.LoginUser(userData)
 		require.Error(
 			t,
 			err,
 			"should return an error")
-		assert.Equal(
-			t,
-			"",
-			token,
-			"should return an empty token")
+		assert.Nil(t, tokens)
 		assert.IsType(
 			t,
 			&ssoerrors.InvalidPasswordError{},

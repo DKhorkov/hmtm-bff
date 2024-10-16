@@ -3,15 +3,15 @@ module github.com/DKhorkov/hmtm-bff
 go 1.23.1
 
 require (
-	github.com/99designs/gqlgen v0.17.51
-	github.com/DKhorkov/hmtm-sso v0.0.10
+	github.com/99designs/gqlgen v0.17.55
+	github.com/DKhorkov/hmtm-sso v0.1.1
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/joho/godotenv v1.5.1
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.9.0
-	github.com/vektah/gqlparser/v2 v2.5.16
+	github.com/vektah/gqlparser/v2 v2.5.17
 	google.golang.org/grpc v1.65.0
-	google.golang.org/protobuf v1.34.2
+	google.golang.org/protobuf v1.35.1
 )
 
 require (

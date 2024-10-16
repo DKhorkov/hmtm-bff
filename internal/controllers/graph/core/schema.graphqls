@@ -4,27 +4,39 @@
 scalar Time
 
 type User {
-  id: ID!
-  email: String!
-  createdAt: Time!
-  updatedAt: Time!
+    id: ID!
+    email: String!
+    createdAt: Time!
+    updatedAt: Time!
+}
+
+type Tokens {
+    accessToken: String!
+    refreshToken: String!
 }
 
 type Query {
-  users: [User!]!
-  user(id: ID!): User
+    users: [User!]!
+    user(id: ID!): User!
+    me(accessToken: String!): User!
 }
 
-input LoginUser {
-  email: String!
-  password: String!
+input LoginUserInput {
+    email: String!
+    password: String!
 }
 
-input RegisterUser {
-  credentials: LoginUser!
+input RegisterUserInput {
+    credentials: LoginUserInput!
+}
+
+input RefreshTokensInput {
+    accessToken: String!
+    refreshToken: String!
 }
 
 type Mutation {
-    registerUser(input: RegisterUser!): Int!
-    loginUser(input: LoginUser): String!
+    registerUser(input: RegisterUserInput!): Int!
+    loginUser(input: LoginUserInput!): Tokens!
+    refreshTokens(input: RefreshTokensInput!): Tokens!
 }

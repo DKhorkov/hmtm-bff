@@ -356,3 +356,7 @@ issues:
     - path: "internal/clients/sso/grpc/client.go"
       linters:
         - gosec
+    - path: "internal/mocks/repositories/sso_repository.go"
+      linters:
+        - revive
+        - lll

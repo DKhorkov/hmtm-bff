@@ -2,7 +2,7 @@
 
 package schemas
 
-type LoginUser struct {
+type LoginUserInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -13,6 +13,11 @@ type Mutation struct {
 type Query struct {
 }
 
-type RegisterUser struct {
-	Credentials *LoginUser `json:"credentials"`
+type RefreshTokensInput struct {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
+
+type RegisterUserInput struct {
+	Credentials *LoginUserInput `json:"credentials"`
 }

@@ -87,4 +87,7 @@ models:
       - github.com/99designs/gqlgen/graphql.Int32
   User:
     model:
-      - github.com/DKhorkov/hmtm-sso/entities.User
+      - github.com/DKhorkov/hmtm-sso/pkg/entities.User
+  Tokens:
+    model:
+      - github.com/DKhorkov/hmtm-sso/pkg/entities.TokensDTO

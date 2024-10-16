@@ -90,9 +90,14 @@ func TestLoginUser(t *testing.T) {
 			Password: testUserPassword,
 		}
 
-		token, err := useCases.LoginUser(userData)
+		expected := &ssoentities.TokensDTO{
+			AccessToken:  "AccessToken",
+			RefreshToken: "RefreshToken",
+		}
+
+		tokens, err := useCases.LoginUser(userData)
 		require.NoError(t, err)
-		assert.Equal(t, "someToken", token)
+		assert.Equal(t, expected, tokens)
 	})
 
 	t.Run("UserNotFound", func(t *testing.T) {
@@ -108,9 +113,9 @@ func TestLoginUser(t *testing.T) {
 			Password: testUserPassword,
 		}
 
-		token, err := useCases.LoginUser(userData)
+		tokens, err := useCases.LoginUser(userData)
 		require.Error(t, err)
-		assert.Equal(t, "", token)
+		assert.Nil(t, tokens)
 		assert.IsType(t, &ssoerrors.UserNotFoundError{}, err)
 	})
 
@@ -132,9 +137,9 @@ func TestLoginUser(t *testing.T) {
 			Password: "wrongPassword",
 		}
 
-		token, err := useCases.LoginUser(userData)
+		tokens, err := useCases.LoginUser(userData)
 		require.Error(t, err)
-		assert.Equal(t, "", token)
+		assert.Nil(t, tokens)
 		assert.IsType(t, &ssoerrors.InvalidPasswordError{}, err)
 	})
 }
