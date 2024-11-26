@@ -27,7 +27,8 @@ input LoginUserInput {
 }
 
 input RegisterUserInput {
-    credentials: LoginUserInput!
+    email: String!
+    password: String!
 }
 
 input RefreshTokensInput {

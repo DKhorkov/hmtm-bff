@@ -6,11 +6,11 @@ package graphqlcore
 
 import (
 	"context"
-	"github.com/DKhorkov/libs/logging"
 	"strconv"
 
 	"github.com/DKhorkov/hmtm-bff/internal/controllers/graph/schemas"
 	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
+	"github.com/DKhorkov/libs/logging"
 )
 
 // RegisterUser is the resolver for the registerUser field.
@@ -27,8 +27,8 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input schemas.Regis
 
 	userData := ssoentities.RegisterUserDTO{
 		Credentials: ssoentities.LoginUserDTO{
-			Email:    input.Credentials.Email,
-			Password: input.Credentials.Password,
+			Email:    input.Email,
+			Password: input.Password,
 		},
 	}
 

@@ -19,5 +19,6 @@ type RefreshTokensInput struct {
 }
 
 type RegisterUserInput struct {
-	Credentials *LoginUserInput `json:"credentials"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

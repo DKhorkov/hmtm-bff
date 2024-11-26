@@ -3206,20 +3206,27 @@ func (ec *executionContext) unmarshalInputRegisterUserInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"credentials"}
+	fieldsInOrder := [...]string{"email", "password"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "credentials":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("credentials"))
-			data, err := ec.unmarshalNLoginUserInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋcontrollersᚋgraphᚋschemasᚐLoginUserInput(ctx, v)
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Credentials = data
+			it.Email = data
+		case "password":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
 		}
 	}
 
@@ -3900,11 +3907,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 func (ec *executionContext) unmarshalNLoginUserInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋcontrollersᚋgraphᚋschemasᚐLoginUserInput(ctx context.Context, v interface{}) (schemas.LoginUserInput, error) {
 	res, err := ec.unmarshalInputLoginUserInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNLoginUserInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋcontrollersᚋgraphᚋschemasᚐLoginUserInput(ctx context.Context, v interface{}) (*schemas.LoginUserInput, error) {
-	res, err := ec.unmarshalInputLoginUserInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNRefreshTokensInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋcontrollersᚋgraphᚋschemasᚐRefreshTokensInput(ctx context.Context, v interface{}) (schemas.RefreshTokensInput, error) {
