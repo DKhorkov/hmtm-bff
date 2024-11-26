@@ -7,14 +7,14 @@ import (
 	"log/slog"
 	"net/http"
 
-	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/DKhorkov/hmtm-bff/internal/config"
-	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-	"github.com/rs/cors"
 
+	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	graphqlcore "github.com/DKhorkov/hmtm-bff/internal/controllers/graph/core"
-	"github.com/DKhorkov/hmtm-sso/pkg/logging"
+	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
+	"github.com/DKhorkov/libs/logging"
+	"github.com/rs/cors"
 )
 
 type Controller struct {

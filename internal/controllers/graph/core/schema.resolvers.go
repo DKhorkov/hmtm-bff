@@ -6,7 +6,7 @@ package graphqlcore
 
 import (
 	"context"
-	"github.com/DKhorkov/hmtm-sso/pkg/logging"
+	"github.com/DKhorkov/libs/logging"
 	"strconv"
 
 	"github.com/DKhorkov/hmtm-bff/internal/controllers/graph/schemas"

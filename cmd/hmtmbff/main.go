@@ -10,7 +10,7 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/services"
 	"github.com/DKhorkov/hmtm-bff/internal/usecases"
-	"github.com/DKhorkov/hmtm-sso/pkg/logging"
+	"github.com/DKhorkov/libs/logging"
 )
 
 func main() {

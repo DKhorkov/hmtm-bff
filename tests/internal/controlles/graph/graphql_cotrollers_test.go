@@ -5,16 +5,15 @@ import (
 	"time"
 
 	graphqlcore "github.com/DKhorkov/hmtm-bff/internal/controllers/graph/core"
-	mocks "github.com/DKhorkov/hmtm-bff/internal/mocks/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/services"
 	"github.com/DKhorkov/hmtm-bff/internal/usecases"
+	mocks "github.com/DKhorkov/hmtm-bff/mocks/repositories"
 	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
-	ssoerrors "github.com/DKhorkov/hmtm-sso/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestRegisterUserResolverWithoutExistingUsers(t *testing.T) {
+func TestControllersRegisterUserResolverWithoutExistingUsers(t *testing.T) {
 	const (
 		testUserID    = 1
 		testUserEmail = "test@example.com"
@@ -48,7 +47,7 @@ func TestRegisterUserResolverWithoutExistingUsers(t *testing.T) {
 		"should return userID=%d", testUserID)
 }
 
-func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
+func TestControllersRegisterUserResolverWithExistingUsers(t *testing.T) {
 	t.Run("should return the correct user ID when there are existing users", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{
@@ -98,7 +97,7 @@ func TestRegisterUserResolverWithExistingUsers(t *testing.T) {
 	})
 }
 
-func TestLoginUserResolver(t *testing.T) {
+func TestControllersLoginUserResolver(t *testing.T) {
 	const (
 		testUserID    = 1
 		testUserEmail = "test@example.com"
@@ -162,11 +161,6 @@ func TestLoginUserResolver(t *testing.T) {
 			err,
 			"should return an error")
 		assert.Nil(t, tokens)
-		assert.IsType(
-			t,
-			&ssoerrors.UserNotFoundError{},
-			err,
-			"should return a UserNotFoundError")
 	})
 
 	t.Run("should return error when login fails", func(t *testing.T) {
@@ -197,15 +191,10 @@ func TestLoginUserResolver(t *testing.T) {
 			err,
 			"should return an error")
 		assert.Nil(t, tokens)
-		assert.IsType(
-			t,
-			&ssoerrors.InvalidPasswordError{},
-			err,
-			"should return a InvalidPasswordError")
 	})
 }
 
-func TestGetUserResolver(t *testing.T) {
+func TestControllersGetUserResolver(t *testing.T) {
 	const (
 		testUserID    = 1
 		testUserEmail = "test@example.com"
@@ -265,7 +254,7 @@ func TestGetUserResolver(t *testing.T) {
 	})
 }
 
-func TestGetAllUsersResolver(t *testing.T) {
+func TestControllersGetAllUsersResolver(t *testing.T) {
 	t.Run("should return all users", func(t *testing.T) {
 		ssoRepository := &mocks.MockedSsoRepository{
 			UsersStorage: map[int]*ssoentities.User{

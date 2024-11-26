@@ -1,9 +1,8 @@
 package mocks
 
 import (
+	"errors"
 	"time"
-
-	ssoerrors "github.com/DKhorkov/hmtm-sso/pkg/errors"
 
 	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 )
@@ -15,7 +14,7 @@ type MockedSsoRepository struct {
 func (repo *MockedSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
 	for _, user := range repo.UsersStorage {
 		if user.Email == userData.Credentials.Email {
-			return 0, &ssoerrors.UserAlreadyExistsError{}
+			return 0, errors.New("user already exists")
 		}
 	}
 
@@ -33,7 +32,7 @@ func (repo *MockedSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (*
 	for _, user := range repo.UsersStorage {
 		if user.Email == userData.Email {
 			if user.Password != userData.Password {
-				return nil, &ssoerrors.InvalidPasswordError{}
+				return nil, errors.New("invalid password")
 			}
 
 			return &ssoentities.TokensDTO{
@@ -43,7 +42,7 @@ func (repo *MockedSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (*
 		}
 	}
 
-	return nil, &ssoerrors.UserNotFoundError{}
+	return nil, errors.New("user not found")
 }
 
 func (repo *MockedSsoRepository) GetUserByID(id int) (*ssoentities.User, error) {
@@ -52,7 +51,7 @@ func (repo *MockedSsoRepository) GetUserByID(id int) (*ssoentities.User, error) 
 		return user, nil
 	}
 
-	return nil, &ssoerrors.UserNotFoundError{}
+	return nil, errors.New("user not found")
 }
 
 func (repo *MockedSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
@@ -64,16 +63,18 @@ func (repo *MockedSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
 	return users, nil
 }
 
-func (repo *MockedSsoRepository) RefreshTokens(refreshTokensData ssoentities.TokensDTO) (*ssoentities.TokensDTO, error) {
+func (repo *MockedSsoRepository) RefreshTokens(
+	refreshTokensData ssoentities.TokensDTO,
+) (*ssoentities.TokensDTO, error) {
 	return &ssoentities.TokensDTO{
-		AccessToken:  "AccessToken",
-		RefreshToken: "RefreshToken",
+		AccessToken:  refreshTokensData.AccessToken,
+		RefreshToken: refreshTokensData.RefreshToken,
 	}, nil
 }
 
 func (repo *MockedSsoRepository) GetMe(accessToken string) (*ssoentities.User, error) {
 	if len(repo.UsersStorage) == 0 {
-		return nil, &ssoerrors.UserNotFoundError{}
+		return nil, errors.New("user not found for " + accessToken)
 	}
 
 	return repo.UsersStorage[0], nil
