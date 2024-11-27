@@ -8,14 +8,14 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/DKhorkov/hmtm-bff/internal/controllers/graph/schemas"
+	graphqlcontroller "github.com/DKhorkov/hmtm-bff/internal/controllers/graph/schemas"
 	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 	"github.com/DKhorkov/libs/logging"
 )
 
 // RegisterUser is the resolver for the registerUser field.
-func (r *mutationResolver) RegisterUser(ctx context.Context, input schemas.RegisterUserInput) (int, error) {
-	r.Logger.Info(
+func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlcontroller.RegisterUserInput) (int, error) {
+	r.logger.Info(
 		"Received new request",
 		"Request",
 		input,
@@ -32,12 +32,12 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input schemas.Regis
 		},
 	}
 
-	return r.UseCases.RegisterUser(userData)
+	return r.useCases.RegisterUser(userData)
 }
 
 // LoginUser is the resolver for the loginUser field.
-func (r *mutationResolver) LoginUser(ctx context.Context, input schemas.LoginUserInput) (*ssoentities.TokensDTO, error) {
-	r.Logger.Info(
+func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlcontroller.LoginUserInput) (*ssoentities.TokensDTO, error) {
+	r.logger.Info(
 		"Received new request",
 		"Request",
 		input,
@@ -52,12 +52,12 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input schemas.LoginUse
 		Password: input.Password,
 	}
 
-	return r.UseCases.LoginUser(userData)
+	return r.useCases.LoginUser(userData)
 }
 
 // RefreshTokens is the resolver for the refreshTokens field.
-func (r *mutationResolver) RefreshTokens(ctx context.Context, input schemas.RefreshTokensInput) (*ssoentities.TokensDTO, error) {
-	r.Logger.Info(
+func (r *mutationResolver) RefreshTokens(ctx context.Context, input graphqlcontroller.RefreshTokensInput) (*ssoentities.TokensDTO, error) {
+	r.logger.Info(
 		"Received new request",
 		"Request",
 		input,
@@ -72,12 +72,12 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context, input schemas.Refr
 		RefreshToken: input.RefreshToken,
 	}
 
-	return r.UseCases.RefreshTokens(refreshTokensData)
+	return r.useCases.RefreshTokens(refreshTokensData)
 }
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*ssoentities.User, error) {
-	r.Logger.Info(
+	r.logger.Info(
 		"Received new request",
 		"Context",
 		ctx,
@@ -85,12 +85,12 @@ func (r *queryResolver) Users(ctx context.Context) ([]*ssoentities.User, error) 
 		logging.GetLogTraceback(),
 	)
 
-	return r.UseCases.GetAllUsers()
+	return r.useCases.GetAllUsers()
 }
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id string) (*ssoentities.User, error) {
-	r.Logger.Info(
+	r.logger.Info(
 		"Received new request",
 		"Request",
 		id,
@@ -105,12 +105,12 @@ func (r *queryResolver) User(ctx context.Context, id string) (*ssoentities.User,
 		return nil, err
 	}
 
-	return r.UseCases.GetUserByID(userId)
+	return r.useCases.GetUserByID(userId)
 }
 
 // Me is the resolver for me field.
 func (r *queryResolver) Me(ctx context.Context, accessToken string) (*ssoentities.User, error) {
-	r.Logger.Info(
+	r.logger.Info(
 		"Received new request",
 		"Request",
 		accessToken,
@@ -120,7 +120,7 @@ func (r *queryResolver) Me(ctx context.Context, accessToken string) (*ssoentitie
 		logging.GetLogTraceback(),
 	)
 
-	return r.UseCases.GetMe(accessToken)
+	return r.useCases.GetMe(accessToken)
 }
 
 // Mutation returns MutationResolver implementation.

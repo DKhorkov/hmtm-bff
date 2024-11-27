@@ -6,31 +6,35 @@ import (
 )
 
 type CommonSsoService struct {
-	SsoRepository interfaces.SsoRepository
+	ssoRepository interfaces.SsoRepository
 }
 
 func (service *CommonSsoService) GetAllUsers() ([]*ssoentities.User, error) {
-	return service.SsoRepository.GetAllUsers()
+	return service.ssoRepository.GetAllUsers()
 }
 
 func (service *CommonSsoService) GetUserByID(id int) (*ssoentities.User, error) {
-	return service.SsoRepository.GetUserByID(id)
+	return service.ssoRepository.GetUserByID(id)
 }
 
 func (service *CommonSsoService) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
-	return service.SsoRepository.RegisterUser(userData)
+	return service.ssoRepository.RegisterUser(userData)
 }
 
 func (service *CommonSsoService) LoginUser(userData ssoentities.LoginUserDTO) (*ssoentities.TokensDTO, error) {
-	return service.SsoRepository.LoginUser(userData)
+	return service.ssoRepository.LoginUser(userData)
 }
 
 func (service *CommonSsoService) GetMe(accessToken string) (*ssoentities.User, error) {
-	return service.SsoRepository.GetMe(accessToken)
+	return service.ssoRepository.GetMe(accessToken)
 }
 
 func (service *CommonSsoService) RefreshTokens(
 	refreshTokensData ssoentities.TokensDTO,
 ) (*ssoentities.TokensDTO, error) {
-	return service.SsoRepository.RefreshTokens(refreshTokensData)
+	return service.ssoRepository.RefreshTokens(refreshTokensData)
+}
+
+func NewCommonSsoService(ssoRepository interfaces.SsoRepository) *CommonSsoService {
+	return &CommonSsoService{ssoRepository: ssoRepository}
 }

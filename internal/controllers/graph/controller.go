@@ -71,10 +71,10 @@ func New(
 	graphqlServer := graphqlhandler.NewDefaultServer(
 		graphqlcore.NewExecutableSchema(
 			graphqlcore.Config{
-				Resolvers: &graphqlcore.Resolver{
-					UseCases: useCases,
-					Logger:   logger,
-				},
+				Resolvers: graphqlcore.NewResolver(
+					useCases,
+					logger,
+				),
 			},
 		),
 	)

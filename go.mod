@@ -4,11 +4,10 @@ go 1.23.1
 
 require (
 	github.com/99designs/gqlgen v0.17.55
-	github.com/DKhorkov/hmtm-sso v1.0.0
-	github.com/DKhorkov/libs v1.0.2
+	github.com/DKhorkov/hmtm-sso v1.0.1
+	github.com/DKhorkov/libs v1.0.3
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/rs/cors v1.11.1
-	github.com/stretchr/testify v1.10.0
 	github.com/vektah/gqlparser/v2 v2.5.17
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.35.1
@@ -17,13 +16,11 @@ require (
 require (
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/urfave/cli/v2 v2.27.4 // indirect

@@ -15,6 +15,13 @@ It serves as dependency injection for your app, add any dependencies you require
 https://stackoverflow.com/questions/62348857/unit-testing-graphql-in-golang
 */
 type Resolver struct {
-	UseCases interfaces.UseCases
-	Logger   *slog.Logger
+	useCases interfaces.UseCases
+	logger   *slog.Logger
+}
+
+func NewResolver(useCases interfaces.UseCases, logger *slog.Logger) *Resolver {
+	return &Resolver{
+		useCases: useCases,
+		logger:   logger,
+	}
 }

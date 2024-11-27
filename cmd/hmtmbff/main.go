@@ -35,9 +35,9 @@ func main() {
 		panic(err)
 	}
 
-	ssoRepository := &repositories.GrpcSsoRepository{Client: grpcClient}
-	ssoService := &services.CommonSsoService{SsoRepository: ssoRepository}
-	useCases := &usecases.CommonUseCases{SsoService: ssoService}
+	ssoRepository := repositories.NewGrpcSsoRepository(grpcClient)
+	ssoService := services.NewCommonSsoService(ssoRepository)
+	useCases := usecases.NewCommonUseCases(ssoService)
 	controller := graphqlcontroller.New(
 		settings.HTTP,
 		settings.CORS,

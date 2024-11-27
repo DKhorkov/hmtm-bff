@@ -6,29 +6,33 @@ import (
 )
 
 type CommonUseCases struct {
-	SsoService interfaces.SsoService
+	ssoService interfaces.SsoService
 }
 
 func (useCases *CommonUseCases) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
-	return useCases.SsoService.RegisterUser(userData)
+	return useCases.ssoService.RegisterUser(userData)
 }
 
 func (useCases *CommonUseCases) LoginUser(userData ssoentities.LoginUserDTO) (*ssoentities.TokensDTO, error) {
-	return useCases.SsoService.LoginUser(userData)
+	return useCases.ssoService.LoginUser(userData)
 }
 
 func (useCases *CommonUseCases) GetMe(accessToken string) (*ssoentities.User, error) {
-	return useCases.SsoService.GetMe(accessToken)
+	return useCases.ssoService.GetMe(accessToken)
 }
 
 func (useCases *CommonUseCases) RefreshTokens(refreshTokensData ssoentities.TokensDTO) (*ssoentities.TokensDTO, error) {
-	return useCases.SsoService.RefreshTokens(refreshTokensData)
+	return useCases.ssoService.RefreshTokens(refreshTokensData)
 }
 
 func (useCases *CommonUseCases) GetUserByID(id int) (*ssoentities.User, error) {
-	return useCases.SsoService.GetUserByID(id)
+	return useCases.ssoService.GetUserByID(id)
 }
 
 func (useCases *CommonUseCases) GetAllUsers() ([]*ssoentities.User, error) {
-	return useCases.SsoService.GetAllUsers()
+	return useCases.ssoService.GetAllUsers()
+}
+
+func NewCommonUseCases(ssoService interfaces.SsoService) *CommonUseCases {
+	return &CommonUseCases{ssoService: ssoService}
 }

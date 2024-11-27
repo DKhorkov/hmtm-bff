@@ -16,8 +16,8 @@ import (
 )
 
 type Client struct {
-	Auth  sso.AuthServiceClient
-	Users sso.UsersServiceClient
+	sso.AuthServiceClient
+	sso.UsersServiceClient
 }
 
 func New(
@@ -67,8 +67,8 @@ func New(
 	}
 
 	return &Client{
-		Auth:  sso.NewAuthServiceClient(clientConnection),
-		Users: sso.NewUsersServiceClient(clientConnection),
+		sso.NewAuthServiceClient(clientConnection),
+		sso.NewUsersServiceClient(clientConnection),
 	}, nil
 }
 
