@@ -6,7 +6,7 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/app"
 	ssogrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/sso/grpc"
 	"github.com/DKhorkov/hmtm-bff/internal/config"
-	graphqlcontroller "github.com/DKhorkov/hmtm-bff/internal/controllers/graph"
+	graphqlcontroller "github.com/DKhorkov/hmtm-bff/internal/controllers/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/services"
 	"github.com/DKhorkov/hmtm-bff/internal/usecases"

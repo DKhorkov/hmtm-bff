@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/DKhorkov/hmtm-sso/protobuf/generated/go/sso"
+	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
 	"github.com/DKhorkov/libs/logging"
 	grpclogging "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/retry"

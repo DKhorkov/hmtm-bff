@@ -1,9 +1,9 @@
 github.com/99designs/gqlgen v0.17.55 h1:3vzrNWYyzSZjGDFo68e5j9sSauLxfKvLp+6ioRokVtM=
 github.com/99designs/gqlgen v0.17.55/go.mod h1:3Bq768f8hgVPGZxL8aY9MaYmbxa6llPM/qu1IGH1EJo=
-github.com/DKhorkov/hmtm-sso v1.0.1 h1:F2+Zsh3vAd96FD9EaVu41JmRNMdJLdnF3+EAOcEU+6I=
-github.com/DKhorkov/hmtm-sso v1.0.1/go.mod h1:uL3zNKUrrMGUO2sNF2pBDDdbUFO3rZ4EFl1x3e7qczw=
-github.com/DKhorkov/libs v1.0.3 h1:O5Ww8XxLYfXKXsvNLREnbjrsXwJHz267XgSX4jIMh+M=
-github.com/DKhorkov/libs v1.0.3/go.mod h1:BLGz8dReCPYiyY1IaBcFHYnQwF8eU9IxT/kNUhJ4URw=
+github.com/DKhorkov/hmtm-sso v1.0.2 h1:2aP54LrDUFePAUa+gYzkfBtDhKD72euJz47dFtf0+3M=
+github.com/DKhorkov/hmtm-sso v1.0.2/go.mod h1:nqpH1YaQzpayHrwpKy3HF+ri9sZZnOu+nXWonYbsjiQ=
+github.com/DKhorkov/libs v1.0.4 h1:KFkndfLe9CrWFM3R0Jcpb/a8534o6fcxvByTCHUIadw=
+github.com/DKhorkov/libs v1.0.4/go.mod h1:BLGz8dReCPYiyY1IaBcFHYnQwF8eU9IxT/kNUhJ4URw=
 github.com/PuerkitoBio/goquery v1.9.3 h1:mpJr/ikUA9/GNJB/DBZcGeFDXUtosHRyRrwh7KGdTG0=
 github.com/PuerkitoBio/goquery v1.9.3/go.mod h1:1ndLHPdTz+DyQPICCWYlYQMPl0oXZj0G6D4LCYA6u4U=
 github.com/agnivade/levenshtein v1.1.1 h1:QY8M92nrzkmr798gCo3kmMyqXFzdQVpxLlGPRBij0P8=

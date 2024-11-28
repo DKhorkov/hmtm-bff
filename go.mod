@@ -4,8 +4,8 @@ go 1.23.1
 
 require (
 	github.com/99designs/gqlgen v0.17.55
-	github.com/DKhorkov/hmtm-sso v1.0.1
-	github.com/DKhorkov/libs v1.0.3
+	github.com/DKhorkov/hmtm-sso v1.0.2
+	github.com/DKhorkov/libs v1.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/rs/cors v1.11.1
 	github.com/vektah/gqlparser/v2 v2.5.17

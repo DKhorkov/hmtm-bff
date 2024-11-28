@@ -4,9 +4,8 @@ import (
 	"context"
 
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-
+	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
 	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
-	"github.com/DKhorkov/hmtm-sso/protobuf/generated/go/sso"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

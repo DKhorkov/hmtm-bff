@@ -7,11 +7,10 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/DKhorkov/hmtm-bff/internal/config"
-
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	graphqlcore "github.com/DKhorkov/hmtm-bff/internal/controllers/graph/core"
+	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/config"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/rs/cors"
@@ -69,9 +68,9 @@ func New(
 	logger *slog.Logger,
 ) *Controller {
 	graphqlServer := graphqlhandler.NewDefaultServer(
-		graphqlcore.NewExecutableSchema(
-			graphqlcore.Config{
-				Resolvers: graphqlcore.NewResolver(
+		graphqlapi.NewExecutableSchema(
+			graphqlapi.Config{
+				Resolvers: NewResolver(
 					useCases,
 					logger,
 				),

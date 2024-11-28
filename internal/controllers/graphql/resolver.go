@@ -1,4 +1,4 @@
-package graphqlcore
+package graphqlcontroller
 
 import (
 	"log/slog"

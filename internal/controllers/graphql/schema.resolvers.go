@@ -1,4 +1,4 @@
-package graphqlcore
+package graphqlcontroller
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -8,13 +8,13 @@ import (
 	"context"
 	"strconv"
 
-	graphqlcontroller "github.com/DKhorkov/hmtm-bff/internal/controllers/graph/schemas"
+	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 	"github.com/DKhorkov/libs/logging"
 )
 
 // RegisterUser is the resolver for the registerUser field.
-func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlcontroller.RegisterUserInput) (int, error) {
+func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.RegisterUserInput) (int, error) {
 	r.logger.Info(
 		"Received new request",
 		"Request",
@@ -36,7 +36,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlcontro
 }
 
 // LoginUser is the resolver for the loginUser field.
-func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlcontroller.LoginUserInput) (*ssoentities.TokensDTO, error) {
+func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.LoginUserInput) (*ssoentities.TokensDTO, error) {
 	r.logger.Info(
 		"Received new request",
 		"Request",
@@ -56,7 +56,7 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlcontrolle
 }
 
 // RefreshTokens is the resolver for the refreshTokens field.
-func (r *mutationResolver) RefreshTokens(ctx context.Context, input graphqlcontroller.RefreshTokensInput) (*ssoentities.TokensDTO, error) {
+func (r *mutationResolver) RefreshTokens(ctx context.Context, input graphqlapi.RefreshTokensInput) (*ssoentities.TokensDTO, error) {
 	r.logger.Info(
 		"Received new request",
 		"Request",
@@ -123,11 +123,11 @@ func (r *queryResolver) Me(ctx context.Context, accessToken string) (*ssoentitie
 	return r.useCases.GetMe(accessToken)
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+// Mutation returns graphqlapi.MutationResolver implementation.
+func (r *Resolver) Mutation() graphqlapi.MutationResolver { return &mutationResolver{r} }
 
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+// Query returns graphqlapi.QueryResolver implementation.
+func (r *Resolver) Query() graphqlapi.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
