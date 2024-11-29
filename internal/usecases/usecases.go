@@ -9,7 +9,7 @@ type CommonUseCases struct {
 	ssoService interfaces.SsoService
 }
 
-func (useCases *CommonUseCases) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
+func (useCases *CommonUseCases) RegisterUser(userData ssoentities.RegisterUserDTO) (uint64, error) {
 	return useCases.ssoService.RegisterUser(userData)
 }
 
@@ -25,7 +25,7 @@ func (useCases *CommonUseCases) RefreshTokens(refreshTokensData ssoentities.Toke
 	return useCases.ssoService.RefreshTokens(refreshTokensData)
 }
 
-func (useCases *CommonUseCases) GetUserByID(id int) (*ssoentities.User, error) {
+func (useCases *CommonUseCases) GetUserByID(id uint64) (*ssoentities.User, error) {
 	return useCases.ssoService.GetUserByID(id)
 }
 

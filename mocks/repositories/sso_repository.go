@@ -8,10 +8,10 @@ import (
 )
 
 type MockedSsoRepository struct {
-	UsersStorage map[int]*ssoentities.User
+	UsersStorage map[uint64]*ssoentities.User
 }
 
-func (repo *MockedSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
+func (repo *MockedSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO) (uint64, error) {
 	for _, user := range repo.UsersStorage {
 		if user.Email == userData.Credentials.Email {
 			return 0, errors.New("user already exists")
@@ -20,7 +20,7 @@ func (repo *MockedSsoRepository) RegisterUser(userData ssoentities.RegisterUserD
 
 	var user ssoentities.User
 	user.Email = userData.Credentials.Email
-	user.ID = len(repo.UsersStorage) + 1
+	user.ID = uint64(len(repo.UsersStorage) + 1)
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
@@ -45,7 +45,7 @@ func (repo *MockedSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (*
 	return nil, errors.New("user not found")
 }
 
-func (repo *MockedSsoRepository) GetUserByID(id int) (*ssoentities.User, error) {
+func (repo *MockedSsoRepository) GetUserByID(id uint64) (*ssoentities.User, error) {
 	user := repo.UsersStorage[id]
 	if user != nil {
 		return user, nil

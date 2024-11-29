@@ -13,11 +13,11 @@ func (service *CommonSsoService) GetAllUsers() ([]*ssoentities.User, error) {
 	return service.ssoRepository.GetAllUsers()
 }
 
-func (service *CommonSsoService) GetUserByID(id int) (*ssoentities.User, error) {
+func (service *CommonSsoService) GetUserByID(id uint64) (*ssoentities.User, error) {
 	return service.ssoRepository.GetUserByID(id)
 }
 
-func (service *CommonSsoService) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
+func (service *CommonSsoService) RegisterUser(userData ssoentities.RegisterUserDTO) (uint64, error) {
 	return service.ssoRepository.RegisterUser(userData)
 }
 

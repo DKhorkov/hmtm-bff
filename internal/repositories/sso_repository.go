@@ -13,7 +13,7 @@ type GrpcSsoRepository struct {
 	client interfaces.SsoGrpcClient
 }
 
-func (repo *GrpcSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO) (int, error) {
+func (repo *GrpcSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO) (uint64, error) {
 	response, err := repo.client.Register(
 		context.Background(),
 		&sso.RegisterRequest{
@@ -28,14 +28,14 @@ func (repo *GrpcSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO
 		return 0, err
 	}
 
-	return int(response.GetUserID()), nil
+	return response.GetUserID(), nil
 }
 
-func (repo *GrpcSsoRepository) GetUserByID(id int) (*ssoentities.User, error) {
+func (repo *GrpcSsoRepository) GetUserByID(id uint64) (*ssoentities.User, error) {
 	response, err := repo.client.GetUser(
 		context.Background(),
 		&sso.GetUserRequest{
-			UserID: int64(id),
+			ID: id,
 		},
 	)
 
@@ -44,7 +44,7 @@ func (repo *GrpcSsoRepository) GetUserByID(id int) (*ssoentities.User, error) {
 	}
 
 	return &ssoentities.User{
-		ID:        int(response.GetUserID()),
+		ID:        response.GetID(),
 		Email:     response.GetEmail(),
 		CreatedAt: response.GetCreatedAt().AsTime(),
 		UpdatedAt: response.GetUpdatedAt().AsTime(),
@@ -64,7 +64,7 @@ func (repo *GrpcSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
 	users := make([]*ssoentities.User, len(response.GetUsers()))
 	for index, user := range response.GetUsers() {
 		users[index] = &ssoentities.User{
-			ID:        int(user.GetUserID()),
+			ID:        user.GetID(),
 			Email:     user.GetEmail(),
 			CreatedAt: user.GetCreatedAt().AsTime(),
 			UpdatedAt: user.GetUpdatedAt().AsTime(),
@@ -104,7 +104,7 @@ func (repo *GrpcSsoRepository) GetMe(accessToken string) (*ssoentities.User, err
 	}
 
 	return &ssoentities.User{
-		ID:        int(response.GetUserID()),
+		ID:        response.GetID(),
 		Email:     response.GetEmail(),
 		CreatedAt: response.GetCreatedAt().AsTime(),
 		UpdatedAt: response.GetUpdatedAt().AsTime(),

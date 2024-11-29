@@ -32,7 +32,8 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.Re
 		},
 	}
 
-	return r.useCases.RegisterUser(userData)
+	userID, err := r.useCases.RegisterUser(userData)
+	return int(userID), err
 }
 
 // LoginUser is the resolver for the loginUser field.
@@ -100,12 +101,12 @@ func (r *queryResolver) User(ctx context.Context, id string) (*ssoentities.User,
 		logging.GetLogTraceback(),
 	)
 
-	userId, err := strconv.Atoi(id)
+	userID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.useCases.GetUserByID(userId)
+	return r.useCases.GetUserByID(uint64(userID))
 }
 
 // Me is the resolver for me field.

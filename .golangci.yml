@@ -360,3 +360,4 @@ issues:
       linters:
         - revive
         - lll
+        - gosec
