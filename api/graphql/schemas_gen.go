@@ -2,6 +2,16 @@
 
 package graphqlapi
 
+type AddToyInput struct {
+	AccessToken string  `json:"accessToken"`
+	CategoryID  int     `json:"CategoryID"`
+	Name        string  `json:"Name"`
+	Description string  `json:"Description"`
+	Price       float64 `json:"Price"`
+	Quantity    int     `json:"Quantity"`
+	TagsIDs     []int   `json:"TagsIDs"`
+}
+
 type LoginUserInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -16,6 +26,11 @@ type Query struct {
 type RefreshTokensInput struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
+}
+
+type RegisterMasterInput struct {
+	AccessToken string `json:"accessToken"`
+	Info        string `json:"info"`
 }
 
 type RegisterUserInput struct {

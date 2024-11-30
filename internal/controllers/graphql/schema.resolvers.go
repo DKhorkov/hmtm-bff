@@ -10,6 +10,7 @@ import (
 
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
+	toysentities "github.com/DKhorkov/hmtm-toys/pkg/entities"
 	"github.com/DKhorkov/libs/logging"
 )
 
@@ -76,6 +77,58 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context, input graphqlapi.R
 	return r.useCases.RefreshTokens(refreshTokensData)
 }
 
+// RegisterMaster is the resolver for the registerMaster field.
+func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.RegisterMasterInput) (int, error) {
+	r.logger.Info(
+		"Received new request",
+		"Request",
+		input,
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	masterData := toysentities.RawRegisterMasterDTO{
+		AccessToken: input.AccessToken,
+		Info:        input.Info,
+	}
+
+	masterID, err := r.useCases.RegisterMaster(masterData)
+	return int(masterID), err
+}
+
+// AddToy is the resolver for the addToy field.
+func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyInput) (int, error) {
+	r.logger.Info(
+		"Received new request",
+		"Request",
+		input,
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	tagsIDs := make([]uint32, len(input.TagsIDs))
+	for i, id := range input.TagsIDs {
+		tagsIDs[i] = uint32(id)
+	}
+
+	toyData := toysentities.RawAddToyDTO{
+		AccessToken: input.AccessToken,
+		CategoryID:  uint32(input.CategoryID),
+		Name:        input.Name,
+		Description: input.Description,
+		Price:       float32(input.Price),
+		Quantity:    uint32(input.Quantity),
+		TagsIDs:     tagsIDs,
+	}
+
+	toyID, err := r.useCases.AddToy(toyData)
+	return int(toyID), err
+}
+
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*ssoentities.User, error) {
 	r.logger.Info(
@@ -124,11 +177,157 @@ func (r *queryResolver) Me(ctx context.Context, accessToken string) (*ssoentitie
 	return r.useCases.GetMe(accessToken)
 }
 
+// Master is the resolver for the master field.
+func (r *queryResolver) Master(ctx context.Context, id string) (*toysentities.Master, error) {
+	r.logger.Info(
+		"Received new request",
+		"Request",
+		id,
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	masterID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.useCases.GetMasterByID(uint64(masterID))
+}
+
+// Masters is the resolver for the masters field.
+func (r *queryResolver) Masters(ctx context.Context) ([]*toysentities.Master, error) {
+	r.logger.Info(
+		"Received new request",
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	return r.useCases.GetAllMasters()
+}
+
+// Toy is the resolver for the toy field.
+func (r *queryResolver) Toy(ctx context.Context, id string) (*toysentities.Toy, error) {
+	r.logger.Info(
+		"Received new request",
+		"Request",
+		id,
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	toyID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.useCases.GetToyByID(uint64(toyID))
+}
+
+// Toys is the resolver for the toys field.
+func (r *queryResolver) Toys(ctx context.Context) ([]*toysentities.Toy, error) {
+	r.logger.Info(
+		"Received new request",
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	return r.useCases.GetAllToys()
+}
+
+// Tag is the resolver for the tag field.
+func (r *queryResolver) Tag(ctx context.Context, id string) (*toysentities.Tag, error) {
+	r.logger.Info(
+		"Received new request",
+		"Request",
+		id,
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	tagID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.useCases.GetTagByID(uint32(tagID))
+}
+
+// Tags is the resolver for the tags field.
+func (r *queryResolver) Tags(ctx context.Context) ([]*toysentities.Tag, error) {
+	r.logger.Info(
+		"Received new request",
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	return r.useCases.GetAllTags()
+}
+
+// Category is the resolver for the category field.
+func (r *queryResolver) Category(ctx context.Context, id string) (*toysentities.Category, error) {
+	r.logger.Info(
+		"Received new request",
+		"Request",
+		id,
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	categoryID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.useCases.GetCategoryByID(uint32(categoryID))
+}
+
+// Categories is the resolver for the categories field.
+func (r *queryResolver) Categories(ctx context.Context) ([]*toysentities.Category, error) {
+	r.logger.Info(
+		"Received new request",
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	return r.useCases.GetAllCategories()
+}
+
+// Price is the resolver for the price field.
+func (r *toyResolver) Price(ctx context.Context, obj *toysentities.Toy) (float64, error) {
+	return float64(obj.Price), nil
+}
+
+// Quantity is the resolver for the quantity field.
+func (r *toyResolver) Quantity(ctx context.Context, obj *toysentities.Toy) (int, error) {
+	return int(obj.Quantity), nil
+}
+
 // Mutation returns graphqlapi.MutationResolver implementation.
 func (r *Resolver) Mutation() graphqlapi.MutationResolver { return &mutationResolver{r} }
 
 // Query returns graphqlapi.QueryResolver implementation.
 func (r *Resolver) Query() graphqlapi.QueryResolver { return &queryResolver{r} }
 
+// Toy returns graphqlapi.ToyResolver implementation.
+func (r *Resolver) Toy() graphqlapi.ToyResolver { return &toyResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type toyResolver struct{ *Resolver }

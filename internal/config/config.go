@@ -26,6 +26,14 @@ func New() Config {
 					loadenv.GetEnvAsInt("SSO_RETRIES_TIMEOUT", 1),
 				),
 			},
+			Toys: Client{
+				Host:         loadenv.GetEnv("TOYS_CLIENT_HOST", "0.0.0.0"),
+				Port:         loadenv.GetEnvAsInt("TOYS_CLIENT_PORT", 8060),
+				RetriesCount: loadenv.GetEnvAsInt("TOYS_RETRIES_COUNT", 3),
+				RetryTimeout: time.Second * time.Duration(
+					loadenv.GetEnvAsInt("TOYS_RETRIES_TIMEOUT", 1),
+				),
+			},
 		},
 		Logging: logging.Config{
 			Level:       logging.LogLevels.DEBUG,
@@ -63,7 +71,8 @@ type Client struct {
 }
 
 type ClientsConfig struct {
-	SSO Client
+	SSO  Client
+	Toys Client
 }
 
 type Config struct {

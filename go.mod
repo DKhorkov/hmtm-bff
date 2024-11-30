@@ -5,12 +5,13 @@ go 1.23.1
 require (
 	github.com/99designs/gqlgen v0.17.55
 	github.com/DKhorkov/hmtm-sso v1.0.3
+	github.com/DKhorkov/hmtm-toys v0.0.2
 	github.com/DKhorkov/libs v1.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/rs/cors v1.11.1
 	github.com/vektah/gqlparser/v2 v2.5.17
-	google.golang.org/grpc v1.65.0
-	google.golang.org/protobuf v1.35.1
+	google.golang.org/grpc v1.68.0
+	google.golang.org/protobuf v1.35.2
 )
 
 require (
@@ -31,6 +32,6 @@ require (
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
 	golang.org/x/tools v0.25.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

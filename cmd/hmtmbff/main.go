@@ -5,6 +5,7 @@ import (
 
 	"github.com/DKhorkov/hmtm-bff/internal/app"
 	ssogrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/sso/grpc"
+	toysgrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/toys/grpc"
 	"github.com/DKhorkov/hmtm-bff/internal/config"
 	graphqlcontroller "github.com/DKhorkov/hmtm-bff/internal/controllers/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/repositories"
@@ -23,7 +24,7 @@ func main() {
 	// App configs info for frontend purposes:
 	logger.Info(fmt.Sprintf("Application settings: %+v", settings))
 
-	grpcClient, err := ssogrpcclient.New(
+	ssoGrpcClient, err := ssogrpcclient.New(
 		settings.Clients.SSO.Host,
 		settings.Clients.SSO.Port,
 		settings.Clients.SSO.RetriesCount,
@@ -35,9 +36,27 @@ func main() {
 		panic(err)
 	}
 
-	ssoRepository := repositories.NewGrpcSsoRepository(grpcClient)
+	toysGrpcClient, err := toysgrpcclient.New(
+		settings.Clients.Toys.Host,
+		settings.Clients.Toys.Port,
+		settings.Clients.Toys.RetriesCount,
+		settings.Clients.Toys.RetryTimeout,
+		logger,
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	ssoRepository := repositories.NewGrpcSsoRepository(ssoGrpcClient)
+	toysRepository := repositories.NewGrpcToysRepository(toysGrpcClient)
 	ssoService := services.NewCommonSsoService(ssoRepository)
-	useCases := usecases.NewCommonUseCases(ssoService)
+	toysService := services.NewCommonToysService(toysRepository)
+	useCases := usecases.NewCommonUseCases(
+		ssoService,
+		toysService,
+	)
+
 	controller := graphqlcontroller.New(
 		settings.HTTP,
 		settings.CORS,

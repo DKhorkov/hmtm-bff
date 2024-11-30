@@ -15,10 +15,50 @@ type Tokens {
     refreshToken: String!
 }
 
+type Category {
+    id: ID!
+    name: String!
+}
+
+type Tag {
+    id: ID!
+    name: String!
+}
+
+type Toy {
+    id: ID!
+    masterId: ID!
+    categoryId: ID!
+    name: String!
+    description: String!
+    price: Float!
+    quantity: Int!
+    createdAt: Time!
+    updatedAt: Time!
+    tags: [Tag!]!
+}
+
+type Master {
+    id: ID!
+    userId: ID!
+    info: String!
+    createdAt: Time!
+    updatedAt: Time!
+    toys: [Toy!]!
+}
+
 type Query {
     users: [User!]!
     user(id: ID!): User!
     me(accessToken: String!): User!
+    master(id: ID!): Master!
+    masters: [Master!]!
+    toy(id: ID!): Toy!
+    toys: [Toy!]!
+    tag(id: ID!): Tag!
+    tags: [Tag!]!
+    category(id: ID!): Category!
+    categories: [Category!]!
 }
 
 input LoginUserInput {
@@ -36,8 +76,25 @@ input RefreshTokensInput {
     refreshToken: String!
 }
 
+input RegisterMasterInput {
+    accessToken: String!
+    info: String!
+}
+
+input AddToyInput {
+    accessToken: String!
+    CategoryID:  Int!
+    Name: String!
+    Description: String!
+    Price: Float!
+    Quantity: Int!
+    TagsIDs: [Int!]!
+}
+
 type Mutation {
     registerUser(input: RegisterUserInput!): Int!
     loginUser(input: LoginUserInput!): Tokens!
     refreshTokens(input: RefreshTokensInput!): Tokens!
+    registerMaster(input: RegisterMasterInput!): Int!
+    addToy(input: AddToyInput!): Int!
 }
