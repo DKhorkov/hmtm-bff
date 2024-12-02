@@ -27,9 +27,18 @@ tasks:
 
   docker_clean:
     desc: "Clean docker containers, images and volumes."
+    cmd: sudo docker system prune -a --volumes
+
+  clean_up:
+    desc: "Clean up all folders, docker volumes, images and containers."
+    dir: ../
     aliases:
       - clean
-    cmd: sudo docker system prune -a --volumes
+    cmds:
+      - sudo rm -rf logs/
+      - sudo rm -rf coverage/
+      - sudo rm -rf build/package/.env
+      - task: docker_clean
 
   docker_prod:
     desc: "Docker build and run."
@@ -37,6 +46,7 @@ tasks:
       - prod
     cmds:
       - task: create_logs_folder
+      - task: copy_env_file_for_docker
       - task: docker_build
       - task: docker_run
 
@@ -44,8 +54,13 @@ tasks:
     desc: "Create logs folder for docker volume purposes."
     internal: true
     dir: ../
-    cmds:
-      - mkdir -p logs
+    cmd: mkdir -p logs
+
+  copy_env_file_for_docker:
+    desc: "Copy .env file to docker folder to paste environments from file in docker compose file."
+    internal: true
+    dir: ../
+    cmd: cp .env build/package/.env
 
   graphql_generate:
     desc: "Generate GraphQL base files."
