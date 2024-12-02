@@ -1,11 +1,13 @@
 version: '3'
 
 services:
-  hmtmbff:
-    container_name: hmtmbff
-    image: hmtmbff
+  hmtm_bff:
+    container_name: hmtm_bff
+    image: hmtm_bff
     build:
       context: ../..
       dockerfile: ./build/package/Dockerfile
     ports:
-      - "8080:8080"
+      - "${HMTM_BFF_OUTER_PORT}:${HMTM_BFF_INNER_PORT}"
+    volumes:
+      - ../../logs/:/app/logs/

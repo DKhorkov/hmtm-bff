@@ -1,30 +1,11 @@
 version: "3"
 
 tasks:
-  help:
-    desc: "Show help message."
-    cmd:
-     task: help_msg
-
-  help_msg:
-    desc: "Print possible commands to STDOUT."
-    internal: true
-    cmds:
-      - echo "task help                     - Show this help message."
-      - echo "task network                  - Create docker network for project."
-      - echo "task graphql                  - Generate GraphQL base files."
-      - echo "task build                    - Builds docker container."
-      - echo "task run                      - Launches docker container."
-      - echo "task prod                     - Docker build and run."
-      - echo "task clean                    - Cleans docker containers, images and volumes."
-      - echo "task lint                     - Run Go linters."
-      - echo "task test                     - Run Go tests."
-
   docker_network:
     desc: "Create docker network for project."
     aliases:
       - network
-    cmd: sudo docker network create hmtmbff_network
+    cmd: sudo docker network create hmtm_network
 
   docker_build:
     desc: "Build docker container."
@@ -38,19 +19,48 @@ tasks:
       - run
     cmd: sudo docker compose -f ../build/package/docker-compose.yml up
 
+  docker_stop:
+    desc: "Stop all docker containers."
+    aliases:
+      - stop
+    cmd:  sudo docker stop $(sudo docker ps -a -q)
+
   docker_clean:
     desc: "Clean docker containers, images and volumes."
+    cmd: sudo docker system prune -a --volumes
+
+  clean_up:
+    desc: "Clean up all folders, docker volumes, images and containers."
+    dir: ../
     aliases:
       - clean
-    cmd: sudo docker system prune -a --volumes
+    cmds:
+      - sudo rm -rf logs/
+      - sudo rm -rf coverage/
+      - sudo rm -rf build/package/.env
+      - task: docker_clean
 
   docker_prod:
     desc: "Docker build and run."
     aliases:
       - prod
     cmds:
+      - task: create_logs_folder
+      - task: copy_env_file_for_docker
       - task: docker_build
       - task: docker_run
+
+  create_logs_folder:
+    desc: "Create logs folder for docker volume purposes."
+    internal: true
+    dir: ../
+    cmd: mkdir -p logs
+
+  copy_env_file_for_docker:
+    desc: "Copy .env file to docker folder to paste environments from file in docker compose file."
+    internal: true
+    dir: ../
+    cmd: cp .env build/package/.env
 
   graphql_generate:
     desc: "Generate GraphQL base files."
@@ -64,9 +74,9 @@ tasks:
       - test
     dir: ../
     cmds:
-      - mkdir -p ./tests/coverage
-      - go test -v -coverprofile ./tests/coverage/coverage.out -coverpkg=./... ./tests...
-      - go tool cover -html ./tests/coverage/coverage.out -o ./tests/coverage/coverage.html
+      - mkdir -p ./coverage
+      - go test -v -coverprofile ./coverage/coverage.out -coverpkg=./... ./...
+      - go tool cover -html ./coverage/coverage.out -o ./coverage/coverage.html
 
   linters:
     desc: "Run linters."
@@ -74,3 +84,13 @@ tasks:
       - lint
     dir: ../
     cmd: golangci-lint run -v --fix
+
+  upload_docker_image:
+    desc: "Uploads docker image to dockerhub."
+    aliases:
+      - upload
+    dir: ../
+    cmds:
+      - task: docker_build
+      - sudo docker tag hmtm_bff d3m0s/hmtm_bff
+      - sudo docker push d3m0s/hmtm_bff

@@ -1,31 +1,40 @@
 package services
 
 import (
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
+	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 )
 
 type CommonSsoService struct {
-	SsoRepository interfaces.SsoRepository
+	ssoRepository interfaces.SsoRepository
 }
 
-func (service *CommonSsoService) GetAllUsers() ([]*entities.User, error) {
-	return service.SsoRepository.GetAllUsers()
+func (service *CommonSsoService) GetAllUsers() ([]*ssoentities.User, error) {
+	return service.ssoRepository.GetAllUsers()
 }
 
-func (service *CommonSsoService) GetUserByID(id int) (*entities.User, error) {
-	return service.SsoRepository.GetUserByID(id)
+func (service *CommonSsoService) GetUserByID(id uint64) (*ssoentities.User, error) {
+	return service.ssoRepository.GetUserByID(id)
 }
 
-func (service *CommonSsoService) LoginUser(userData entities.LoginUserDTO) (string, error) {
-	token, err := service.SsoRepository.LoginUser(userData)
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
+func (service *CommonSsoService) RegisterUser(userData ssoentities.RegisterUserDTO) (uint64, error) {
+	return service.ssoRepository.RegisterUser(userData)
 }
 
-func (service *CommonSsoService) RegisterUser(userData entities.RegisterUserDTO) (int, error) {
-	return service.SsoRepository.RegisterUser(userData)
+func (service *CommonSsoService) LoginUser(userData ssoentities.LoginUserDTO) (*ssoentities.TokensDTO, error) {
+	return service.ssoRepository.LoginUser(userData)
+}
+
+func (service *CommonSsoService) GetMe(accessToken string) (*ssoentities.User, error) {
+	return service.ssoRepository.GetMe(accessToken)
+}
+
+func (service *CommonSsoService) RefreshTokens(
+	refreshTokensData ssoentities.TokensDTO,
+) (*ssoentities.TokensDTO, error) {
+	return service.ssoRepository.RefreshTokens(refreshTokensData)
+}
+
+func NewCommonSsoService(ssoRepository interfaces.SsoRepository) *CommonSsoService {
+	return &CommonSsoService{ssoRepository: ssoRepository}
 }
