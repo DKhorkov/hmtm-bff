@@ -364,3 +364,6 @@ issues:
         - revive
         - lll
         - gosec
+    - path: "internal/middlewares/cookies.go"
+      linters:
+        - gochecknoglobals

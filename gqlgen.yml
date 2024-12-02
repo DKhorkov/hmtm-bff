@@ -96,9 +96,6 @@ models:
   User:
     model:
       - github.com/DKhorkov/hmtm-sso/pkg/entities.User
-  Tokens:
-    model:
-      - github.com/DKhorkov/hmtm-sso/pkg/entities.TokensDTO
   Category:
     model:
       - github.com/DKhorkov/hmtm-toys/pkg/entities.Category

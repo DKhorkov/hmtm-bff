@@ -6,9 +6,11 @@ package graphqlcontroller
 
 import (
 	"context"
+	"github.com/DKhorkov/hmtm-bff/internal/middlewares"
 	"strconv"
 
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 	toysentities "github.com/DKhorkov/hmtm-toys/pkg/entities"
 	"github.com/DKhorkov/libs/logging"
@@ -54,7 +56,28 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.Login
 		Password: input.Password,
 	}
 
-	return r.useCases.LoginUser(userData)
+	writer, ok := getHTTPWriterFromContext(ctx)
+	if !ok {
+		r.logger.ErrorContext(
+			ctx,
+			"Failed to get cookies writer",
+			"Context",
+			ctx,
+			"Traceback",
+			logging.GetLogTraceback(),
+		)
+
+		return nil, customerrors.ContextValueNotFoundError{Message: middlewares.CookiesWriterName}
+	}
+
+	tokens, err := r.useCases.LoginUser(userData)
+	if err != nil {
+		return nil, err
+	}
+
+	setCookie(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
+	setCookie(writer, refreshTokenCookieName, tokens.RefreshToken, r.cookiesConfig.RefreshToken)
+	return tokens, nil
 }
 
 // RefreshTokens is the resolver for the refreshTokens field.
@@ -174,7 +197,12 @@ func (r *queryResolver) Me(ctx context.Context, accessToken string) (*ssoentitie
 		logging.GetLogTraceback(),
 	)
 
-	return r.useCases.GetMe(accessToken)
+	cookiesAccessToken, ok := getCookieFromContext(ctx, accessTokenCookieName)
+	if !ok {
+		return nil, customerrors.CookieNotFoundError{Message: accessTokenCookieName}
+	}
+
+	return r.useCases.GetMe(cookiesAccessToken.Value)
 }
 
 // Master is the resolver for the master field.

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/DKhorkov/libs/loadenv"
@@ -18,7 +19,7 @@ func New() Config {
 			),
 		},
 		Clients: ClientsConfig{
-			SSO: Client{
+			SSO: ClientConfig{
 				Host:         loadenv.GetEnv("SSO_CLIENT_HOST", "0.0.0.0"),
 				Port:         loadenv.GetEnvAsInt("SSO_CLIENT_PORT", 8070),
 				RetriesCount: loadenv.GetEnvAsInt("SSO_RETRIES_COUNT", 3),
@@ -26,7 +27,7 @@ func New() Config {
 					loadenv.GetEnvAsInt("SSO_RETRIES_TIMEOUT", 1),
 				),
 			},
-			Toys: Client{
+			Toys: ClientConfig{
 				Host:         loadenv.GetEnv("TOYS_CLIENT_HOST", "0.0.0.0"),
 				Port:         loadenv.GetEnvAsInt("TOYS_CLIENT_PORT", 8060),
 				RetriesCount: loadenv.GetEnvAsInt("TOYS_RETRIES_COUNT", 3),
@@ -46,6 +47,34 @@ func New() Config {
 			AllowCredentials: loadenv.GetEnvAsBool("CORS_ALLOW_CREDENTIALS", true),
 			MaxAge:           loadenv.GetEnvAsInt("CORS_MAX_AGE", 600),
 		},
+		Cookies: CookiesConfig{
+			AccessToken: CookieConfig{
+				Path:   loadenv.GetEnv("COOKIES_ACCESS_TOKEN_PATH", "/"),
+				Domain: loadenv.GetEnv("COOKIES_ACCESS_TOKEN_DOMAIN", ""),
+				MaxAge: loadenv.GetEnvAsInt("COOKIES_ACCESS_TOKEN_MAX_AGE", 0),
+				Expires: time.Minute * time.Duration(
+					loadenv.GetEnvAsInt("COOKIES_ACCESS_TOKEN_EXPIRES", 15),
+				),
+				Secure:   loadenv.GetEnvAsBool("COOKIES_ACCESS_TOKEN_SECURE", false),
+				HTTPOnly: loadenv.GetEnvAsBool("COOKIES_ACCESS_TOKEN_HTTP_ONLY", false),
+				SameSite: http.SameSite(
+					loadenv.GetEnvAsInt("COOKIES_ACCESS_TOKEN_SAME_SITE", 1),
+				),
+			},
+			RefreshToken: CookieConfig{
+				Path:   loadenv.GetEnv("COOKIES_REFRESH_TOKEN_PATH", "/"),
+				Domain: loadenv.GetEnv("COOKIES_REFRESH_TOKEN_DOMAIN", ""),
+				MaxAge: loadenv.GetEnvAsInt("COOKIES_REFRESH_TOKEN_MAX_AGE", 0),
+				Expires: time.Hour * time.Duration(
+					loadenv.GetEnvAsInt("COOKIES_REFRESH_TOKEN_EXPIRES", 24*7),
+				),
+				Secure:   loadenv.GetEnvAsBool("COOKIES_REFRESH_TOKEN_SECURE", false),
+				HTTPOnly: loadenv.GetEnvAsBool("COOKIES_REFRESH_TOKEN_HTTP_ONLY", false),
+				SameSite: http.SameSite(
+					loadenv.GetEnvAsInt("COOKIES_REFRESH_TOKEN_SAME_SITE", 1),
+				),
+			},
+		},
 	}
 }
 
@@ -63,7 +92,7 @@ type CORSConfig struct {
 	AllowCredentials bool
 }
 
-type Client struct {
+type ClientConfig struct {
 	Host         string
 	Port         int
 	RetryTimeout time.Duration
@@ -71,8 +100,34 @@ type Client struct {
 }
 
 type ClientsConfig struct {
-	SSO  Client
-	Toys Client
+	SSO  ClientConfig
+	Toys ClientConfig
+}
+
+type CookieConfig struct {
+	// See http.Cookie as reference.
+
+	Path    string        // optional
+	Domain  string        // optional
+	Expires time.Duration // optional
+
+	// MaxAge=0 means no 'Max-Age' attribute specified.
+	// MaxAge<0 means delete cookie now, equivalently 'Max-Age: 0'
+	// MaxAge>0 means Max-Age attribute present and given in seconds
+	MaxAge   int
+	Secure   bool
+	HTTPOnly bool
+
+	//	SameSiteDefaultMode SameSite = iota + 1 (1)
+	//	SameSiteLaxMode (2)
+	//	SameSiteStrictMode (3)
+	//	SameSiteNoneMode (4)
+	SameSite http.SameSite
+}
+
+type CookiesConfig struct {
+	AccessToken  CookieConfig
+	RefreshToken CookieConfig
 }
 
 type Config struct {
@@ -80,4 +135,5 @@ type Config struct {
 	CORS    CORSConfig
 	Clients ClientsConfig
 	Logging logging.Config
+	Cookies CookiesConfig
 }

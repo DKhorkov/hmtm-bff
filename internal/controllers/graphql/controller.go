@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/DKhorkov/hmtm-bff/internal/middlewares"
+
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
@@ -64,6 +66,7 @@ func (controller *Controller) Stop() {
 func New(
 	httpConfig config.HTTPConfig,
 	corsConfig config.CORSConfig,
+	cookiesConfig config.CookiesConfig,
 	useCases interfaces.UseCases,
 	logger *slog.Logger,
 ) *Controller {
@@ -73,6 +76,7 @@ func New(
 				Resolvers: NewResolver(
 					useCases,
 					logger,
+					cookiesConfig,
 				),
 			},
 		),
@@ -91,6 +95,9 @@ func New(
 			AllowCredentials: corsConfig.AllowCredentials,
 		},
 	).Handler(mux)
+
+	// Read cookies for auth purposes:
+	httpHandler = middlewares.CookiesMiddleware(httpHandler, []string{"accessToken", "refreshToken"})
 
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", httpConfig.Host, httpConfig.Port),

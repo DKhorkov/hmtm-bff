@@ -60,6 +60,7 @@ func main() {
 	controller := graphqlcontroller.New(
 		settings.HTTP,
 		settings.CORS,
+		settings.Cookies,
 		useCases,
 		logger,
 	)
