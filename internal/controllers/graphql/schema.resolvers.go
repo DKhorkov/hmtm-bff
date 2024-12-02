@@ -6,11 +6,11 @@ package graphqlcontroller
 
 import (
 	"context"
-	"github.com/DKhorkov/hmtm-bff/internal/middlewares"
 	"strconv"
 
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
+	"github.com/DKhorkov/hmtm-bff/internal/middlewares"
 	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 	toysentities "github.com/DKhorkov/hmtm-toys/pkg/entities"
 	"github.com/DKhorkov/libs/logging"
@@ -40,7 +40,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.Re
 }
 
 // LoginUser is the resolver for the loginUser field.
-func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.LoginUserInput) (*ssoentities.TokensDTO, error) {
+func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.LoginUserInput) (bool, error) {
 	r.logger.Info(
 		"Received new request",
 		"Request",
@@ -56,6 +56,11 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.Login
 		Password: input.Password,
 	}
 
+	tokens, err := r.useCases.LoginUser(userData)
+	if err != nil {
+		return false, err
+	}
+
 	writer, ok := getHTTPWriterFromContext(ctx)
 	if !ok {
 		r.logger.ErrorContext(
@@ -67,21 +72,16 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.Login
 			logging.GetLogTraceback(),
 		)
 
-		return nil, customerrors.ContextValueNotFoundError{Message: middlewares.CookiesWriterName}
-	}
-
-	tokens, err := r.useCases.LoginUser(userData)
-	if err != nil {
-		return nil, err
+		return false, customerrors.ContextValueNotFoundError{Message: middlewares.CookiesWriterName}
 	}
 
 	setCookie(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
 	setCookie(writer, refreshTokenCookieName, tokens.RefreshToken, r.cookiesConfig.RefreshToken)
-	return tokens, nil
+	return true, nil
 }
 
 // RefreshTokens is the resolver for the refreshTokens field.
-func (r *mutationResolver) RefreshTokens(ctx context.Context, input graphqlapi.RefreshTokensInput) (*ssoentities.TokensDTO, error) {
+func (r *mutationResolver) RefreshTokens(ctx context.Context, input any) (bool, error) {
 	r.logger.Info(
 		"Received new request",
 		"Request",
@@ -92,12 +92,43 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context, input graphqlapi.R
 		logging.GetLogTraceback(),
 	)
 
-	refreshTokensData := ssoentities.TokensDTO{
-		AccessToken:  input.AccessToken,
-		RefreshToken: input.RefreshToken,
+	accessToken, ok := getCookieFromContext(ctx, accessTokenCookieName)
+	if !ok {
+		return false, customerrors.CookieNotFoundError{Message: accessTokenCookieName}
 	}
 
-	return r.useCases.RefreshTokens(refreshTokensData)
+	refreshToken, ok := getCookieFromContext(ctx, refreshTokenCookieName)
+	if !ok {
+		return false, customerrors.CookieNotFoundError{Message: refreshTokenCookieName}
+	}
+
+	refreshTokensData := ssoentities.TokensDTO{
+		AccessToken:  accessToken.Value,
+		RefreshToken: refreshToken.Value,
+	}
+
+	tokens, err := r.useCases.RefreshTokens(refreshTokensData)
+	if err != nil {
+		return false, err
+	}
+
+	writer, ok := getHTTPWriterFromContext(ctx)
+	if !ok {
+		r.logger.ErrorContext(
+			ctx,
+			"Failed to get cookies writer",
+			"Context",
+			ctx,
+			"Traceback",
+			logging.GetLogTraceback(),
+		)
+
+		return false, customerrors.ContextValueNotFoundError{Message: middlewares.CookiesWriterName}
+	}
+
+	setCookie(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
+	setCookie(writer, refreshTokenCookieName, tokens.RefreshToken, r.cookiesConfig.RefreshToken)
+	return true, nil
 }
 
 // RegisterMaster is the resolver for the registerMaster field.
@@ -112,8 +143,13 @@ func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.
 		logging.GetLogTraceback(),
 	)
 
+	accessToken, ok := getCookieFromContext(ctx, accessTokenCookieName)
+	if !ok {
+		return 0, customerrors.CookieNotFoundError{Message: accessTokenCookieName}
+	}
+
 	masterData := toysentities.RawRegisterMasterDTO{
-		AccessToken: input.AccessToken,
+		AccessToken: accessToken.Value,
 		Info:        input.Info,
 	}
 
@@ -133,13 +169,18 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 		logging.GetLogTraceback(),
 	)
 
+	accessToken, ok := getCookieFromContext(ctx, accessTokenCookieName)
+	if !ok {
+		return 0, customerrors.CookieNotFoundError{Message: accessTokenCookieName}
+	}
+
 	tagsIDs := make([]uint32, len(input.TagsIDs))
 	for i, id := range input.TagsIDs {
 		tagsIDs[i] = uint32(id)
 	}
 
 	toyData := toysentities.RawAddToyDTO{
-		AccessToken: input.AccessToken,
+		AccessToken: accessToken.Value,
 		CategoryID:  uint32(input.CategoryID),
 		Name:        input.Name,
 		Description: input.Description,
@@ -186,23 +227,21 @@ func (r *queryResolver) User(ctx context.Context, id string) (*ssoentities.User,
 }
 
 // Me is the resolver for me field.
-func (r *queryResolver) Me(ctx context.Context, accessToken string) (*ssoentities.User, error) {
+func (r *queryResolver) Me(ctx context.Context) (*ssoentities.User, error) {
 	r.logger.Info(
 		"Received new request",
-		"Request",
-		accessToken,
 		"Context",
 		ctx,
 		"Traceback",
 		logging.GetLogTraceback(),
 	)
 
-	cookiesAccessToken, ok := getCookieFromContext(ctx, accessTokenCookieName)
+	accessToken, ok := getCookieFromContext(ctx, accessTokenCookieName)
 	if !ok {
 		return nil, customerrors.CookieNotFoundError{Message: accessTokenCookieName}
 	}
 
-	return r.useCases.GetMe(cookiesAccessToken.Value)
+	return r.useCases.GetMe(accessToken.Value)
 }
 
 // Master is the resolver for the master field.

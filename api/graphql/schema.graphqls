@@ -2,17 +2,13 @@
 # https://habr.com/ru/companies/ruvds/articles/444346/
 
 scalar Time
+scalar Any
 
 type User {
     id: ID!
     email: String!
     createdAt: Time!
     updatedAt: Time!
-}
-
-type Tokens {
-    accessToken: String!
-    refreshToken: String!
 }
 
 type Category {
@@ -50,7 +46,7 @@ type Master {
 type Query {
     users: [User!]!
     user(id: ID!): User!
-    me(accessToken: String!): User!
+    me: User!
     master(id: ID!): Master!
     masters: [Master!]!
     toy(id: ID!): Toy!
@@ -71,18 +67,11 @@ input RegisterUserInput {
     password: String!
 }
 
-input RefreshTokensInput {
-    accessToken: String!
-    refreshToken: String!
-}
-
 input RegisterMasterInput {
-    accessToken: String!
     info: String!
 }
 
 input AddToyInput {
-    accessToken: String!
     CategoryID:  Int!
     Name: String!
     Description: String!
@@ -93,8 +82,8 @@ input AddToyInput {
 
 type Mutation {
     registerUser(input: RegisterUserInput!): Int!
-    loginUser(input: LoginUserInput!): Tokens!
-    refreshTokens(input: RefreshTokensInput!): Tokens!
+    loginUser(input: LoginUserInput!): Boolean!
+    refreshTokens(input: Any): Boolean!
     registerMaster(input: RegisterMasterInput!): Int!
     addToy(input: AddToyInput!): Int!
 }
