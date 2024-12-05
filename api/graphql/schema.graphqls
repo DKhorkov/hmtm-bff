@@ -23,8 +23,8 @@ type Tag {
 
 type Toy {
     id: ID!
-    masterId: ID!
-    categoryId: ID!
+    master: Master!
+    category: Category!
     name: String!
     description: String!
     price: Float!
@@ -36,11 +36,10 @@ type Toy {
 
 type Master {
     id: ID!
-    userId: ID!
+    user: User!
     info: String!
     createdAt: Time!
     updatedAt: Time!
-    toys: [Toy!]!
 }
 
 type Query {
@@ -49,6 +48,7 @@ type Query {
     me: User!
     master(id: ID!): Master!
     masters: [Master!]!
+    masterToys(masterID: ID!): [Toy!]!
     toy(id: ID!): Toy!
     toys: [Toy!]!
     tag(id: ID!): Tag!

@@ -102,9 +102,9 @@ models:
   Tag:
     model:
       - github.com/DKhorkov/hmtm-toys/pkg/entities.Tag
-  Toy:
-    model:
-      - github.com/DKhorkov/hmtm-toys/pkg/entities.Toy
-  Master:
-    model:
-      - github.com/DKhorkov/hmtm-toys/pkg/entities.Master
+#  Toy:
+#    model:
+#      - github.com/DKhorkov/hmtm-toys/pkg/entities.Toy
+#  Master:
+#    model:
+#      - github.com/DKhorkov/hmtm-toys/pkg/entities.Master

@@ -18,6 +18,7 @@ type ToysRepository interface {
 	AddToy(toyData toysentities.RawAddToyDTO) (toyID uint64, err error)
 	GetAllToys() ([]*toysentities.Toy, error)
 	GetToyByID(id uint64) (*toysentities.Toy, error)
+	GetMasterToys(masterID uint64) ([]*toysentities.Toy, error)
 	GetAllMasters() ([]*toysentities.Master, error)
 	GetMasterByID(id uint64) (*toysentities.Master, error)
 	RegisterMaster(masterData toysentities.RawRegisterMasterDTO) (masterID uint64, err error)
