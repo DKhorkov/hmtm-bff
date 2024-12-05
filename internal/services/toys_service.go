@@ -17,6 +17,10 @@ func (service *CommonToysService) GetAllToys() ([]*toysentities.Toy, error) {
 	return service.toysRepository.GetAllToys()
 }
 
+func (service *CommonToysService) GetMasterToys(masterID uint64) ([]*toysentities.Toy, error) {
+	return service.toysRepository.GetMasterToys(masterID)
+}
+
 func (service *CommonToysService) GetToyByID(id uint64) (*toysentities.Toy, error) {
 	return service.toysRepository.GetToyByID(id)
 }

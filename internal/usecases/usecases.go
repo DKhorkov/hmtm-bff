@@ -43,6 +43,10 @@ func (useCases *CommonUseCases) GetAllToys() ([]*toysentities.Toy, error) {
 	return useCases.toysService.GetAllToys()
 }
 
+func (useCases *CommonUseCases) GetMasterToys(masterID uint64) ([]*toysentities.Toy, error) {
+	return useCases.toysService.GetMasterToys(masterID)
+}
+
 func (useCases *CommonUseCases) GetToyByID(id uint64) (*toysentities.Toy, error) {
 	return useCases.toysService.GetToyByID(id)
 }

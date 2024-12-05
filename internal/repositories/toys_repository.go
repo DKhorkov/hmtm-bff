@@ -53,6 +53,24 @@ func (repo *GrpcToysRepository) GetAllToys() ([]*toysentities.Toy, error) {
 	return allToys, nil
 }
 
+func (repo *GrpcToysRepository) GetMasterToys(masterID uint64) ([]*toysentities.Toy, error) {
+	response, err := repo.client.GetMasterToys(
+		context.Background(),
+		&toys.GetMasterToysRequest{MasterID: masterID},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	masterToys := make([]*toysentities.Toy, len(response.GetToys()))
+	for index, toyResponse := range response.GetToys() {
+		masterToys[index] = repo.processToyResponse(toyResponse)
+	}
+
+	return masterToys, nil
+}
+
 func (repo *GrpcToysRepository) GetToyByID(id uint64) (*toysentities.Toy, error) {
 	response, err := repo.client.GetToy(
 		context.Background(),
@@ -80,7 +98,13 @@ func (repo *GrpcToysRepository) GetAllMasters() ([]*toysentities.Master, error) 
 
 	masters := make([]*toysentities.Master, len(response.GetMasters()))
 	for index, masterResponse := range response.GetMasters() {
-		masters[index] = repo.processMasterResponse(masterResponse)
+		masters[index] = &toysentities.Master{
+			ID:        masterResponse.GetID(),
+			UserID:    masterResponse.GetUserID(),
+			Info:      masterResponse.GetInfo(),
+			CreatedAt: masterResponse.GetCreatedAt().AsTime(),
+			UpdatedAt: masterResponse.GetUpdatedAt().AsTime(),
+		}
 	}
 
 	return masters, nil
@@ -98,7 +122,13 @@ func (repo *GrpcToysRepository) GetMasterByID(id uint64) (*toysentities.Master, 
 		return nil, err
 	}
 
-	return repo.processMasterResponse(response), nil
+	return &toysentities.Master{
+		ID:        response.GetID(),
+		UserID:    response.GetUserID(),
+		Info:      response.GetInfo(),
+		CreatedAt: response.GetCreatedAt().AsTime(),
+		UpdatedAt: response.GetUpdatedAt().AsTime(),
+	}, nil
 }
 
 func (repo *GrpcToysRepository) RegisterMaster(masterData toysentities.RawRegisterMasterDTO) (uint64, error) {
@@ -220,22 +250,6 @@ func (repo *GrpcToysRepository) processToyResponse(toyResponse *toys.GetToyRespo
 		Tags:        tags,
 		CreatedAt:   toyResponse.GetCreatedAt().AsTime(),
 		UpdatedAt:   toyResponse.GetUpdatedAt().AsTime(),
-	}
-}
-
-func (repo *GrpcToysRepository) processMasterResponse(masterResponse *toys.GetMasterResponse) *toysentities.Master {
-	masterToys := make([]*toysentities.Toy, len(masterResponse.GetToys()))
-	for index, toyResponse := range masterResponse.GetToys() {
-		masterToys[index] = repo.processToyResponse(toyResponse)
-	}
-
-	return &toysentities.Master{
-		ID:        masterResponse.GetID(),
-		UserID:    masterResponse.GetUserID(),
-		Info:      masterResponse.GetInfo(),
-		CreatedAt: masterResponse.GetCreatedAt().AsTime(),
-		UpdatedAt: masterResponse.GetUpdatedAt().AsTime(),
-		Toys:      masterToys,
 	}
 }
 

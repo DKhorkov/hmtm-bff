@@ -16,6 +16,11 @@ import (
 	"github.com/DKhorkov/libs/logging"
 )
 
+// User is the resolver for the user field.
+func (r *masterResolver) User(ctx context.Context, obj *toysentities.Master) (*ssoentities.User, error) {
+	return r.useCases.GetUserByID(obj.UserID)
+}
+
 // RegisterUser is the resolver for the registerUser field.
 func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.RegisterUserInput) (int, error) {
 	r.logger.Info(
@@ -277,6 +282,24 @@ func (r *queryResolver) Masters(ctx context.Context) ([]*toysentities.Master, er
 	return r.useCases.GetAllMasters()
 }
 
+// MasterToys is the resolver for the masterToys field.
+func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*toysentities.Toy, error) {
+	r.logger.Info(
+		"Received new request",
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	processedMasterID, err := strconv.Atoi(masterID)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.useCases.GetMasterToys(uint64(processedMasterID))
+}
+
 // Toy is the resolver for the toy field.
 func (r *queryResolver) Toy(ctx context.Context, id string) (*toysentities.Toy, error) {
 	r.logger.Info(
@@ -376,6 +399,16 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*toysentities.Categor
 	return r.useCases.GetAllCategories()
 }
 
+// Master is the resolver for the master field.
+func (r *toyResolver) Master(ctx context.Context, obj *toysentities.Toy) (*toysentities.Master, error) {
+	return r.useCases.GetMasterByID(obj.MasterID)
+}
+
+// Category is the resolver for the category field.
+func (r *toyResolver) Category(ctx context.Context, obj *toysentities.Toy) (*toysentities.Category, error) {
+	return r.useCases.GetCategoryByID(obj.CategoryID)
+}
+
 // Price is the resolver for the price field.
 func (r *toyResolver) Price(ctx context.Context, obj *toysentities.Toy) (float64, error) {
 	return float64(obj.Price), nil
@@ -386,6 +419,9 @@ func (r *toyResolver) Quantity(ctx context.Context, obj *toysentities.Toy) (int,
 	return int(obj.Quantity), nil
 }
 
+// Master returns graphqlapi.MasterResolver implementation.
+func (r *Resolver) Master() graphqlapi.MasterResolver { return &masterResolver{r} }
+
 // Mutation returns graphqlapi.MutationResolver implementation.
 func (r *Resolver) Mutation() graphqlapi.MutationResolver { return &mutationResolver{r} }
 
@@ -395,6 +431,7 @@ func (r *Resolver) Query() graphqlapi.QueryResolver { return &queryResolver{r} }
 // Toy returns graphqlapi.ToyResolver implementation.
 func (r *Resolver) Toy() graphqlapi.ToyResolver { return &toyResolver{r} }
 
+type masterResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type toyResolver struct{ *Resolver }
