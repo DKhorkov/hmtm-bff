@@ -23,8 +23,8 @@ func (useCases *CommonUseCases) GetMe(accessToken string) (*ssoentities.User, er
 	return useCases.ssoService.GetMe(accessToken)
 }
 
-func (useCases *CommonUseCases) RefreshTokens(refreshTokensData ssoentities.TokensDTO) (*ssoentities.TokensDTO, error) {
-	return useCases.ssoService.RefreshTokens(refreshTokensData)
+func (useCases *CommonUseCases) RefreshTokens(refreshToken string) (*ssoentities.TokensDTO, error) {
+	return useCases.ssoService.RefreshTokens(refreshToken)
 }
 
 func (useCases *CommonUseCases) GetUserByID(id uint64) (*ssoentities.User, error) {

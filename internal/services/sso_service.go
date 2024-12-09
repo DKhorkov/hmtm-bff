@@ -29,10 +29,8 @@ func (service *CommonSsoService) GetMe(accessToken string) (*ssoentities.User, e
 	return service.ssoRepository.GetMe(accessToken)
 }
 
-func (service *CommonSsoService) RefreshTokens(
-	refreshTokensData ssoentities.TokensDTO,
-) (*ssoentities.TokensDTO, error) {
-	return service.ssoRepository.RefreshTokens(refreshTokensData)
+func (service *CommonSsoService) RefreshTokens(refreshToken string) (*ssoentities.TokensDTO, error) {
+	return service.ssoRepository.RefreshTokens(refreshToken)
 }
 
 func NewCommonSsoService(ssoRepository interfaces.SsoRepository) *CommonSsoService {

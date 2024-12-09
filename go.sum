@@ -1,7 +1,7 @@
 github.com/99designs/gqlgen v0.17.55 h1:3vzrNWYyzSZjGDFo68e5j9sSauLxfKvLp+6ioRokVtM=
 github.com/99designs/gqlgen v0.17.55/go.mod h1:3Bq768f8hgVPGZxL8aY9MaYmbxa6llPM/qu1IGH1EJo=
-github.com/DKhorkov/hmtm-sso v1.0.3 h1:DlIILqMKATmyR3Ikvd2WORKrVM8EV0EpSktHD4FzJEA=
-github.com/DKhorkov/hmtm-sso v1.0.3/go.mod h1:nqpH1YaQzpayHrwpKy3HF+ri9sZZnOu+nXWonYbsjiQ=
+github.com/DKhorkov/hmtm-sso v1.0.5 h1:o8WlfA25zQuPspjA4eOstJu8wC2y98bCAk7bQtLObck=
+github.com/DKhorkov/hmtm-sso v1.0.5/go.mod h1:nqpH1YaQzpayHrwpKy3HF+ri9sZZnOu+nXWonYbsjiQ=
 github.com/DKhorkov/hmtm-toys v0.0.3 h1:8ciJfAhzhZ/gBS5WdT1VP0CLZMcp3kEQ61cAnqrS3Y0=
 github.com/DKhorkov/hmtm-toys v0.0.3/go.mod h1:eY+U5KjcdCURszKGxSiNp0STA17Gxw9wMIyBNTupsDI=
 github.com/DKhorkov/libs v1.0.4 h1:KFkndfLe9CrWFM3R0Jcpb/a8534o6fcxvByTCHUIadw=

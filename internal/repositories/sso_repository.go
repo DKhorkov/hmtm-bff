@@ -111,12 +111,11 @@ func (repo *GrpcSsoRepository) GetMe(accessToken string) (*ssoentities.User, err
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) RefreshTokens(refreshTokensData ssoentities.TokensDTO) (*ssoentities.TokensDTO, error) {
+func (repo *GrpcSsoRepository) RefreshTokens(refreshToken string) (*ssoentities.TokensDTO, error) {
 	response, err := repo.client.RefreshTokens(
 		context.Background(),
 		&sso.RefreshTokensRequest{
-			AccessToken:  refreshTokensData.AccessToken,
-			RefreshToken: refreshTokensData.RefreshToken,
+			RefreshToken: refreshToken,
 		},
 	)
 

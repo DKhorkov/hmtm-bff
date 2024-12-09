@@ -97,22 +97,12 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context, input any) (bool, 
 		logging.GetLogTraceback(),
 	)
 
-	accessToken, ok := getCookieFromContext(ctx, accessTokenCookieName)
-	if !ok {
-		return false, customerrors.CookieNotFoundError{Message: accessTokenCookieName}
-	}
-
 	refreshToken, ok := getCookieFromContext(ctx, refreshTokenCookieName)
 	if !ok {
 		return false, customerrors.CookieNotFoundError{Message: refreshTokenCookieName}
 	}
 
-	refreshTokensData := ssoentities.TokensDTO{
-		AccessToken:  accessToken.Value,
-		RefreshToken: refreshToken.Value,
-	}
-
-	tokens, err := r.useCases.RefreshTokens(refreshTokensData)
+	tokens, err := r.useCases.RefreshTokens(refreshToken.Value)
 	if err != nil {
 		return false, err
 	}
