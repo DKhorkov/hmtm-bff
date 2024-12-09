@@ -11,7 +11,7 @@ type SsoRepository interface {
 	RegisterUser(userData ssoentities.RegisterUserDTO) (userID uint64, err error)
 	LoginUser(userData ssoentities.LoginUserDTO) (*ssoentities.TokensDTO, error)
 	GetMe(accessToken string) (*ssoentities.User, error)
-	RefreshTokens(refreshTokensData ssoentities.TokensDTO) (*ssoentities.TokensDTO, error)
+	RefreshTokens(refreshToken string) (*ssoentities.TokensDTO, error)
 }
 
 type ToysRepository interface {
