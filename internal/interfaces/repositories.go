@@ -1,29 +1,26 @@
 package interfaces
 
-import (
-	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
-	toysentities "github.com/DKhorkov/hmtm-toys/pkg/entities"
-)
+import "github.com/DKhorkov/hmtm-bff/internal/models"
 
 type SsoRepository interface {
-	GetAllUsers() ([]*ssoentities.User, error)
-	GetUserByID(id uint64) (*ssoentities.User, error)
-	RegisterUser(userData ssoentities.RegisterUserDTO) (userID uint64, err error)
-	LoginUser(userData ssoentities.LoginUserDTO) (*ssoentities.TokensDTO, error)
-	GetMe(accessToken string) (*ssoentities.User, error)
-	RefreshTokens(refreshToken string) (*ssoentities.TokensDTO, error)
+	GetAllUsers() ([]models.User, error)
+	GetUserByID(id uint64) (*models.User, error)
+	RegisterUser(userData models.RegisterUserDTO) (userID uint64, err error)
+	LoginUser(userData models.LoginUserDTO) (*models.TokensDTO, error)
+	GetMe(accessToken string) (*models.User, error)
+	RefreshTokens(refreshToken string) (*models.TokensDTO, error)
 }
 
 type ToysRepository interface {
-	AddToy(toyData toysentities.RawAddToyDTO) (toyID uint64, err error)
-	GetAllToys() ([]*toysentities.Toy, error)
-	GetToyByID(id uint64) (*toysentities.Toy, error)
-	GetMasterToys(masterID uint64) ([]*toysentities.Toy, error)
-	GetAllMasters() ([]*toysentities.Master, error)
-	GetMasterByID(id uint64) (*toysentities.Master, error)
-	RegisterMaster(masterData toysentities.RawRegisterMasterDTO) (masterID uint64, err error)
-	GetAllCategories() ([]*toysentities.Category, error)
-	GetCategoryByID(id uint32) (*toysentities.Category, error)
-	GetAllTags() ([]*toysentities.Tag, error)
-	GetTagByID(id uint32) (*toysentities.Tag, error)
+	AddToy(toyData models.AddToyDTO) (toyID uint64, err error)
+	GetAllToys() ([]models.Toy, error)
+	GetToyByID(id uint64) (*models.Toy, error)
+	GetMasterToys(masterID uint64) ([]models.Toy, error)
+	GetAllMasters() ([]models.Master, error)
+	GetMasterByID(id uint64) (*models.Master, error)
+	RegisterMaster(masterData models.RegisterMasterDTO) (masterID uint64, err error)
+	GetAllCategories() ([]models.Category, error)
+	GetCategoryByID(id uint32) (*models.Category, error)
+	GetAllTags() ([]models.Tag, error)
+	GetTagByID(id uint32) (*models.Tag, error)
 }

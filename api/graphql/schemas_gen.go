@@ -8,7 +8,7 @@ type AddToyInput struct {
 	Description string  `json:"Description"`
 	Price       float64 `json:"Price"`
 	Quantity    int     `json:"Quantity"`
-	TagsIDs     []int   `json:"TagsIDs"`
+	TagsIDs     []*int  `json:"TagsIDs"`
 }
 
 type LoginUserInput struct {

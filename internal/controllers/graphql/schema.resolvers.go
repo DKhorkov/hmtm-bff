@@ -6,18 +6,18 @@ package graphqlcontroller
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/hmtm-bff/internal/middlewares"
-	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
-	toysentities "github.com/DKhorkov/hmtm-toys/pkg/entities"
+	"github.com/DKhorkov/hmtm-bff/internal/models"
 	"github.com/DKhorkov/libs/logging"
 )
 
 // User is the resolver for the user field.
-func (r *masterResolver) User(ctx context.Context, obj *toysentities.Master) (*ssoentities.User, error) {
+func (r *masterResolver) User(ctx context.Context, obj *models.Master) (*models.User, error) {
 	return r.useCases.GetUserByID(obj.UserID)
 }
 
@@ -33,11 +33,9 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.Re
 		logging.GetLogTraceback(),
 	)
 
-	userData := ssoentities.RegisterUserDTO{
-		Credentials: ssoentities.LoginUserDTO{
-			Email:    input.Email,
-			Password: input.Password,
-		},
+	userData := models.RegisterUserDTO{
+		Email:    input.Email,
+		Password: input.Password,
 	}
 
 	userID, err := r.useCases.RegisterUser(userData)
@@ -56,7 +54,7 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.Login
 		logging.GetLogTraceback(),
 	)
 
-	userData := ssoentities.LoginUserDTO{
+	userData := models.LoginUserDTO{
 		Email:    input.Email,
 		Password: input.Password,
 	}
@@ -143,7 +141,7 @@ func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.
 		return 0, customerrors.CookieNotFoundError{Message: accessTokenCookieName}
 	}
 
-	masterData := toysentities.RawRegisterMasterDTO{
+	masterData := models.RegisterMasterDTO{
 		AccessToken: accessToken.Value,
 		Info:        input.Info,
 	}
@@ -171,10 +169,10 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 
 	tagsIDs := make([]uint32, len(input.TagsIDs))
 	for i, id := range input.TagsIDs {
-		tagsIDs[i] = uint32(id)
+		tagsIDs[i] = uint32(*id)
 	}
 
-	toyData := toysentities.RawAddToyDTO{
+	toyData := models.AddToyDTO{
 		AccessToken: accessToken.Value,
 		CategoryID:  uint32(input.CategoryID),
 		Name:        input.Name,
@@ -189,7 +187,7 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 }
 
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*ssoentities.User, error) {
+func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 	r.logger.Info(
 		"Received new request",
 		"Context",
@@ -198,11 +196,21 @@ func (r *queryResolver) Users(ctx context.Context) ([]*ssoentities.User, error) 
 		logging.GetLogTraceback(),
 	)
 
-	return r.useCases.GetAllUsers()
+	users, err := r.useCases.GetAllUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*models.User, len(users))
+	for index, user := range users {
+		response[index] = &user
+	}
+
+	return response, nil
 }
 
 // User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context, id string) (*ssoentities.User, error) {
+func (r *queryResolver) User(ctx context.Context, id string) (*models.User, error) {
 	r.logger.Info(
 		"Received new request",
 		"Request",
@@ -222,7 +230,7 @@ func (r *queryResolver) User(ctx context.Context, id string) (*ssoentities.User,
 }
 
 // Me is the resolver for me field.
-func (r *queryResolver) Me(ctx context.Context) (*ssoentities.User, error) {
+func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
 	r.logger.Info(
 		"Received new request",
 		"Context",
@@ -240,7 +248,7 @@ func (r *queryResolver) Me(ctx context.Context) (*ssoentities.User, error) {
 }
 
 // Master is the resolver for the master field.
-func (r *queryResolver) Master(ctx context.Context, id string) (*toysentities.Master, error) {
+func (r *queryResolver) Master(ctx context.Context, id string) (*models.Master, error) {
 	r.logger.Info(
 		"Received new request",
 		"Request",
@@ -260,7 +268,7 @@ func (r *queryResolver) Master(ctx context.Context, id string) (*toysentities.Ma
 }
 
 // Masters is the resolver for the masters field.
-func (r *queryResolver) Masters(ctx context.Context) ([]*toysentities.Master, error) {
+func (r *queryResolver) Masters(ctx context.Context) ([]*models.Master, error) {
 	r.logger.Info(
 		"Received new request",
 		"Context",
@@ -269,11 +277,21 @@ func (r *queryResolver) Masters(ctx context.Context) ([]*toysentities.Master, er
 		logging.GetLogTraceback(),
 	)
 
-	return r.useCases.GetAllMasters()
+	masters, err := r.useCases.GetAllMasters()
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*models.Master, len(masters))
+	for index, master := range masters {
+		response[index] = &master
+	}
+
+	return response, nil
 }
 
 // MasterToys is the resolver for the masterToys field.
-func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*toysentities.Toy, error) {
+func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*models.Toy, error) {
 	r.logger.Info(
 		"Received new request",
 		"Context",
@@ -287,11 +305,21 @@ func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*toy
 		return nil, err
 	}
 
-	return r.useCases.GetMasterToys(uint64(processedMasterID))
+	toys, err := r.useCases.GetMasterToys(uint64(processedMasterID))
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*models.Toy, len(toys))
+	for index, toy := range toys {
+		response[index] = &toy
+	}
+
+	return response, nil
 }
 
 // Toy is the resolver for the toy field.
-func (r *queryResolver) Toy(ctx context.Context, id string) (*toysentities.Toy, error) {
+func (r *queryResolver) Toy(ctx context.Context, id string) (*models.Toy, error) {
 	r.logger.Info(
 		"Received new request",
 		"Request",
@@ -311,7 +339,7 @@ func (r *queryResolver) Toy(ctx context.Context, id string) (*toysentities.Toy, 
 }
 
 // Toys is the resolver for the toys field.
-func (r *queryResolver) Toys(ctx context.Context) ([]*toysentities.Toy, error) {
+func (r *queryResolver) Toys(ctx context.Context) ([]*models.Toy, error) {
 	r.logger.Info(
 		"Received new request",
 		"Context",
@@ -320,11 +348,21 @@ func (r *queryResolver) Toys(ctx context.Context) ([]*toysentities.Toy, error) {
 		logging.GetLogTraceback(),
 	)
 
-	return r.useCases.GetAllToys()
+	toys, err := r.useCases.GetAllToys()
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*models.Toy, len(toys))
+	for index, toy := range toys {
+		response[index] = &toy
+	}
+
+	return response, nil
 }
 
 // Tag is the resolver for the tag field.
-func (r *queryResolver) Tag(ctx context.Context, id string) (*toysentities.Tag, error) {
+func (r *queryResolver) Tag(ctx context.Context, id string) (*models.Tag, error) {
 	r.logger.Info(
 		"Received new request",
 		"Request",
@@ -344,7 +382,7 @@ func (r *queryResolver) Tag(ctx context.Context, id string) (*toysentities.Tag, 
 }
 
 // Tags is the resolver for the tags field.
-func (r *queryResolver) Tags(ctx context.Context) ([]*toysentities.Tag, error) {
+func (r *queryResolver) Tags(ctx context.Context) ([]*models.Tag, error) {
 	r.logger.Info(
 		"Received new request",
 		"Context",
@@ -353,11 +391,21 @@ func (r *queryResolver) Tags(ctx context.Context) ([]*toysentities.Tag, error) {
 		logging.GetLogTraceback(),
 	)
 
-	return r.useCases.GetAllTags()
+	tags, err := r.useCases.GetAllTags()
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*models.Tag, len(tags))
+	for index, tag := range tags {
+		response[index] = &tag
+	}
+
+	return response, nil
 }
 
 // Category is the resolver for the category field.
-func (r *queryResolver) Category(ctx context.Context, id string) (*toysentities.Category, error) {
+func (r *queryResolver) Category(ctx context.Context, id string) (*models.Category, error) {
 	r.logger.Info(
 		"Received new request",
 		"Request",
@@ -377,7 +425,7 @@ func (r *queryResolver) Category(ctx context.Context, id string) (*toysentities.
 }
 
 // Categories is the resolver for the categories field.
-func (r *queryResolver) Categories(ctx context.Context) ([]*toysentities.Category, error) {
+func (r *queryResolver) Categories(ctx context.Context) ([]*models.Category, error) {
 	r.logger.Info(
 		"Received new request",
 		"Context",
@@ -386,27 +434,37 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*toysentities.Categor
 		logging.GetLogTraceback(),
 	)
 
-	return r.useCases.GetAllCategories()
+	categories, err := r.useCases.GetAllCategories()
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*models.Category, len(categories))
+	for index, category := range categories {
+		response[index] = &category
+	}
+
+	return response, nil
 }
 
 // Master is the resolver for the master field.
-func (r *toyResolver) Master(ctx context.Context, obj *toysentities.Toy) (*toysentities.Master, error) {
-	return r.useCases.GetMasterByID(obj.MasterID)
+func (r *toyResolver) Master(ctx context.Context, obj *models.Toy) (*models.Master, error) {
+	panic(fmt.Errorf("not implemented: Master - master"))
 }
 
 // Category is the resolver for the category field.
-func (r *toyResolver) Category(ctx context.Context, obj *toysentities.Toy) (*toysentities.Category, error) {
-	return r.useCases.GetCategoryByID(obj.CategoryID)
+func (r *toyResolver) Category(ctx context.Context, obj *models.Toy) (*models.Category, error) {
+	panic(fmt.Errorf("not implemented: Category - category"))
 }
 
 // Price is the resolver for the price field.
-func (r *toyResolver) Price(ctx context.Context, obj *toysentities.Toy) (float64, error) {
-	return float64(obj.Price), nil
+func (r *toyResolver) Price(ctx context.Context, obj *models.Toy) (float64, error) {
+	panic(fmt.Errorf("not implemented: Price - price"))
 }
 
 // Quantity is the resolver for the quantity field.
-func (r *toyResolver) Quantity(ctx context.Context, obj *toysentities.Toy) (int, error) {
-	return int(obj.Quantity), nil
+func (r *toyResolver) Quantity(ctx context.Context, obj *models.Toy) (int, error) {
+	panic(fmt.Errorf("not implemented: Quantity - quantity"))
 }
 
 // Master returns graphqlapi.MasterResolver implementation.

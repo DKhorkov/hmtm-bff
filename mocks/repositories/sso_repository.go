@@ -4,22 +4,22 @@ import (
 	"errors"
 	"time"
 
-	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
+	"github.com/DKhorkov/hmtm-bff/internal/models"
 )
 
 type MockedSsoRepository struct {
-	UsersStorage map[uint64]*ssoentities.User
+	UsersStorage map[uint64]*models.User
 }
 
-func (repo *MockedSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO) (uint64, error) {
+func (repo *MockedSsoRepository) RegisterUser(userData models.RegisterUserDTO) (uint64, error) {
 	for _, user := range repo.UsersStorage {
-		if user.Email == userData.Credentials.Email {
+		if user.Email == userData.Email {
 			return 0, errors.New("user already exists")
 		}
 	}
 
-	var user ssoentities.User
-	user.Email = userData.Credentials.Email
+	var user models.User
+	user.Email = userData.Email
 	user.ID = uint64(len(repo.UsersStorage) + 1)
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
@@ -28,14 +28,14 @@ func (repo *MockedSsoRepository) RegisterUser(userData ssoentities.RegisterUserD
 	return user.ID, nil
 }
 
-func (repo *MockedSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (*ssoentities.TokensDTO, error) {
+func (repo *MockedSsoRepository) LoginUser(userData models.LoginUserDTO) (*models.TokensDTO, error) {
 	for _, user := range repo.UsersStorage {
 		if user.Email == userData.Email {
 			if user.Password != userData.Password {
 				return nil, errors.New("invalid password")
 			}
 
-			return &ssoentities.TokensDTO{
+			return &models.TokensDTO{
 				AccessToken:  "AccessToken",
 				RefreshToken: "RefreshToken",
 			}, nil
@@ -45,7 +45,7 @@ func (repo *MockedSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (*
 	return nil, errors.New("user not found")
 }
 
-func (repo *MockedSsoRepository) GetUserByID(id uint64) (*ssoentities.User, error) {
+func (repo *MockedSsoRepository) GetUserByID(id uint64) (*models.User, error) {
 	user := repo.UsersStorage[id]
 	if user != nil {
 		return user, nil
@@ -54,25 +54,25 @@ func (repo *MockedSsoRepository) GetUserByID(id uint64) (*ssoentities.User, erro
 	return nil, errors.New("user not found")
 }
 
-func (repo *MockedSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
-	var users []*ssoentities.User
+func (repo *MockedSsoRepository) GetAllUsers() ([]models.User, error) {
+	var users []models.User
 	for _, user := range repo.UsersStorage {
-		users = append(users, user)
+		users = append(users, *user)
 	}
 
 	return users, nil
 }
 
 func (repo *MockedSsoRepository) RefreshTokens(
-	refreshTokensData ssoentities.TokensDTO,
-) (*ssoentities.TokensDTO, error) {
-	return &ssoentities.TokensDTO{
+	refreshTokensData models.TokensDTO,
+) (*models.TokensDTO, error) {
+	return &models.TokensDTO{
 		AccessToken:  refreshTokensData.AccessToken,
 		RefreshToken: refreshTokensData.RefreshToken,
 	}, nil
 }
 
-func (repo *MockedSsoRepository) GetMe(accessToken string) (*ssoentities.User, error) {
+func (repo *MockedSsoRepository) GetMe(accessToken string) (*models.User, error) {
 	if len(repo.UsersStorage) == 0 {
 		return nil, errors.New("user not found for " + accessToken)
 	}
