@@ -31,7 +31,7 @@ type Toy {
     quantity: Int!
     createdAt: Time!
     updatedAt: Time!
-    tags: [Tag!]!
+    tags: [Tag]!
 }
 
 type Master {
@@ -43,18 +43,18 @@ type Master {
 }
 
 type Query {
-    users: [User!]!
+    users: [User]!
     user(id: ID!): User!
     me: User!
     master(id: ID!): Master!
-    masters: [Master!]!
-    masterToys(masterID: ID!): [Toy!]!
+    masters: [Master]!
+    masterToys(masterID: ID!): [Toy]!
     toy(id: ID!): Toy!
-    toys: [Toy!]!
+    toys: [Toy]!
     tag(id: ID!): Tag!
-    tags: [Tag!]!
+    tags: [Tag]!
     category(id: ID!): Category!
-    categories: [Category!]!
+    categories: [Category]!
 }
 
 input LoginUserInput {
@@ -77,7 +77,7 @@ input AddToyInput {
     Description: String!
     Price: Float!
     Quantity: Int!
-    TagsIDs: [Int!]!
+    TagsIDs: [Int]!
 }
 
 type Mutation {

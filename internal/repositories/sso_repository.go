@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
+	"github.com/DKhorkov/hmtm-bff/internal/models"
 	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
-	ssoentities "github.com/DKhorkov/hmtm-sso/pkg/entities"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -13,13 +13,13 @@ type GrpcSsoRepository struct {
 	client interfaces.SsoGrpcClient
 }
 
-func (repo *GrpcSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO) (uint64, error) {
+func (repo *GrpcSsoRepository) RegisterUser(userData models.RegisterUserDTO) (uint64, error) {
 	response, err := repo.client.Register(
 		context.Background(),
 		&sso.RegisterRequest{
 			Credentials: &sso.LoginRequest{
-				Email:    userData.Credentials.Email,
-				Password: userData.Credentials.Password,
+				Email:    userData.Email,
+				Password: userData.Password,
 			},
 		},
 	)
@@ -31,7 +31,7 @@ func (repo *GrpcSsoRepository) RegisterUser(userData ssoentities.RegisterUserDTO
 	return response.GetUserID(), nil
 }
 
-func (repo *GrpcSsoRepository) GetUserByID(id uint64) (*ssoentities.User, error) {
+func (repo *GrpcSsoRepository) GetUserByID(id uint64) (*models.User, error) {
 	response, err := repo.client.GetUser(
 		context.Background(),
 		&sso.GetUserRequest{
@@ -43,7 +43,7 @@ func (repo *GrpcSsoRepository) GetUserByID(id uint64) (*ssoentities.User, error)
 		return nil, err
 	}
 
-	return &ssoentities.User{
+	return &models.User{
 		ID:        response.GetID(),
 		Email:     response.GetEmail(),
 		CreatedAt: response.GetCreatedAt().AsTime(),
@@ -51,7 +51,7 @@ func (repo *GrpcSsoRepository) GetUserByID(id uint64) (*ssoentities.User, error)
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
+func (repo *GrpcSsoRepository) GetAllUsers() ([]models.User, error) {
 	response, err := repo.client.GetUsers(
 		context.Background(),
 		&emptypb.Empty{},
@@ -61,9 +61,9 @@ func (repo *GrpcSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
 		return nil, err
 	}
 
-	users := make([]*ssoentities.User, len(response.GetUsers()))
+	users := make([]models.User, len(response.GetUsers()))
 	for index, user := range response.GetUsers() {
-		users[index] = &ssoentities.User{
+		users[index] = models.User{
 			ID:        user.GetID(),
 			Email:     user.GetEmail(),
 			CreatedAt: user.GetCreatedAt().AsTime(),
@@ -74,7 +74,7 @@ func (repo *GrpcSsoRepository) GetAllUsers() ([]*ssoentities.User, error) {
 	return users, nil
 }
 
-func (repo *GrpcSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (*ssoentities.TokensDTO, error) {
+func (repo *GrpcSsoRepository) LoginUser(userData models.LoginUserDTO) (*models.TokensDTO, error) {
 	response, err := repo.client.Login(
 		context.Background(),
 		&sso.LoginRequest{
@@ -87,13 +87,13 @@ func (repo *GrpcSsoRepository) LoginUser(userData ssoentities.LoginUserDTO) (*ss
 		return nil, err
 	}
 
-	return &ssoentities.TokensDTO{
+	return &models.TokensDTO{
 		AccessToken:  response.GetAccessToken(),
 		RefreshToken: response.GetRefreshToken(),
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) GetMe(accessToken string) (*ssoentities.User, error) {
+func (repo *GrpcSsoRepository) GetMe(accessToken string) (*models.User, error) {
 	response, err := repo.client.GetMe(
 		context.Background(),
 		&sso.GetMeRequest{AccessToken: accessToken},
@@ -103,7 +103,7 @@ func (repo *GrpcSsoRepository) GetMe(accessToken string) (*ssoentities.User, err
 		return nil, err
 	}
 
-	return &ssoentities.User{
+	return &models.User{
 		ID:        response.GetID(),
 		Email:     response.GetEmail(),
 		CreatedAt: response.GetCreatedAt().AsTime(),
@@ -111,7 +111,7 @@ func (repo *GrpcSsoRepository) GetMe(accessToken string) (*ssoentities.User, err
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) RefreshTokens(refreshToken string) (*ssoentities.TokensDTO, error) {
+func (repo *GrpcSsoRepository) RefreshTokens(refreshToken string) (*models.TokensDTO, error) {
 	response, err := repo.client.RefreshTokens(
 		context.Background(),
 		&sso.RefreshTokensRequest{
@@ -123,7 +123,7 @@ func (repo *GrpcSsoRepository) RefreshTokens(refreshToken string) (*ssoentities.
 		return nil, err
 	}
 
-	return &ssoentities.TokensDTO{
+	return &models.TokensDTO{
 		AccessToken:  response.GetAccessToken(),
 		RefreshToken: response.GetRefreshToken(),
 	}, nil
