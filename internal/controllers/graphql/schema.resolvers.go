@@ -6,7 +6,6 @@ package graphqlcontroller
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
@@ -449,22 +448,22 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*models.Category, err
 
 // Master is the resolver for the master field.
 func (r *toyResolver) Master(ctx context.Context, obj *models.Toy) (*models.Master, error) {
-	panic(fmt.Errorf("not implemented: Master - master"))
+	return r.useCases.GetMasterByID(obj.MasterID)
 }
 
 // Category is the resolver for the category field.
 func (r *toyResolver) Category(ctx context.Context, obj *models.Toy) (*models.Category, error) {
-	panic(fmt.Errorf("not implemented: Category - category"))
+	return r.useCases.GetCategoryByID(obj.CategoryID)
 }
 
 // Price is the resolver for the price field.
 func (r *toyResolver) Price(ctx context.Context, obj *models.Toy) (float64, error) {
-	panic(fmt.Errorf("not implemented: Price - price"))
+	return float64(obj.Price), nil
 }
 
 // Quantity is the resolver for the quantity field.
 func (r *toyResolver) Quantity(ctx context.Context, obj *models.Toy) (int, error) {
-	panic(fmt.Errorf("not implemented: Quantity - quantity"))
+	return int(obj.Quantity), nil
 }
 
 // Master returns graphqlapi.MasterResolver implementation.
