@@ -4,12 +4,14 @@ import "fmt"
 
 type ContextValueNotFoundError struct {
 	Message string
+	BaseErr error
 }
 
 func (e ContextValueNotFoundError) Error() string {
-	if e.Message != "" {
-		return fmt.Sprintf("context with value \"%s\" not found", e.Message)
+	template := "context with value %s not found"
+	if e.BaseErr != nil {
+		return fmt.Sprintf(template+". Base error: %v", e.Message, e.BaseErr)
 	}
 
-	return "context with value not found"
+	return fmt.Sprintf(template, e.Message)
 }
