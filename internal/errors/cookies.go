@@ -4,13 +4,14 @@ import "fmt"
 
 type CookieNotFoundError struct {
 	Message string
+	BaseErr error
 }
 
 func (e CookieNotFoundError) Error() string {
-	defaultMessage := "cookie not found"
-	if e.Message != "" {
-		return fmt.Sprintf("\"%s\" %s", e.Message, defaultMessage)
+	template := "%s cookie not found"
+	if e.BaseErr != nil {
+		return fmt.Sprintf(template+". Base error: %v", e.Message, e.BaseErr)
 	}
 
-	return defaultMessage
+	return fmt.Sprintf(template, e.Message)
 }
