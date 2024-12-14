@@ -2,10 +2,10 @@ github.com/99designs/gqlgen v0.17.55 h1:3vzrNWYyzSZjGDFo68e5j9sSauLxfKvLp+6ioRok
 github.com/99designs/gqlgen v0.17.55/go.mod h1:3Bq768f8hgVPGZxL8aY9MaYmbxa6llPM/qu1IGH1EJo=
 github.com/DKhorkov/hmtm-sso v1.0.6 h1:tPley+4rDkR/dxp/QsGa4dKGF3ElMe5Al8R6+qGWcyU=
 github.com/DKhorkov/hmtm-sso v1.0.6/go.mod h1:nqpH1YaQzpayHrwpKy3HF+ri9sZZnOu+nXWonYbsjiQ=
-github.com/DKhorkov/hmtm-toys v0.0.4 h1:SdcfBzDL0t8feBP8SAC65wXBIq+hpLyJ7Ul/BFkuPP8=
-github.com/DKhorkov/hmtm-toys v0.0.4/go.mod h1:eY+U5KjcdCURszKGxSiNp0STA17Gxw9wMIyBNTupsDI=
-github.com/DKhorkov/libs v1.0.4 h1:KFkndfLe9CrWFM3R0Jcpb/a8534o6fcxvByTCHUIadw=
-github.com/DKhorkov/libs v1.0.4/go.mod h1:BLGz8dReCPYiyY1IaBcFHYnQwF8eU9IxT/kNUhJ4URw=
+github.com/DKhorkov/hmtm-toys v0.0.5 h1:ZKY2nds2XT09Gp/KLUvylO4clHvJ0yi1vbBUkHWQmic=
+github.com/DKhorkov/hmtm-toys v0.0.5/go.mod h1:HaoakTe08XQzuE+4Oj57WCv0K73e6v8wF1gjjsFjDeg=
+github.com/DKhorkov/libs v1.1.0 h1:ajK/hCsXgJeejRbHN0Vvn+SL93SNCwT7mmnEpPGptmw=
+github.com/DKhorkov/libs v1.1.0/go.mod h1:/lJKBOfHquNXSR5ziNNY1OPd5O87EAgu7+DDjLZCzPI=
 github.com/PuerkitoBio/goquery v1.9.3 h1:mpJr/ikUA9/GNJB/DBZcGeFDXUtosHRyRrwh7KGdTG0=
 github.com/PuerkitoBio/goquery v1.9.3/go.mod h1:1ndLHPdTz+DyQPICCWYlYQMPl0oXZj0G6D4LCYA6u4U=
 github.com/agnivade/levenshtein v1.1.1 h1:QY8M92nrzkmr798gCo3kmMyqXFzdQVpxLlGPRBij0P8=

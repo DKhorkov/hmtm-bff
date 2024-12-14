@@ -22,7 +22,7 @@ func main() {
 	)
 
 	// App configs info for frontend purposes:
-	logger.Info(fmt.Sprintf("Application settings: %+v", settings))
+	logging.LogInfo(logger, fmt.Sprintf("Application settings: %+v", settings))
 
 	ssoGrpcClient, err := ssogrpcclient.New(
 		settings.Clients.SSO.Host,
@@ -50,8 +50,16 @@ func main() {
 
 	ssoRepository := repositories.NewGrpcSsoRepository(ssoGrpcClient)
 	toysRepository := repositories.NewGrpcToysRepository(toysGrpcClient)
-	ssoService := services.NewCommonSsoService(ssoRepository)
-	toysService := services.NewCommonToysService(toysRepository)
+	ssoService := services.NewCommonSsoService(
+		ssoRepository,
+		logger,
+	)
+
+	toysService := services.NewCommonToysService(
+		toysRepository,
+		logger,
+	)
+
 	useCases := usecases.NewCommonUseCases(
 		ssoService,
 		toysService,

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/loadenv"
 	"github.com/DKhorkov/libs/logging"
 )
@@ -37,7 +38,7 @@ func New() Config {
 			},
 		},
 		Logging: logging.Config{
-			Level:       logging.LogLevels.DEBUG,
+			Level:       logging.Levels.DEBUG,
 			LogFilePath: fmt.Sprintf("logs/%s.log", time.Now().Format("02-01-2006")),
 		},
 		CORS: CORSConfig{
@@ -48,7 +49,7 @@ func New() Config {
 			MaxAge:           loadenv.GetEnvAsInt("CORS_MAX_AGE", 600),
 		},
 		Cookies: CookiesConfig{
-			AccessToken: CookieConfig{
+			AccessToken: cookies.Config{
 				Path:   loadenv.GetEnv("COOKIES_ACCESS_TOKEN_PATH", "/"),
 				Domain: loadenv.GetEnv("COOKIES_ACCESS_TOKEN_DOMAIN", ""),
 				MaxAge: loadenv.GetEnvAsInt("COOKIES_ACCESS_TOKEN_MAX_AGE", 0),
@@ -61,7 +62,7 @@ func New() Config {
 					loadenv.GetEnvAsInt("COOKIES_ACCESS_TOKEN_SAME_SITE", 1),
 				),
 			},
-			RefreshToken: CookieConfig{
+			RefreshToken: cookies.Config{
 				Path:   loadenv.GetEnv("COOKIES_REFRESH_TOKEN_PATH", "/"),
 				Domain: loadenv.GetEnv("COOKIES_REFRESH_TOKEN_DOMAIN", ""),
 				MaxAge: loadenv.GetEnvAsInt("COOKIES_REFRESH_TOKEN_MAX_AGE", 0),
@@ -104,30 +105,9 @@ type ClientsConfig struct {
 	Toys ClientConfig
 }
 
-type CookieConfig struct {
-	// See http.Cookie as reference.
-
-	Path    string        // optional
-	Domain  string        // optional
-	Expires time.Duration // optional
-
-	// MaxAge=0 means no 'Max-Age' attribute specified.
-	// MaxAge<0 means delete cookie now, equivalently 'Max-Age: 0'
-	// MaxAge>0 means Max-Age attribute present and given in seconds
-	MaxAge   int
-	Secure   bool
-	HTTPOnly bool
-
-	//	SameSiteDefaultMode SameSite = iota + 1 (1)
-	//	SameSiteLaxMode (2)
-	//	SameSiteStrictMode (3)
-	//	SameSiteNoneMode (4)
-	SameSite http.SameSite
-}
-
 type CookiesConfig struct {
-	AccessToken  CookieConfig
-	RefreshToken CookieConfig
+	AccessToken  cookies.Config
+	RefreshToken cookies.Config
 }
 
 type Config struct {
