@@ -7,14 +7,13 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/DKhorkov/hmtm-bff/internal/middlewares"
-
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/config"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/middlewares"
 	"github.com/rs/cors"
 )
 
@@ -27,23 +26,16 @@ type Controller struct {
 
 // Run gRPC server.
 func (controller *Controller) Run() {
-	controller.logger.Info(
+	logging.LogInfo(
+		controller.logger,
 		fmt.Sprintf("Starting GraphQL Server at http://%s:%d", controller.host, controller.port),
-		"Traceback",
-		logging.GetLogTraceback(),
 	)
 
 	if err := controller.httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-		controller.logger.Error(
-			"HTTP server error",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
+		logging.LogError(controller.logger, "HTTP server error", err)
 	}
 
-	controller.logger.Info("Stopped serving new connections.")
+	logging.LogInfo(controller.logger, "Stopped serving new connections.")
 }
 
 // Stop http server gracefully (graceful shutdown).
@@ -51,16 +43,10 @@ func (controller *Controller) Stop() {
 	// Stops accepting new requests and processes already received requests:
 	err := controller.httpServer.Shutdown(context.Background())
 	if err != nil {
-		controller.logger.Error(
-			"HTTP shutdown error",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
+		logging.LogError(controller.logger, "HTTP shutdown error", err)
 	}
 
-	controller.logger.Info("Graceful shutdown completed.")
+	logging.LogInfo(controller.logger, "Graceful shutdown completed.")
 }
 
 func New(

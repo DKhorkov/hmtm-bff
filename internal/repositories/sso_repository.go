@@ -3,24 +3,26 @@ package repositories
 import (
 	"context"
 
+	"github.com/DKhorkov/libs/contextlib"
+	"github.com/DKhorkov/libs/requestid"
+
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 	"github.com/DKhorkov/hmtm-bff/internal/models"
 	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type GrpcSsoRepository struct {
 	client interfaces.SsoGrpcClient
 }
 
-func (repo *GrpcSsoRepository) RegisterUser(userData models.RegisterUserDTO) (uint64, error) {
+func (repo *GrpcSsoRepository) RegisterUser(ctx context.Context, userData models.RegisterUserDTO) (uint64, error) {
+	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.Register(
-		context.Background(),
+		ctx,
 		&sso.RegisterRequest{
-			Credentials: &sso.LoginRequest{
-				Email:    userData.Email,
-				Password: userData.Password,
-			},
+			RequestID: requestID,
+			Email:     userData.Email,
+			Password:  userData.Password,
 		},
 	)
 
@@ -31,11 +33,13 @@ func (repo *GrpcSsoRepository) RegisterUser(userData models.RegisterUserDTO) (ui
 	return response.GetUserID(), nil
 }
 
-func (repo *GrpcSsoRepository) GetUserByID(id uint64) (*models.User, error) {
+func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*models.User, error) {
+	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUser(
-		context.Background(),
+		ctx,
 		&sso.GetUserRequest{
-			ID: id,
+			RequestID: requestID,
+			ID:        id,
 		},
 	)
 
@@ -51,10 +55,13 @@ func (repo *GrpcSsoRepository) GetUserByID(id uint64) (*models.User, error) {
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) GetAllUsers() ([]models.User, error) {
+func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]models.User, error) {
+	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUsers(
-		context.Background(),
-		&emptypb.Empty{},
+		ctx,
+		&sso.GetUsersRequest{
+			RequestID: requestID,
+		},
 	)
 
 	if err != nil {
@@ -74,12 +81,14 @@ func (repo *GrpcSsoRepository) GetAllUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (repo *GrpcSsoRepository) LoginUser(userData models.LoginUserDTO) (*models.TokensDTO, error) {
+func (repo *GrpcSsoRepository) LoginUser(ctx context.Context, userData models.LoginUserDTO) (*models.TokensDTO, error) {
+	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.Login(
-		context.Background(),
+		ctx,
 		&sso.LoginRequest{
-			Email:    userData.Email,
-			Password: userData.Password,
+			RequestID: requestID,
+			Email:     userData.Email,
+			Password:  userData.Password,
 		},
 	)
 
@@ -93,10 +102,14 @@ func (repo *GrpcSsoRepository) LoginUser(userData models.LoginUserDTO) (*models.
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) GetMe(accessToken string) (*models.User, error) {
+func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*models.User, error) {
+	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetMe(
-		context.Background(),
-		&sso.GetMeRequest{AccessToken: accessToken},
+		ctx,
+		&sso.GetMeRequest{
+			RequestID:   requestID,
+			AccessToken: accessToken,
+		},
 	)
 
 	if err != nil {
@@ -111,10 +124,12 @@ func (repo *GrpcSsoRepository) GetMe(accessToken string) (*models.User, error) {
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) RefreshTokens(refreshToken string) (*models.TokensDTO, error) {
+func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken string) (*models.TokensDTO, error) {
+	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.RefreshTokens(
-		context.Background(),
+		ctx,
 		&sso.RefreshTokensRequest{
+			RequestID:    requestID,
 			RefreshToken: refreshToken,
 		},
 	)

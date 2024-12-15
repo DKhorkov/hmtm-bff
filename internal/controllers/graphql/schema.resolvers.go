@@ -6,138 +6,118 @@ package graphqlcontroller
 
 import (
 	"context"
+	"fmt"
+	"github.com/DKhorkov/libs/cookies"
+	"net/http"
 	"strconv"
 
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
-	"github.com/DKhorkov/hmtm-bff/internal/middlewares"
 	"github.com/DKhorkov/hmtm-bff/internal/models"
+	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/middlewares"
+	"github.com/DKhorkov/libs/requestid"
+)
+
+const (
+	accessTokenCookieName  = "accessToken"
+	refreshTokenCookieName = "refreshToken"
 )
 
 // User is the resolver for the user field.
 func (r *masterResolver) User(ctx context.Context, obj *models.Master) (*models.User, error) {
-	return r.useCases.GetUserByID(obj.UserID)
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestid.New())
+	user, err := r.useCases.GetUserByID(ctx, obj.UserID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			r.logger,
+			fmt.Sprintf("Failed to get User for Master with ID=%d", obj.ID),
+			err,
+		)
+	}
+
+	return user, err
 }
 
 // RegisterUser is the resolver for the registerUser field.
 func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.RegisterUserInput) (int, error) {
-	r.logger.Info(
-		"Received new request",
-		"Request",
-		input,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, input)
 
 	userData := models.RegisterUserDTO{
 		Email:    input.Email,
 		Password: input.Password,
 	}
 
-	userID, err := r.useCases.RegisterUser(userData)
+	userID, err := r.useCases.RegisterUser(ctx, userData)
 	return int(userID), err
 }
 
 // LoginUser is the resolver for the loginUser field.
 func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.LoginUserInput) (bool, error) {
-	r.logger.Info(
-		"Received new request",
-		"Request",
-		input,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, input)
 
 	userData := models.LoginUserDTO{
 		Email:    input.Email,
 		Password: input.Password,
 	}
 
-	tokens, err := r.useCases.LoginUser(userData)
+	tokens, err := r.useCases.LoginUser(ctx, userData)
 	if err != nil {
 		return false, err
 	}
 
-	writer, ok := getHTTPWriterFromContext(ctx)
-	if !ok {
-		r.logger.ErrorContext(
-			ctx,
-			"Failed to get cookies writer",
-			"Context",
-			ctx,
-			"Traceback",
-			logging.GetLogTraceback(),
-		)
-
-		return false, customerrors.ContextValueNotFoundError{Message: middlewares.CookiesWriterName}
+	writer, err := contextlib.GetValue[http.ResponseWriter](ctx, middlewares.CookiesWriterName)
+	if err != nil {
+		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
+		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
 	}
 
-	setCookie(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
-	setCookie(writer, refreshTokenCookieName, tokens.RefreshToken, r.cookiesConfig.RefreshToken)
+	cookies.Set(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
+	cookies.Set(writer, refreshTokenCookieName, tokens.RefreshToken, r.cookiesConfig.RefreshToken)
 	return true, nil
 }
 
 // RefreshTokens is the resolver for the refreshTokens field.
 func (r *mutationResolver) RefreshTokens(ctx context.Context, input any) (bool, error) {
-	r.logger.Info(
-		"Received new request",
-		"Request",
-		input,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, input)
 
-	refreshToken, ok := getCookieFromContext(ctx, refreshTokenCookieName)
-	if !ok {
-		return false, customerrors.CookieNotFoundError{Message: refreshTokenCookieName}
+	refreshToken, err := contextlib.GetValue[http.Cookie](ctx, refreshTokenCookieName)
+	if err != nil {
+		return false, cookies.NotFoundError{Message: refreshTokenCookieName}
 	}
 
-	tokens, err := r.useCases.RefreshTokens(refreshToken.Value)
+	tokens, err := r.useCases.RefreshTokens(ctx, refreshToken.Value)
 	if err != nil {
 		return false, err
 	}
 
-	writer, ok := getHTTPWriterFromContext(ctx)
-	if !ok {
-		r.logger.ErrorContext(
-			ctx,
-			"Failed to get cookies writer",
-			"Context",
-			ctx,
-			"Traceback",
-			logging.GetLogTraceback(),
-		)
-
-		return false, customerrors.ContextValueNotFoundError{Message: middlewares.CookiesWriterName}
+	writer, err := contextlib.GetValue[http.ResponseWriter](ctx, middlewares.CookiesWriterName)
+	if err != nil {
+		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
+		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
 	}
 
-	setCookie(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
-	setCookie(writer, refreshTokenCookieName, tokens.RefreshToken, r.cookiesConfig.RefreshToken)
+	cookies.Set(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
+	cookies.Set(writer, refreshTokenCookieName, tokens.RefreshToken, r.cookiesConfig.RefreshToken)
 	return true, nil
 }
 
 // RegisterMaster is the resolver for the registerMaster field.
 func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.RegisterMasterInput) (int, error) {
-	r.logger.Info(
-		"Received new request",
-		"Request",
-		input,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, input)
 
-	accessToken, ok := getCookieFromContext(ctx, accessTokenCookieName)
-	if !ok {
-		return 0, customerrors.CookieNotFoundError{Message: accessTokenCookieName}
+	accessToken, err := contextlib.GetValue[http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return 0, cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	masterData := models.RegisterMasterDTO{
@@ -145,25 +125,19 @@ func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.
 		Info:        input.Info,
 	}
 
-	masterID, err := r.useCases.RegisterMaster(masterData)
+	masterID, err := r.useCases.RegisterMaster(ctx, masterData)
 	return int(masterID), err
 }
 
 // AddToy is the resolver for the addToy field.
 func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyInput) (int, error) {
-	r.logger.Info(
-		"Received new request",
-		"Request",
-		input,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, input)
 
-	accessToken, ok := getCookieFromContext(ctx, accessTokenCookieName)
-	if !ok {
-		return 0, customerrors.CookieNotFoundError{Message: accessTokenCookieName}
+	accessToken, err := contextlib.GetValue[http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return 0, cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	tagsIDs := make([]uint32, len(input.TagsIDs))
@@ -181,21 +155,17 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 		TagsIDs:     tagsIDs,
 	}
 
-	toyID, err := r.useCases.AddToy(toyData)
+	toyID, err := r.useCases.AddToy(ctx, toyData)
 	return int(toyID), err
 }
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
-	r.logger.Info(
-		"Received new request",
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, nil)
 
-	users, err := r.useCases.GetAllUsers()
+	users, err := r.useCases.GetAllUsers(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -210,73 +180,53 @@ func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id string) (*models.User, error) {
-	r.logger.Info(
-		"Received new request",
-		"Request",
-		id,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, id)
 
 	userID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.useCases.GetUserByID(uint64(userID))
+	return r.useCases.GetUserByID(ctx, uint64(userID))
 }
 
 // Me is the resolver for me field.
 func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
-	r.logger.Info(
-		"Received new request",
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, nil)
 
-	accessToken, ok := getCookieFromContext(ctx, accessTokenCookieName)
-	if !ok {
-		return nil, customerrors.CookieNotFoundError{Message: accessTokenCookieName}
+	accessToken, err := contextlib.GetValue[http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	return r.useCases.GetMe(accessToken.Value)
+	return r.useCases.GetMe(ctx, accessToken.Value)
 }
 
 // Master is the resolver for the master field.
 func (r *queryResolver) Master(ctx context.Context, id string) (*models.Master, error) {
-	r.logger.Info(
-		"Received new request",
-		"Request",
-		id,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, id)
 
 	masterID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.useCases.GetMasterByID(uint64(masterID))
+	return r.useCases.GetMasterByID(ctx, uint64(masterID))
 }
 
 // Masters is the resolver for the masters field.
 func (r *queryResolver) Masters(ctx context.Context) ([]*models.Master, error) {
-	r.logger.Info(
-		"Received new request",
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, nil)
 
-	masters, err := r.useCases.GetAllMasters()
+	masters, err := r.useCases.GetAllMasters(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -291,20 +241,16 @@ func (r *queryResolver) Masters(ctx context.Context) ([]*models.Master, error) {
 
 // MasterToys is the resolver for the masterToys field.
 func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*models.Toy, error) {
-	r.logger.Info(
-		"Received new request",
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, masterID)
 
 	processedMasterID, err := strconv.Atoi(masterID)
 	if err != nil {
 		return nil, err
 	}
 
-	toys, err := r.useCases.GetMasterToys(uint64(processedMasterID))
+	toys, err := r.useCases.GetMasterToys(ctx, uint64(processedMasterID))
 	if err != nil {
 		return nil, err
 	}
@@ -319,35 +265,25 @@ func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*mod
 
 // Toy is the resolver for the toy field.
 func (r *queryResolver) Toy(ctx context.Context, id string) (*models.Toy, error) {
-	r.logger.Info(
-		"Received new request",
-		"Request",
-		id,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, id)
 
 	toyID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.useCases.GetToyByID(uint64(toyID))
+	return r.useCases.GetToyByID(ctx, uint64(toyID))
 }
 
 // Toys is the resolver for the toys field.
 func (r *queryResolver) Toys(ctx context.Context) ([]*models.Toy, error) {
-	r.logger.Info(
-		"Received new request",
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, nil)
 
-	toys, err := r.useCases.GetAllToys()
+	toys, err := r.useCases.GetAllToys(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -362,35 +298,25 @@ func (r *queryResolver) Toys(ctx context.Context) ([]*models.Toy, error) {
 
 // Tag is the resolver for the tag field.
 func (r *queryResolver) Tag(ctx context.Context, id string) (*models.Tag, error) {
-	r.logger.Info(
-		"Received new request",
-		"Request",
-		id,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, id)
 
 	tagID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.useCases.GetTagByID(uint32(tagID))
+	return r.useCases.GetTagByID(ctx, uint32(tagID))
 }
 
 // Tags is the resolver for the tags field.
 func (r *queryResolver) Tags(ctx context.Context) ([]*models.Tag, error) {
-	r.logger.Info(
-		"Received new request",
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, nil)
 
-	tags, err := r.useCases.GetAllTags()
+	tags, err := r.useCases.GetAllTags(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -405,35 +331,25 @@ func (r *queryResolver) Tags(ctx context.Context) ([]*models.Tag, error) {
 
 // Category is the resolver for the category field.
 func (r *queryResolver) Category(ctx context.Context, id string) (*models.Category, error) {
-	r.logger.Info(
-		"Received new request",
-		"Request",
-		id,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, id)
 
 	categoryID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.useCases.GetCategoryByID(uint32(categoryID))
+	return r.useCases.GetCategoryByID(ctx, uint32(categoryID))
 }
 
 // Categories is the resolver for the categories field.
 func (r *queryResolver) Categories(ctx context.Context) ([]*models.Category, error) {
-	r.logger.Info(
-		"Received new request",
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, nil)
 
-	categories, err := r.useCases.GetAllCategories()
+	categories, err := r.useCases.GetAllCategories(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -448,12 +364,34 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*models.Category, err
 
 // Master is the resolver for the master field.
 func (r *toyResolver) Master(ctx context.Context, obj *models.Toy) (*models.Master, error) {
-	return r.useCases.GetMasterByID(obj.MasterID)
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestid.New())
+	master, err := r.useCases.GetMasterByID(ctx, obj.MasterID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			r.logger,
+			fmt.Sprintf("Failed to get Master for Toy with ID=%d", obj.MasterID),
+			err,
+		)
+	}
+
+	return master, err
 }
 
 // Category is the resolver for the category field.
 func (r *toyResolver) Category(ctx context.Context, obj *models.Toy) (*models.Category, error) {
-	return r.useCases.GetCategoryByID(obj.CategoryID)
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestid.New())
+	category, err := r.useCases.GetCategoryByID(ctx, obj.CategoryID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			r.logger,
+			fmt.Sprintf("Failed to get Category for Toy with ID=%d", obj.ID),
+			err,
+		)
+	}
+
+	return category, err
 }
 
 // Price is the resolver for the price field.

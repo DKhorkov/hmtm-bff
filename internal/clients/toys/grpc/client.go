@@ -57,11 +57,9 @@ func New(
 	)
 
 	if err != nil {
-		logger.Error(
+		logging.LogError(
+			logger,
 			"Failed to create SSO gRPC client",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
 			err,
 		)
 
