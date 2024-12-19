@@ -7,21 +7,18 @@ package graphqlcontroller
 import (
 	"context"
 	"fmt"
-	"github.com/DKhorkov/libs/cookies"
+	"io"
 	"net/http"
 	"strconv"
 
+	"github.com/99designs/gqlgen/graphql"
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/models"
 	"github.com/DKhorkov/libs/contextlib"
+	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
 	"github.com/DKhorkov/libs/requestid"
-)
-
-const (
-	accessTokenCookieName  = "accessToken"
-	refreshTokenCookieName = "refreshToken"
 )
 
 // User is the resolver for the user field.
@@ -156,6 +153,20 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 
 	toyID, err := r.useCases.AddToy(ctx, toyData)
 	return int(toyID), err
+}
+
+// UploadFile is the resolver for the uploadFile field.
+func (r *mutationResolver) UploadFile(ctx context.Context, input graphql.Upload) (string, error) {
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, input)
+
+	file, err := io.ReadAll(input.File)
+	if err != nil {
+		return "", err
+	}
+
+	return r.useCases.UploadFile(ctx, input.Filename, file)
 }
 
 // Users is the resolver for the users field.

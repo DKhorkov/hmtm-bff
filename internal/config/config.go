@@ -76,6 +76,12 @@ func New() Config {
 				),
 			},
 		},
+		S3: S3Config{
+			AccessKeyID:     loadenv.GetEnv("S3_ACCESS_KEY_ID", ""),
+			SecretAccessKey: loadenv.GetEnv("S3_SECRET_ACCESS_KEY", ""),
+			Region:          loadenv.GetEnv("S3_REGION", ""),
+			Bucket:          loadenv.GetEnv("S3_BUCKET", ""),
+		},
 	}
 }
 
@@ -110,10 +116,18 @@ type CookiesConfig struct {
 	RefreshToken cookies.Config
 }
 
+type S3Config struct {
+	Region          string
+	Bucket          string
+	AccessKeyID     string
+	SecretAccessKey string
+}
+
 type Config struct {
 	HTTP    HTTPConfig
 	CORS    CORSConfig
 	Clients ClientsConfig
 	Logging logging.Config
 	Cookies CookiesConfig
+	S3      S3Config
 }
