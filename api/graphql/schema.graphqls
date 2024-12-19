@@ -3,6 +3,7 @@
 
 scalar Time
 scalar Any
+scalar Upload
 
 type User {
     id: ID!
@@ -86,4 +87,5 @@ type Mutation {
     refreshTokens(input: Any): Boolean!
     registerMaster(input: RegisterMasterInput!): Int!
     addToy(input: AddToyInput!): Int!
+    uploadFile(input: Upload!): String!
 }

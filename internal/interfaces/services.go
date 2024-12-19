@@ -7,3 +7,7 @@ type SsoService interface {
 type ToysService interface {
 	ToysRepository
 }
+
+type FileStorageService interface {
+	FileStorageRepository
+}

@@ -7,26 +7,22 @@ package graphqlcontroller
 import (
 	"context"
 	"fmt"
-	"github.com/DKhorkov/libs/cookies"
+	"io"
 	"net/http"
 	"strconv"
 
+	"github.com/99designs/gqlgen/graphql"
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/models"
 	"github.com/DKhorkov/libs/contextlib"
+	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
 	"github.com/DKhorkov/libs/requestid"
 )
 
-const (
-	accessTokenCookieName  = "accessToken"
-	refreshTokenCookieName = "refreshToken"
-)
-
 // User is the resolver for the user field.
 func (r *masterResolver) User(ctx context.Context, obj *models.Master) (*models.User, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestid.New())
 	user, err := r.useCases.GetUserByID(ctx, obj.UserID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -88,7 +84,7 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context, input any) (bool, 
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
-	refreshToken, err := contextlib.GetValue[http.Cookie](ctx, refreshTokenCookieName)
+	refreshToken, err := contextlib.GetValue[*http.Cookie](ctx, refreshTokenCookieName)
 	if err != nil {
 		return false, cookies.NotFoundError{Message: refreshTokenCookieName}
 	}
@@ -115,7 +111,7 @@ func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
-	accessToken, err := contextlib.GetValue[http.Cookie](ctx, accessTokenCookieName)
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return 0, cookies.NotFoundError{Message: accessTokenCookieName}
 	}
@@ -135,7 +131,7 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
-	accessToken, err := contextlib.GetValue[http.Cookie](ctx, accessTokenCookieName)
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return 0, cookies.NotFoundError{Message: accessTokenCookieName}
 	}
@@ -157,6 +153,20 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 
 	toyID, err := r.useCases.AddToy(ctx, toyData)
 	return int(toyID), err
+}
+
+// UploadFile is the resolver for the uploadFile field.
+func (r *mutationResolver) UploadFile(ctx context.Context, input graphql.Upload) (string, error) {
+	requestID := requestid.New()
+	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
+	logging.LogRequest(ctx, r.logger, input)
+
+	file, err := io.ReadAll(input.File)
+	if err != nil {
+		return "", err
+	}
+
+	return r.useCases.UploadFile(ctx, input.Filename, file)
 }
 
 // Users is the resolver for the users field.
@@ -198,7 +208,7 @@ func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
 
-	accessToken, err := contextlib.GetValue[http.Cookie](ctx, accessTokenCookieName)
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
 	}
@@ -364,7 +374,6 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*models.Category, err
 
 // Master is the resolver for the master field.
 func (r *toyResolver) Master(ctx context.Context, obj *models.Toy) (*models.Master, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestid.New())
 	master, err := r.useCases.GetMasterByID(ctx, obj.MasterID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -380,7 +389,6 @@ func (r *toyResolver) Master(ctx context.Context, obj *models.Toy) (*models.Mast
 
 // Category is the resolver for the category field.
 func (r *toyResolver) Category(ctx context.Context, obj *models.Toy) (*models.Category, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestid.New())
 	category, err := r.useCases.GetCategoryByID(ctx, obj.CategoryID)
 	if err != nil {
 		logging.LogErrorContext(

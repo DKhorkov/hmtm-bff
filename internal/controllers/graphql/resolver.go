@@ -7,6 +7,11 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
+const (
+	accessTokenCookieName  = "accessToken"
+	refreshTokenCookieName = "refreshToken"
+)
+
 /*
 Resolver
 

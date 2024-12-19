@@ -49,20 +49,18 @@ func main() {
 	}
 
 	ssoRepository := repositories.NewGrpcSsoRepository(ssoGrpcClient)
-	toysRepository := repositories.NewGrpcToysRepository(toysGrpcClient)
-	ssoService := services.NewCommonSsoService(
-		ssoRepository,
-		logger,
-	)
+	ssoService := services.NewCommonSsoService(ssoRepository, logger)
 
-	toysService := services.NewCommonToysService(
-		toysRepository,
-		logger,
-	)
+	toysRepository := repositories.NewGrpcToysRepository(toysGrpcClient)
+	toysService := services.NewCommonToysService(toysRepository, logger)
+
+	fileStorageRepository := repositories.NewS3FileStorageRepository(settings.S3, logger)
+	fileStorageService := services.NewCommonFileStorageService(fileStorageRepository, logger)
 
 	useCases := usecases.NewCommonUseCases(
 		ssoService,
 		toysService,
+		fileStorageService,
 	)
 
 	controller := graphqlcontroller.New(

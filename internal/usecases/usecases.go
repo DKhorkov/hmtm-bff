@@ -2,14 +2,29 @@ package usecases
 
 import (
 	"context"
+	"path"
 
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 	"github.com/DKhorkov/hmtm-bff/internal/models"
+	"github.com/DKhorkov/libs/security"
 )
 
+func NewCommonUseCases(
+	ssoService interfaces.SsoService,
+	toysService interfaces.ToysService,
+	fileStorageService interfaces.FileStorageService,
+) *CommonUseCases {
+	return &CommonUseCases{
+		ssoService:         ssoService,
+		toysService:        toysService,
+		fileStorageService: fileStorageService,
+	}
+}
+
 type CommonUseCases struct {
-	ssoService  interfaces.SsoService
-	toysService interfaces.ToysService
+	ssoService         interfaces.SsoService
+	toysService        interfaces.ToysService
+	fileStorageService interfaces.FileStorageService
 }
 
 func (useCases *CommonUseCases) RegisterUser(ctx context.Context, userData models.RegisterUserDTO) (uint64, error) {
@@ -86,12 +101,7 @@ func (useCases *CommonUseCases) GetTagByID(ctx context.Context, id uint32) (*mod
 	return useCases.toysService.GetTagByID(ctx, id)
 }
 
-func NewCommonUseCases(
-	ssoService interfaces.SsoService,
-	toysService interfaces.ToysService,
-) *CommonUseCases {
-	return &CommonUseCases{
-		ssoService:  ssoService,
-		toysService: toysService,
-	}
+func (useCases *CommonUseCases) UploadFile(ctx context.Context, filename string, file []byte) (string, error) {
+	key := security.RawEncode([]byte(filename)) + path.Ext(filename)
+	return useCases.fileStorageService.Upload(ctx, key, file)
 }

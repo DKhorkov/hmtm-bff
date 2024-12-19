@@ -28,3 +28,7 @@ type ToysRepository interface {
 	GetAllTags(ctx context.Context) ([]models.Tag, error)
 	GetTagByID(ctx context.Context, id uint32) (*models.Tag, error)
 }
+
+type FileStorageRepository interface {
+	Upload(ctx context.Context, key string, file []byte) (string, error)
+}
