@@ -36,7 +36,7 @@ func (service *CommonFileStorageService) Upload(ctx context.Context, key string,
 			err,
 		)
 
-		return "", customerrors.UploadFileError{Message: key}
+		return "", &customerrors.UploadFileError{Message: key}
 	}
 
 	return url, nil
