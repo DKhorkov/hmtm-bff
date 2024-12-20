@@ -59,7 +59,7 @@ func New(
 	if err != nil {
 		logging.LogError(
 			logger,
-			"Failed to create SSO gRPC client",
+			"Failed to create Toys gRPC client",
 			err,
 		)
 

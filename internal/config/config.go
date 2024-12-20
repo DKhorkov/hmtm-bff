@@ -15,8 +15,14 @@ func New() Config {
 		HTTP: HTTPConfig{
 			Host: loadenv.GetEnv("HOST", "0.0.0.0"),
 			Port: loadenv.GetEnvAsInt("PORT", 8080),
+			ReadTimeout: time.Second * time.Duration(
+				loadenv.GetEnvAsInt("HTTP_READ_TIMEOUT", 3),
+			),
 			ReadHeaderTimeout: time.Second * time.Duration(
 				loadenv.GetEnvAsInt("HTTP_READ_HEADER_TIMEOUT", 1),
+			),
+			TimeoutHandlerTimeout: time.Second * time.Duration(
+				loadenv.GetEnvAsInt("HTTP_TIMEOUT_HANDLER_TIMEOUT", 2),
 			),
 		},
 		Clients: ClientsConfig{
@@ -86,9 +92,11 @@ func New() Config {
 }
 
 type HTTPConfig struct {
-	Host              string
-	Port              int
-	ReadHeaderTimeout time.Duration
+	Host                  string
+	Port                  int
+	ReadHeaderTimeout     time.Duration
+	ReadTimeout           time.Duration
+	TimeoutHandlerTimeout time.Duration
 }
 
 type CORSConfig struct {

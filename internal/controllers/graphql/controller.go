@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
+
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
@@ -85,9 +87,17 @@ func New(
 	// Read cookies for auth purposes:
 	httpHandler = middlewares.CookiesMiddleware(httpHandler, []string{"accessToken", "refreshToken"})
 
+	// Protecting server from too long requests:
+	httpHandler = http.TimeoutHandler(
+		httpHandler,
+		httpConfig.TimeoutHandlerTimeout,
+		customerrors.HTTPHandlerTimeoutError{}.Error(),
+	)
+
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", httpConfig.Host, httpConfig.Port),
 		ReadHeaderTimeout: httpConfig.ReadHeaderTimeout,
+		ReadTimeout:       httpConfig.ReadTimeout,
 		Handler:           httpHandler,
 	}
 
