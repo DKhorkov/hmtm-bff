@@ -15,7 +15,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/DKhorkov/hmtm-bff/internal/models"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -114,7 +114,7 @@ type ComplexityRoot struct {
 }
 
 type MasterResolver interface {
-	User(ctx context.Context, obj *models.Master) (*models.User, error)
+	User(ctx context.Context, obj *entities.Master) (*entities.User, error)
 }
 type MutationResolver interface {
 	RegisterUser(ctx context.Context, input RegisterUserInput) (int, error)
@@ -125,25 +125,25 @@ type MutationResolver interface {
 	UploadFile(ctx context.Context, input graphql.Upload) (string, error)
 }
 type QueryResolver interface {
-	Users(ctx context.Context) ([]*models.User, error)
-	User(ctx context.Context, id string) (*models.User, error)
-	Me(ctx context.Context) (*models.User, error)
-	Master(ctx context.Context, id string) (*models.Master, error)
-	Masters(ctx context.Context) ([]*models.Master, error)
-	MasterToys(ctx context.Context, masterID string) ([]*models.Toy, error)
-	Toy(ctx context.Context, id string) (*models.Toy, error)
-	Toys(ctx context.Context) ([]*models.Toy, error)
-	Tag(ctx context.Context, id string) (*models.Tag, error)
-	Tags(ctx context.Context) ([]*models.Tag, error)
-	Category(ctx context.Context, id string) (*models.Category, error)
-	Categories(ctx context.Context) ([]*models.Category, error)
+	Users(ctx context.Context) ([]*entities.User, error)
+	User(ctx context.Context, id string) (*entities.User, error)
+	Me(ctx context.Context) (*entities.User, error)
+	Master(ctx context.Context, id string) (*entities.Master, error)
+	Masters(ctx context.Context) ([]*entities.Master, error)
+	MasterToys(ctx context.Context, masterID string) ([]*entities.Toy, error)
+	Toy(ctx context.Context, id string) (*entities.Toy, error)
+	Toys(ctx context.Context) ([]*entities.Toy, error)
+	Tag(ctx context.Context, id string) (*entities.Tag, error)
+	Tags(ctx context.Context) ([]*entities.Tag, error)
+	Category(ctx context.Context, id string) (*entities.Category, error)
+	Categories(ctx context.Context) ([]*entities.Category, error)
 }
 type ToyResolver interface {
-	Master(ctx context.Context, obj *models.Toy) (*models.Master, error)
-	Category(ctx context.Context, obj *models.Toy) (*models.Category, error)
+	Master(ctx context.Context, obj *entities.Toy) (*entities.Master, error)
+	Category(ctx context.Context, obj *entities.Toy) (*entities.Category, error)
 
-	Price(ctx context.Context, obj *models.Toy) (float64, error)
-	Quantity(ctx context.Context, obj *models.Toy) (int, error)
+	Price(ctx context.Context, obj *entities.Toy) (float64, error)
+	Quantity(ctx context.Context, obj *entities.Toy) (int, error)
 }
 
 type executableSchema struct {
@@ -1128,7 +1128,7 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Category_id(ctx context.Context, field graphql.CollectedField, obj *models.Category) (ret graphql.Marshaler) {
+func (ec *executionContext) _Category_id(ctx context.Context, field graphql.CollectedField, obj *entities.Category) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Category_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1172,7 +1172,7 @@ func (ec *executionContext) fieldContext_Category_id(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Category_name(ctx context.Context, field graphql.CollectedField, obj *models.Category) (ret graphql.Marshaler) {
+func (ec *executionContext) _Category_name(ctx context.Context, field graphql.CollectedField, obj *entities.Category) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Category_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1216,7 +1216,7 @@ func (ec *executionContext) fieldContext_Category_name(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Master_id(ctx context.Context, field graphql.CollectedField, obj *models.Master) (ret graphql.Marshaler) {
+func (ec *executionContext) _Master_id(ctx context.Context, field graphql.CollectedField, obj *entities.Master) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Master_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1260,7 +1260,7 @@ func (ec *executionContext) fieldContext_Master_id(_ context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Master_user(ctx context.Context, field graphql.CollectedField, obj *models.Master) (ret graphql.Marshaler) {
+func (ec *executionContext) _Master_user(ctx context.Context, field graphql.CollectedField, obj *entities.Master) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Master_user(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1286,9 +1286,9 @@ func (ec *executionContext) _Master_user(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.User)
+	res := resTmp.(*entities.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Master_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1314,7 +1314,7 @@ func (ec *executionContext) fieldContext_Master_user(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Master_info(ctx context.Context, field graphql.CollectedField, obj *models.Master) (ret graphql.Marshaler) {
+func (ec *executionContext) _Master_info(ctx context.Context, field graphql.CollectedField, obj *entities.Master) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Master_info(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1358,7 +1358,7 @@ func (ec *executionContext) fieldContext_Master_info(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Master_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.Master) (ret graphql.Marshaler) {
+func (ec *executionContext) _Master_createdAt(ctx context.Context, field graphql.CollectedField, obj *entities.Master) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Master_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1402,7 +1402,7 @@ func (ec *executionContext) fieldContext_Master_createdAt(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Master_updatedAt(ctx context.Context, field graphql.CollectedField, obj *models.Master) (ret graphql.Marshaler) {
+func (ec *executionContext) _Master_updatedAt(ctx context.Context, field graphql.CollectedField, obj *entities.Master) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Master_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1808,9 +1808,9 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.User)
+	res := resTmp.([]*entities.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_users(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1862,9 +1862,9 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.User)
+	res := resTmp.(*entities.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1927,9 +1927,9 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.User)
+	res := resTmp.(*entities.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1981,9 +1981,9 @@ func (ec *executionContext) _Query_master(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Master)
+	res := resTmp.(*entities.Master)
 	fc.Result = res
-	return ec.marshalNMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐMaster(ctx, field.Selections, res)
+	return ec.marshalNMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_master(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2048,9 +2048,9 @@ func (ec *executionContext) _Query_masters(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.Master)
+	res := resTmp.([]*entities.Master)
 	fc.Result = res
-	return ec.marshalNMaster2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐMaster(ctx, field.Selections, res)
+	return ec.marshalNMaster2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_masters(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2104,9 +2104,9 @@ func (ec *executionContext) _Query_masterToys(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.Toy)
+	res := resTmp.([]*entities.Toy)
 	fc.Result = res
-	return ec.marshalNToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐToy(ctx, field.Selections, res)
+	return ec.marshalNToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToy(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_masterToys(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2181,9 +2181,9 @@ func (ec *executionContext) _Query_toy(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Toy)
+	res := resTmp.(*entities.Toy)
 	fc.Result = res
-	return ec.marshalNToy2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐToy(ctx, field.Selections, res)
+	return ec.marshalNToy2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToy(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_toy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2258,9 +2258,9 @@ func (ec *executionContext) _Query_toys(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.Toy)
+	res := resTmp.([]*entities.Toy)
 	fc.Result = res
-	return ec.marshalNToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐToy(ctx, field.Selections, res)
+	return ec.marshalNToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToy(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_toys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2324,9 +2324,9 @@ func (ec *executionContext) _Query_tag(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Tag)
+	res := resTmp.(*entities.Tag)
 	fc.Result = res
-	return ec.marshalNTag2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx, field.Selections, res)
+	return ec.marshalNTag2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_tag(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2385,9 +2385,9 @@ func (ec *executionContext) _Query_tags(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.Tag)
+	res := resTmp.([]*entities.Tag)
 	fc.Result = res
-	return ec.marshalNTag2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx, field.Selections, res)
+	return ec.marshalNTag2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_tags(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2435,9 +2435,9 @@ func (ec *executionContext) _Query_category(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Category)
+	res := resTmp.(*entities.Category)
 	fc.Result = res
-	return ec.marshalNCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐCategory(ctx, field.Selections, res)
+	return ec.marshalNCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐCategory(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2496,9 +2496,9 @@ func (ec *executionContext) _Query_categories(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.Category)
+	res := resTmp.([]*entities.Category)
 	fc.Result = res
-	return ec.marshalNCategory2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐCategory(ctx, field.Selections, res)
+	return ec.marshalNCategory2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐCategory(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_categories(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2649,7 +2649,7 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Tag_id(ctx context.Context, field graphql.CollectedField, obj *models.Tag) (ret graphql.Marshaler) {
+func (ec *executionContext) _Tag_id(ctx context.Context, field graphql.CollectedField, obj *entities.Tag) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Tag_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2693,7 +2693,7 @@ func (ec *executionContext) fieldContext_Tag_id(_ context.Context, field graphql
 	return fc, nil
 }
 
-func (ec *executionContext) _Tag_name(ctx context.Context, field graphql.CollectedField, obj *models.Tag) (ret graphql.Marshaler) {
+func (ec *executionContext) _Tag_name(ctx context.Context, field graphql.CollectedField, obj *entities.Tag) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Tag_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2737,7 +2737,7 @@ func (ec *executionContext) fieldContext_Tag_name(_ context.Context, field graph
 	return fc, nil
 }
 
-func (ec *executionContext) _Toy_id(ctx context.Context, field graphql.CollectedField, obj *models.Toy) (ret graphql.Marshaler) {
+func (ec *executionContext) _Toy_id(ctx context.Context, field graphql.CollectedField, obj *entities.Toy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Toy_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2781,7 +2781,7 @@ func (ec *executionContext) fieldContext_Toy_id(_ context.Context, field graphql
 	return fc, nil
 }
 
-func (ec *executionContext) _Toy_master(ctx context.Context, field graphql.CollectedField, obj *models.Toy) (ret graphql.Marshaler) {
+func (ec *executionContext) _Toy_master(ctx context.Context, field graphql.CollectedField, obj *entities.Toy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Toy_master(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2807,9 +2807,9 @@ func (ec *executionContext) _Toy_master(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Master)
+	res := resTmp.(*entities.Master)
 	fc.Result = res
-	return ec.marshalNMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐMaster(ctx, field.Selections, res)
+	return ec.marshalNMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Toy_master(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2837,7 +2837,7 @@ func (ec *executionContext) fieldContext_Toy_master(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Toy_category(ctx context.Context, field graphql.CollectedField, obj *models.Toy) (ret graphql.Marshaler) {
+func (ec *executionContext) _Toy_category(ctx context.Context, field graphql.CollectedField, obj *entities.Toy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Toy_category(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2863,9 +2863,9 @@ func (ec *executionContext) _Toy_category(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Category)
+	res := resTmp.(*entities.Category)
 	fc.Result = res
-	return ec.marshalNCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐCategory(ctx, field.Selections, res)
+	return ec.marshalNCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐCategory(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Toy_category(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2887,7 +2887,7 @@ func (ec *executionContext) fieldContext_Toy_category(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Toy_name(ctx context.Context, field graphql.CollectedField, obj *models.Toy) (ret graphql.Marshaler) {
+func (ec *executionContext) _Toy_name(ctx context.Context, field graphql.CollectedField, obj *entities.Toy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Toy_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2931,7 +2931,7 @@ func (ec *executionContext) fieldContext_Toy_name(_ context.Context, field graph
 	return fc, nil
 }
 
-func (ec *executionContext) _Toy_description(ctx context.Context, field graphql.CollectedField, obj *models.Toy) (ret graphql.Marshaler) {
+func (ec *executionContext) _Toy_description(ctx context.Context, field graphql.CollectedField, obj *entities.Toy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Toy_description(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2975,7 +2975,7 @@ func (ec *executionContext) fieldContext_Toy_description(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Toy_price(ctx context.Context, field graphql.CollectedField, obj *models.Toy) (ret graphql.Marshaler) {
+func (ec *executionContext) _Toy_price(ctx context.Context, field graphql.CollectedField, obj *entities.Toy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Toy_price(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3019,7 +3019,7 @@ func (ec *executionContext) fieldContext_Toy_price(_ context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Toy_quantity(ctx context.Context, field graphql.CollectedField, obj *models.Toy) (ret graphql.Marshaler) {
+func (ec *executionContext) _Toy_quantity(ctx context.Context, field graphql.CollectedField, obj *entities.Toy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Toy_quantity(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3063,7 +3063,7 @@ func (ec *executionContext) fieldContext_Toy_quantity(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Toy_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.Toy) (ret graphql.Marshaler) {
+func (ec *executionContext) _Toy_createdAt(ctx context.Context, field graphql.CollectedField, obj *entities.Toy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Toy_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3107,7 +3107,7 @@ func (ec *executionContext) fieldContext_Toy_createdAt(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Toy_updatedAt(ctx context.Context, field graphql.CollectedField, obj *models.Toy) (ret graphql.Marshaler) {
+func (ec *executionContext) _Toy_updatedAt(ctx context.Context, field graphql.CollectedField, obj *entities.Toy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Toy_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3151,7 +3151,7 @@ func (ec *executionContext) fieldContext_Toy_updatedAt(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Toy_tags(ctx context.Context, field graphql.CollectedField, obj *models.Toy) (ret graphql.Marshaler) {
+func (ec *executionContext) _Toy_tags(ctx context.Context, field graphql.CollectedField, obj *entities.Toy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Toy_tags(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3177,9 +3177,9 @@ func (ec *executionContext) _Toy_tags(ctx context.Context, field graphql.Collect
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]models.Tag)
+	res := resTmp.([]entities.Tag)
 	fc.Result = res
-	return ec.marshalNTag2ᚕgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx, field.Selections, res)
+	return ec.marshalNTag2ᚕgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Toy_tags(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3201,7 +3201,7 @@ func (ec *executionContext) fieldContext_Toy_tags(_ context.Context, field graph
 	return fc, nil
 }
 
-func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *entities.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3245,7 +3245,7 @@ func (ec *executionContext) fieldContext_User_id(_ context.Context, field graphq
 	return fc, nil
 }
 
-func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *entities.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_email(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3289,7 +3289,7 @@ func (ec *executionContext) fieldContext_User_email(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *entities.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3333,7 +3333,7 @@ func (ec *executionContext) fieldContext_User_createdAt(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *entities.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -5317,7 +5317,7 @@ func (ec *executionContext) unmarshalInputRegisterUserInput(ctx context.Context,
 
 var categoryImplementors = []string{"Category"}
 
-func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet, obj *models.Category) graphql.Marshaler {
+func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet, obj *entities.Category) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, categoryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5361,7 +5361,7 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 
 var masterImplementors = []string{"Master"}
 
-func (ec *executionContext) _Master(ctx context.Context, sel ast.SelectionSet, obj *models.Master) graphql.Marshaler {
+func (ec *executionContext) _Master(ctx context.Context, sel ast.SelectionSet, obj *entities.Master) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, masterImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5849,7 +5849,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var tagImplementors = []string{"Tag"}
 
-func (ec *executionContext) _Tag(ctx context.Context, sel ast.SelectionSet, obj *models.Tag) graphql.Marshaler {
+func (ec *executionContext) _Tag(ctx context.Context, sel ast.SelectionSet, obj *entities.Tag) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tagImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5893,7 +5893,7 @@ func (ec *executionContext) _Tag(ctx context.Context, sel ast.SelectionSet, obj 
 
 var toyImplementors = []string{"Toy"}
 
-func (ec *executionContext) _Toy(ctx context.Context, sel ast.SelectionSet, obj *models.Toy) graphql.Marshaler {
+func (ec *executionContext) _Toy(ctx context.Context, sel ast.SelectionSet, obj *entities.Toy) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, toyImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6101,7 +6101,7 @@ func (ec *executionContext) _Toy(ctx context.Context, sel ast.SelectionSet, obj 
 
 var userImplementors = []string{"User"}
 
-func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *models.User) graphql.Marshaler {
+func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *entities.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6499,11 +6499,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNCategory2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐCategory(ctx context.Context, sel ast.SelectionSet, v models.Category) graphql.Marshaler {
+func (ec *executionContext) marshalNCategory2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐCategory(ctx context.Context, sel ast.SelectionSet, v entities.Category) graphql.Marshaler {
 	return ec._Category(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCategory2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐCategory(ctx context.Context, sel ast.SelectionSet, v []*models.Category) graphql.Marshaler {
+func (ec *executionContext) marshalNCategory2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐCategory(ctx context.Context, sel ast.SelectionSet, v []*entities.Category) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6527,7 +6527,7 @@ func (ec *executionContext) marshalNCategory2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmt
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐCategory(ctx, sel, v[i])
+			ret[i] = ec.marshalOCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐCategory(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6541,7 +6541,7 @@ func (ec *executionContext) marshalNCategory2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmt
 	return ret
 }
 
-func (ec *executionContext) marshalNCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐCategory(ctx context.Context, sel ast.SelectionSet, v *models.Category) graphql.Marshaler {
+func (ec *executionContext) marshalNCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐCategory(ctx context.Context, sel ast.SelectionSet, v *entities.Category) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6657,11 +6657,11 @@ func (ec *executionContext) unmarshalNLoginUserInput2githubᚗcomᚋDKhorkovᚋh
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNMaster2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐMaster(ctx context.Context, sel ast.SelectionSet, v models.Master) graphql.Marshaler {
+func (ec *executionContext) marshalNMaster2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx context.Context, sel ast.SelectionSet, v entities.Master) graphql.Marshaler {
 	return ec._Master(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNMaster2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐMaster(ctx context.Context, sel ast.SelectionSet, v []*models.Master) graphql.Marshaler {
+func (ec *executionContext) marshalNMaster2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx context.Context, sel ast.SelectionSet, v []*entities.Master) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6685,7 +6685,7 @@ func (ec *executionContext) marshalNMaster2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtm�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐMaster(ctx, sel, v[i])
+			ret[i] = ec.marshalOMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6699,7 +6699,7 @@ func (ec *executionContext) marshalNMaster2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtm�
 	return ret
 }
 
-func (ec *executionContext) marshalNMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐMaster(ctx context.Context, sel ast.SelectionSet, v *models.Master) graphql.Marshaler {
+func (ec *executionContext) marshalNMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx context.Context, sel ast.SelectionSet, v *entities.Master) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6734,11 +6734,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTag2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx context.Context, sel ast.SelectionSet, v models.Tag) graphql.Marshaler {
+func (ec *executionContext) marshalNTag2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx context.Context, sel ast.SelectionSet, v entities.Tag) graphql.Marshaler {
 	return ec._Tag(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTag2ᚕgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx context.Context, sel ast.SelectionSet, v []models.Tag) graphql.Marshaler {
+func (ec *executionContext) marshalNTag2ᚕgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx context.Context, sel ast.SelectionSet, v []entities.Tag) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6762,7 +6762,7 @@ func (ec *executionContext) marshalNTag2ᚕgithubᚗcomᚋDKhorkovᚋhmtmᚑbff�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOTag2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx, sel, v[i])
+			ret[i] = ec.marshalOTag2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6776,7 +6776,7 @@ func (ec *executionContext) marshalNTag2ᚕgithubᚗcomᚋDKhorkovᚋhmtmᚑbff�
 	return ret
 }
 
-func (ec *executionContext) marshalNTag2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx context.Context, sel ast.SelectionSet, v []*models.Tag) graphql.Marshaler {
+func (ec *executionContext) marshalNTag2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx context.Context, sel ast.SelectionSet, v []*entities.Tag) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6800,7 +6800,7 @@ func (ec *executionContext) marshalNTag2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑb
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOTag2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx, sel, v[i])
+			ret[i] = ec.marshalOTag2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6814,7 +6814,7 @@ func (ec *executionContext) marshalNTag2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑb
 	return ret
 }
 
-func (ec *executionContext) marshalNTag2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx context.Context, sel ast.SelectionSet, v *models.Tag) graphql.Marshaler {
+func (ec *executionContext) marshalNTag2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx context.Context, sel ast.SelectionSet, v *entities.Tag) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6839,11 +6839,11 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalNToy2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐToy(ctx context.Context, sel ast.SelectionSet, v models.Toy) graphql.Marshaler {
+func (ec *executionContext) marshalNToy2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToy(ctx context.Context, sel ast.SelectionSet, v entities.Toy) graphql.Marshaler {
 	return ec._Toy(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐToy(ctx context.Context, sel ast.SelectionSet, v []*models.Toy) graphql.Marshaler {
+func (ec *executionContext) marshalNToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToy(ctx context.Context, sel ast.SelectionSet, v []*entities.Toy) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6867,7 +6867,7 @@ func (ec *executionContext) marshalNToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑb
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOToy2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐToy(ctx, sel, v[i])
+			ret[i] = ec.marshalOToy2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToy(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6881,7 +6881,7 @@ func (ec *executionContext) marshalNToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑb
 	return ret
 }
 
-func (ec *executionContext) marshalNToy2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐToy(ctx context.Context, sel ast.SelectionSet, v *models.Toy) graphql.Marshaler {
+func (ec *executionContext) marshalNToy2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToy(ctx context.Context, sel ast.SelectionSet, v *entities.Toy) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6906,11 +6906,11 @@ func (ec *executionContext) marshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋg
 	return res
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐUser(ctx context.Context, sel ast.SelectionSet, v entities.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v []*models.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐUser(ctx context.Context, sel ast.SelectionSet, v []*entities.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6934,7 +6934,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6948,7 +6948,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑ
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *models.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐUser(ctx context.Context, sel ast.SelectionSet, v *entities.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -7253,7 +7253,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐCategory(ctx context.Context, sel ast.SelectionSet, v *models.Category) graphql.Marshaler {
+func (ec *executionContext) marshalOCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐCategory(ctx context.Context, sel ast.SelectionSet, v *entities.Category) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -7276,7 +7276,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalOMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐMaster(ctx context.Context, sel ast.SelectionSet, v *models.Master) graphql.Marshaler {
+func (ec *executionContext) marshalOMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx context.Context, sel ast.SelectionSet, v *entities.Master) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -7299,25 +7299,25 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOTag2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx context.Context, sel ast.SelectionSet, v models.Tag) graphql.Marshaler {
+func (ec *executionContext) marshalOTag2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx context.Context, sel ast.SelectionSet, v entities.Tag) graphql.Marshaler {
 	return ec._Tag(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalOTag2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐTag(ctx context.Context, sel ast.SelectionSet, v *models.Tag) graphql.Marshaler {
+func (ec *executionContext) marshalOTag2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐTag(ctx context.Context, sel ast.SelectionSet, v *entities.Tag) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Tag(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOToy2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐToy(ctx context.Context, sel ast.SelectionSet, v *models.Toy) graphql.Marshaler {
+func (ec *executionContext) marshalOToy2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToy(ctx context.Context, sel ast.SelectionSet, v *entities.Toy) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Toy(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *models.User) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐUser(ctx context.Context, sel ast.SelectionSet, v *entities.User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

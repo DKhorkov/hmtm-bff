@@ -6,16 +6,20 @@ import (
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/requestid"
 
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-	"github.com/DKhorkov/hmtm-bff/internal/models"
 	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
 )
+
+func NewGrpcSsoRepository(grpcClient interfaces.SsoGrpcClient) *GrpcSsoRepository {
+	return &GrpcSsoRepository{client: grpcClient}
+}
 
 type GrpcSsoRepository struct {
 	client interfaces.SsoGrpcClient
 }
 
-func (repo *GrpcSsoRepository) RegisterUser(ctx context.Context, userData models.RegisterUserDTO) (uint64, error) {
+func (repo *GrpcSsoRepository) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.Register(
 		ctx,
@@ -33,7 +37,7 @@ func (repo *GrpcSsoRepository) RegisterUser(ctx context.Context, userData models
 	return response.GetUserID(), nil
 }
 
-func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*models.User, error) {
+func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*entities.User, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUser(
 		ctx,
@@ -47,7 +51,7 @@ func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*mod
 		return nil, err
 	}
 
-	return &models.User{
+	return &entities.User{
 		ID:        response.GetID(),
 		Email:     response.GetEmail(),
 		CreatedAt: response.GetCreatedAt().AsTime(),
@@ -55,7 +59,7 @@ func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*mod
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]models.User, error) {
+func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUsers(
 		ctx,
@@ -68,9 +72,9 @@ func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]models.User, 
 		return nil, err
 	}
 
-	users := make([]models.User, len(response.GetUsers()))
+	users := make([]entities.User, len(response.GetUsers()))
 	for index, user := range response.GetUsers() {
-		users[index] = models.User{
+		users[index] = entities.User{
 			ID:        user.GetID(),
 			Email:     user.GetEmail(),
 			CreatedAt: user.GetCreatedAt().AsTime(),
@@ -81,7 +85,10 @@ func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]models.User, 
 	return users, nil
 }
 
-func (repo *GrpcSsoRepository) LoginUser(ctx context.Context, userData models.LoginUserDTO) (*models.TokensDTO, error) {
+func (repo *GrpcSsoRepository) LoginUser(
+	ctx context.Context,
+	userData entities.LoginUserDTO,
+) (*entities.TokensDTO, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.Login(
 		ctx,
@@ -96,13 +103,13 @@ func (repo *GrpcSsoRepository) LoginUser(ctx context.Context, userData models.Lo
 		return nil, err
 	}
 
-	return &models.TokensDTO{
+	return &entities.TokensDTO{
 		AccessToken:  response.GetAccessToken(),
 		RefreshToken: response.GetRefreshToken(),
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*models.User, error) {
+func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetMe(
 		ctx,
@@ -116,7 +123,7 @@ func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*
 		return nil, err
 	}
 
-	return &models.User{
+	return &entities.User{
 		ID:        response.GetID(),
 		Email:     response.GetEmail(),
 		CreatedAt: response.GetCreatedAt().AsTime(),
@@ -124,7 +131,7 @@ func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken string) (*models.TokensDTO, error) {
+func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.RefreshTokens(
 		ctx,
@@ -138,12 +145,8 @@ func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken s
 		return nil, err
 	}
 
-	return &models.TokensDTO{
+	return &entities.TokensDTO{
 		AccessToken:  response.GetAccessToken(),
 		RefreshToken: response.GetRefreshToken(),
 	}, nil
-}
-
-func NewGrpcSsoRepository(grpcClient interfaces.SsoGrpcClient) *GrpcSsoRepository {
-	return &GrpcSsoRepository{client: grpcClient}
 }
