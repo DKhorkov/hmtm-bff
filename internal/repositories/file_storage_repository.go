@@ -59,6 +59,7 @@ func (repo *S3FileStorageRepository) Upload(ctx context.Context, key string, fil
 			Bucket: aws.String(repo.s3config.Bucket),
 			Key:    aws.String(key),
 			Body:   bytes.NewReader(file),
+			ACL:    "public-read",
 		},
 	)
 

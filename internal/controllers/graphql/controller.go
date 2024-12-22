@@ -19,38 +19,6 @@ import (
 	"github.com/rs/cors"
 )
 
-type Controller struct {
-	httpServer *http.Server
-	host       string
-	port       int
-	logger     *slog.Logger
-}
-
-// Run gRPC server.
-func (controller *Controller) Run() {
-	logging.LogInfo(
-		controller.logger,
-		fmt.Sprintf("Starting GraphQL Server at http://%s:%d", controller.host, controller.port),
-	)
-
-	if err := controller.httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-		logging.LogError(controller.logger, "HTTP server error", err)
-	}
-
-	logging.LogInfo(controller.logger, "Stopped serving new connections.")
-}
-
-// Stop http server gracefully (graceful shutdown).
-func (controller *Controller) Stop() {
-	// Stops accepting new requests and processes already received requests:
-	err := controller.httpServer.Shutdown(context.Background())
-	if err != nil {
-		logging.LogError(controller.logger, "HTTP shutdown error", err)
-	}
-
-	logging.LogInfo(controller.logger, "Graceful shutdown completed.")
-}
-
 func New(
 	httpConfig config.HTTPConfig,
 	corsConfig config.CORSConfig,
@@ -107,4 +75,36 @@ func New(
 		port:       httpConfig.Port,
 		logger:     logger,
 	}
+}
+
+type Controller struct {
+	httpServer *http.Server
+	host       string
+	port       int
+	logger     *slog.Logger
+}
+
+// Run gRPC server.
+func (controller *Controller) Run() {
+	logging.LogInfo(
+		controller.logger,
+		fmt.Sprintf("Starting GraphQL Server at http://%s:%d", controller.host, controller.port),
+	)
+
+	if err := controller.httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		logging.LogError(controller.logger, "HTTP server error", err)
+	}
+
+	logging.LogInfo(controller.logger, "Stopped serving new connections.")
+}
+
+// Stop http server gracefully (graceful shutdown).
+func (controller *Controller) Stop() {
+	// Stops accepting new requests and processes already received requests:
+	err := controller.httpServer.Shutdown(context.Background())
+	if err != nil {
+		logging.LogError(controller.logger, "HTTP shutdown error", err)
+	}
+
+	logging.LogInfo(controller.logger, "Graceful shutdown completed.")
 }

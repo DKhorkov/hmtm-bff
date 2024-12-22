@@ -13,7 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
-	"github.com/DKhorkov/hmtm-bff/internal/models"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
@@ -22,7 +22,7 @@ import (
 )
 
 // User is the resolver for the user field.
-func (r *masterResolver) User(ctx context.Context, obj *models.Master) (*models.User, error) {
+func (r *masterResolver) User(ctx context.Context, obj *entities.Master) (*entities.User, error) {
 	user, err := r.useCases.GetUserByID(ctx, obj.UserID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -42,7 +42,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.Re
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
-	userData := models.RegisterUserDTO{
+	userData := entities.RegisterUserDTO{
 		Email:    input.Email,
 		Password: input.Password,
 	}
@@ -57,7 +57,7 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.Login
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
-	userData := models.LoginUserDTO{
+	userData := entities.LoginUserDTO{
 		Email:    input.Email,
 		Password: input.Password,
 	}
@@ -116,7 +116,7 @@ func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.
 		return 0, cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	masterData := models.RegisterMasterDTO{
+	masterData := entities.RegisterMasterDTO{
 		AccessToken: accessToken.Value,
 		Info:        input.Info,
 	}
@@ -141,7 +141,7 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 		tagsIDs[i] = uint32(*id)
 	}
 
-	toyData := models.AddToyDTO{
+	toyData := entities.AddToyDTO{
 		AccessToken: accessToken.Value,
 		CategoryID:  uint32(input.CategoryID),
 		Name:        input.Name,
@@ -170,7 +170,7 @@ func (r *mutationResolver) UploadFile(ctx context.Context, input graphql.Upload)
 }
 
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
+func (r *queryResolver) Users(ctx context.Context) ([]*entities.User, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
@@ -180,7 +180,7 @@ func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 		return nil, err
 	}
 
-	response := make([]*models.User, len(users))
+	response := make([]*entities.User, len(users))
 	for index, user := range users {
 		response[index] = &user
 	}
@@ -189,7 +189,7 @@ func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 }
 
 // User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context, id string) (*models.User, error) {
+func (r *queryResolver) User(ctx context.Context, id string) (*entities.User, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, id)
@@ -203,7 +203,7 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 }
 
 // Me is the resolver for me field.
-func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
+func (r *queryResolver) Me(ctx context.Context) (*entities.User, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
@@ -217,7 +217,7 @@ func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
 }
 
 // Master is the resolver for the master field.
-func (r *queryResolver) Master(ctx context.Context, id string) (*models.Master, error) {
+func (r *queryResolver) Master(ctx context.Context, id string) (*entities.Master, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, id)
@@ -231,7 +231,7 @@ func (r *queryResolver) Master(ctx context.Context, id string) (*models.Master, 
 }
 
 // Masters is the resolver for the masters field.
-func (r *queryResolver) Masters(ctx context.Context) ([]*models.Master, error) {
+func (r *queryResolver) Masters(ctx context.Context) ([]*entities.Master, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
@@ -241,7 +241,7 @@ func (r *queryResolver) Masters(ctx context.Context) ([]*models.Master, error) {
 		return nil, err
 	}
 
-	response := make([]*models.Master, len(masters))
+	response := make([]*entities.Master, len(masters))
 	for index, master := range masters {
 		response[index] = &master
 	}
@@ -250,7 +250,7 @@ func (r *queryResolver) Masters(ctx context.Context) ([]*models.Master, error) {
 }
 
 // MasterToys is the resolver for the masterToys field.
-func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*models.Toy, error) {
+func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*entities.Toy, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, masterID)
@@ -265,7 +265,7 @@ func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*mod
 		return nil, err
 	}
 
-	response := make([]*models.Toy, len(toys))
+	response := make([]*entities.Toy, len(toys))
 	for index, toy := range toys {
 		response[index] = &toy
 	}
@@ -274,7 +274,7 @@ func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*mod
 }
 
 // Toy is the resolver for the toy field.
-func (r *queryResolver) Toy(ctx context.Context, id string) (*models.Toy, error) {
+func (r *queryResolver) Toy(ctx context.Context, id string) (*entities.Toy, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, id)
@@ -288,7 +288,7 @@ func (r *queryResolver) Toy(ctx context.Context, id string) (*models.Toy, error)
 }
 
 // Toys is the resolver for the toys field.
-func (r *queryResolver) Toys(ctx context.Context) ([]*models.Toy, error) {
+func (r *queryResolver) Toys(ctx context.Context) ([]*entities.Toy, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
@@ -298,7 +298,7 @@ func (r *queryResolver) Toys(ctx context.Context) ([]*models.Toy, error) {
 		return nil, err
 	}
 
-	response := make([]*models.Toy, len(toys))
+	response := make([]*entities.Toy, len(toys))
 	for index, toy := range toys {
 		response[index] = &toy
 	}
@@ -307,7 +307,7 @@ func (r *queryResolver) Toys(ctx context.Context) ([]*models.Toy, error) {
 }
 
 // Tag is the resolver for the tag field.
-func (r *queryResolver) Tag(ctx context.Context, id string) (*models.Tag, error) {
+func (r *queryResolver) Tag(ctx context.Context, id string) (*entities.Tag, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, id)
@@ -321,7 +321,7 @@ func (r *queryResolver) Tag(ctx context.Context, id string) (*models.Tag, error)
 }
 
 // Tags is the resolver for the tags field.
-func (r *queryResolver) Tags(ctx context.Context) ([]*models.Tag, error) {
+func (r *queryResolver) Tags(ctx context.Context) ([]*entities.Tag, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
@@ -331,7 +331,7 @@ func (r *queryResolver) Tags(ctx context.Context) ([]*models.Tag, error) {
 		return nil, err
 	}
 
-	response := make([]*models.Tag, len(tags))
+	response := make([]*entities.Tag, len(tags))
 	for index, tag := range tags {
 		response[index] = &tag
 	}
@@ -340,7 +340,7 @@ func (r *queryResolver) Tags(ctx context.Context) ([]*models.Tag, error) {
 }
 
 // Category is the resolver for the category field.
-func (r *queryResolver) Category(ctx context.Context, id string) (*models.Category, error) {
+func (r *queryResolver) Category(ctx context.Context, id string) (*entities.Category, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, id)
@@ -354,7 +354,7 @@ func (r *queryResolver) Category(ctx context.Context, id string) (*models.Catego
 }
 
 // Categories is the resolver for the categories field.
-func (r *queryResolver) Categories(ctx context.Context) ([]*models.Category, error) {
+func (r *queryResolver) Categories(ctx context.Context) ([]*entities.Category, error) {
 	requestID := requestid.New()
 	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
@@ -364,7 +364,7 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*models.Category, err
 		return nil, err
 	}
 
-	response := make([]*models.Category, len(categories))
+	response := make([]*entities.Category, len(categories))
 	for index, category := range categories {
 		response[index] = &category
 	}
@@ -373,7 +373,7 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*models.Category, err
 }
 
 // Master is the resolver for the master field.
-func (r *toyResolver) Master(ctx context.Context, obj *models.Toy) (*models.Master, error) {
+func (r *toyResolver) Master(ctx context.Context, obj *entities.Toy) (*entities.Master, error) {
 	master, err := r.useCases.GetMasterByID(ctx, obj.MasterID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -388,7 +388,7 @@ func (r *toyResolver) Master(ctx context.Context, obj *models.Toy) (*models.Mast
 }
 
 // Category is the resolver for the category field.
-func (r *toyResolver) Category(ctx context.Context, obj *models.Toy) (*models.Category, error) {
+func (r *toyResolver) Category(ctx context.Context, obj *entities.Toy) (*entities.Category, error) {
 	category, err := r.useCases.GetCategoryByID(ctx, obj.CategoryID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -403,12 +403,12 @@ func (r *toyResolver) Category(ctx context.Context, obj *models.Toy) (*models.Ca
 }
 
 // Price is the resolver for the price field.
-func (r *toyResolver) Price(ctx context.Context, obj *models.Toy) (float64, error) {
+func (r *toyResolver) Price(ctx context.Context, obj *entities.Toy) (float64, error) {
 	return float64(obj.Price), nil
 }
 
 // Quantity is the resolver for the quantity field.
-func (r *toyResolver) Quantity(ctx context.Context, obj *models.Toy) (int, error) {
+func (r *toyResolver) Quantity(ctx context.Context, obj *entities.Toy) (int, error) {
 	return int(obj.Quantity), nil
 }
 

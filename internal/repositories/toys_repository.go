@@ -6,16 +6,20 @@ import (
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/requestid"
 
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-	"github.com/DKhorkov/hmtm-bff/internal/models"
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 )
+
+func NewGrpcToysRepository(grpcClient interfaces.ToysGrpcClient) *GrpcToysRepository {
+	return &GrpcToysRepository{client: grpcClient}
+}
 
 type GrpcToysRepository struct {
 	client interfaces.ToysGrpcClient
 }
 
-func (repo *GrpcToysRepository) AddToy(ctx context.Context, toyData models.AddToyDTO) (uint64, error) {
+func (repo *GrpcToysRepository) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.AddToy(
 		ctx,
@@ -38,7 +42,7 @@ func (repo *GrpcToysRepository) AddToy(ctx context.Context, toyData models.AddTo
 	return response.GetToyID(), nil
 }
 
-func (repo *GrpcToysRepository) GetAllToys(ctx context.Context) ([]models.Toy, error) {
+func (repo *GrpcToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetToys(
 		ctx,
@@ -49,7 +53,7 @@ func (repo *GrpcToysRepository) GetAllToys(ctx context.Context) ([]models.Toy, e
 		return nil, err
 	}
 
-	allToys := make([]models.Toy, len(response.GetToys()))
+	allToys := make([]entities.Toy, len(response.GetToys()))
 	for index, toyResponse := range response.GetToys() {
 		allToys[index] = *repo.processToyResponse(toyResponse)
 	}
@@ -57,7 +61,7 @@ func (repo *GrpcToysRepository) GetAllToys(ctx context.Context) ([]models.Toy, e
 	return allToys, nil
 }
 
-func (repo *GrpcToysRepository) GetMasterToys(ctx context.Context, masterID uint64) ([]models.Toy, error) {
+func (repo *GrpcToysRepository) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetMasterToys(
 		ctx,
@@ -71,7 +75,7 @@ func (repo *GrpcToysRepository) GetMasterToys(ctx context.Context, masterID uint
 		return nil, err
 	}
 
-	masterToys := make([]models.Toy, len(response.GetToys()))
+	masterToys := make([]entities.Toy, len(response.GetToys()))
 	for index, toyResponse := range response.GetToys() {
 		masterToys[index] = *repo.processToyResponse(toyResponse)
 	}
@@ -79,7 +83,7 @@ func (repo *GrpcToysRepository) GetMasterToys(ctx context.Context, masterID uint
 	return masterToys, nil
 }
 
-func (repo *GrpcToysRepository) GetToyByID(ctx context.Context, id uint64) (*models.Toy, error) {
+func (repo *GrpcToysRepository) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetToy(
 		ctx,
@@ -96,7 +100,7 @@ func (repo *GrpcToysRepository) GetToyByID(ctx context.Context, id uint64) (*mod
 	return repo.processToyResponse(response), nil
 }
 
-func (repo *GrpcToysRepository) GetAllMasters(ctx context.Context) ([]models.Master, error) {
+func (repo *GrpcToysRepository) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetMasters(
 		ctx,
@@ -107,9 +111,9 @@ func (repo *GrpcToysRepository) GetAllMasters(ctx context.Context) ([]models.Mas
 		return nil, err
 	}
 
-	masters := make([]models.Master, len(response.GetMasters()))
+	masters := make([]entities.Master, len(response.GetMasters()))
 	for index, masterResponse := range response.GetMasters() {
-		masters[index] = models.Master{
+		masters[index] = entities.Master{
 			ID:        masterResponse.GetID(),
 			UserID:    masterResponse.GetUserID(),
 			Info:      masterResponse.GetInfo(),
@@ -121,7 +125,7 @@ func (repo *GrpcToysRepository) GetAllMasters(ctx context.Context) ([]models.Mas
 	return masters, nil
 }
 
-func (repo *GrpcToysRepository) GetMasterByID(ctx context.Context, id uint64) (*models.Master, error) {
+func (repo *GrpcToysRepository) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetMaster(
 		ctx,
@@ -135,7 +139,7 @@ func (repo *GrpcToysRepository) GetMasterByID(ctx context.Context, id uint64) (*
 		return nil, err
 	}
 
-	return &models.Master{
+	return &entities.Master{
 		ID:        response.GetID(),
 		UserID:    response.GetUserID(),
 		Info:      response.GetInfo(),
@@ -146,7 +150,7 @@ func (repo *GrpcToysRepository) GetMasterByID(ctx context.Context, id uint64) (*
 
 func (repo *GrpcToysRepository) RegisterMaster(
 	ctx context.Context,
-	masterData models.RegisterMasterDTO,
+	masterData entities.RegisterMasterDTO,
 ) (uint64, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.RegisterMaster(
@@ -165,7 +169,7 @@ func (repo *GrpcToysRepository) RegisterMaster(
 	return response.GetMasterID(), nil
 }
 
-func (repo *GrpcToysRepository) GetAllCategories(ctx context.Context) ([]models.Category, error) {
+func (repo *GrpcToysRepository) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetCategories(
 		ctx,
@@ -176,7 +180,7 @@ func (repo *GrpcToysRepository) GetAllCategories(ctx context.Context) ([]models.
 		return nil, err
 	}
 
-	categories := make([]models.Category, len(response.GetCategories()))
+	categories := make([]entities.Category, len(response.GetCategories()))
 	for index, categoryResponse := range response.GetCategories() {
 		categories[index] = *repo.processCategoryResponse(categoryResponse)
 	}
@@ -184,7 +188,7 @@ func (repo *GrpcToysRepository) GetAllCategories(ctx context.Context) ([]models.
 	return categories, nil
 }
 
-func (repo *GrpcToysRepository) GetCategoryByID(ctx context.Context, id uint32) (*models.Category, error) {
+func (repo *GrpcToysRepository) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetCategory(
 		ctx,
@@ -201,7 +205,7 @@ func (repo *GrpcToysRepository) GetCategoryByID(ctx context.Context, id uint32) 
 	return repo.processCategoryResponse(response), nil
 }
 
-func (repo *GrpcToysRepository) GetAllTags(ctx context.Context) ([]models.Tag, error) {
+func (repo *GrpcToysRepository) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetTags(
 		ctx,
@@ -212,7 +216,7 @@ func (repo *GrpcToysRepository) GetAllTags(ctx context.Context) ([]models.Tag, e
 		return nil, err
 	}
 
-	tags := make([]models.Tag, len(response.GetTags()))
+	tags := make([]entities.Tag, len(response.GetTags()))
 	for index, tagResponse := range response.GetTags() {
 		tags[index] = *repo.processTagResponse(tagResponse)
 	}
@@ -220,7 +224,7 @@ func (repo *GrpcToysRepository) GetAllTags(ctx context.Context) ([]models.Tag, e
 	return tags, nil
 }
 
-func (repo *GrpcToysRepository) GetTagByID(ctx context.Context, id uint32) (*models.Tag, error) {
+func (repo *GrpcToysRepository) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetTag(
 		ctx,
@@ -237,8 +241,8 @@ func (repo *GrpcToysRepository) GetTagByID(ctx context.Context, id uint32) (*mod
 	return repo.processTagResponse(response), nil
 }
 
-func (repo *GrpcToysRepository) processTagResponse(tagResponse *toys.GetTagResponse) *models.Tag {
-	return &models.Tag{
+func (repo *GrpcToysRepository) processTagResponse(tagResponse *toys.GetTagResponse) *entities.Tag {
+	return &entities.Tag{
 		ID:   tagResponse.GetID(),
 		Name: tagResponse.GetName(),
 	}
@@ -246,20 +250,20 @@ func (repo *GrpcToysRepository) processTagResponse(tagResponse *toys.GetTagRespo
 
 func (repo *GrpcToysRepository) processCategoryResponse(
 	categoryResponse *toys.GetCategoryResponse,
-) *models.Category {
-	return &models.Category{
+) *entities.Category {
+	return &entities.Category{
 		ID:   categoryResponse.GetID(),
 		Name: categoryResponse.GetName(),
 	}
 }
 
-func (repo *GrpcToysRepository) processToyResponse(toyResponse *toys.GetToyResponse) *models.Toy {
-	tags := make([]models.Tag, len(toyResponse.GetTags()))
+func (repo *GrpcToysRepository) processToyResponse(toyResponse *toys.GetToyResponse) *entities.Toy {
+	tags := make([]entities.Tag, len(toyResponse.GetTags()))
 	for index, tagResponse := range toyResponse.GetTags() {
 		tags[index] = *repo.processTagResponse(tagResponse)
 	}
 
-	return &models.Toy{
+	return &entities.Toy{
 		ID:          toyResponse.GetID(),
 		MasterID:    toyResponse.GetMasterID(),
 		CategoryID:  toyResponse.GetCategoryID(),
@@ -271,8 +275,4 @@ func (repo *GrpcToysRepository) processToyResponse(toyResponse *toys.GetToyRespo
 		CreatedAt:   toyResponse.GetCreatedAt().AsTime(),
 		UpdatedAt:   toyResponse.GetUpdatedAt().AsTime(),
 	}
-}
-
-func NewGrpcToysRepository(grpcClient interfaces.ToysGrpcClient) *GrpcToysRepository {
-	return &GrpcToysRepository{client: grpcClient}
 }
