@@ -6,7 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.55
 	github.com/DKhorkov/hmtm-sso v1.0.7
 	github.com/DKhorkov/hmtm-toys v0.0.5
-	github.com/DKhorkov/libs v1.1.3
+	github.com/DKhorkov/libs v1.1.6
 	github.com/aws/aws-sdk-go-v2 v1.32.6
 	github.com/aws/aws-sdk-go-v2/config v1.28.6
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.47
