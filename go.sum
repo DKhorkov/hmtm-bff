@@ -4,8 +4,8 @@ github.com/DKhorkov/hmtm-sso v1.0.7 h1:M9QkIf0tkMYK6d7jAlK8uqoDE6dsRB42bTI7x3YRE
 github.com/DKhorkov/hmtm-sso v1.0.7/go.mod h1:hZyWMyxwvNIYPKYxcl5SWDK54UMnaDUtaX0U8YQTBvQ=
 github.com/DKhorkov/hmtm-toys v0.0.5 h1:ZKY2nds2XT09Gp/KLUvylO4clHvJ0yi1vbBUkHWQmic=
 github.com/DKhorkov/hmtm-toys v0.0.5/go.mod h1:HaoakTe08XQzuE+4Oj57WCv0K73e6v8wF1gjjsFjDeg=
-github.com/DKhorkov/libs v1.1.3 h1:n8OjiT1g6nCtAYhSnh6yUbMkA1PL7chgJiK1sDqBIE4=
-github.com/DKhorkov/libs v1.1.3/go.mod h1:/lJKBOfHquNXSR5ziNNY1OPd5O87EAgu7+DDjLZCzPI=
+github.com/DKhorkov/libs v1.1.6 h1:lldtubI+1IQ0afwycr2CjDJy8QQ04BQUig43An42zAQ=
+github.com/DKhorkov/libs v1.1.6/go.mod h1:YQ8dk3IMd01NkZPDro4etAAKbCjv85TVuvTXr+3YJqA=
 github.com/PuerkitoBio/goquery v1.9.3 h1:mpJr/ikUA9/GNJB/DBZcGeFDXUtosHRyRrwh7KGdTG0=
 github.com/PuerkitoBio/goquery v1.9.3/go.mod h1:1ndLHPdTz+DyQPICCWYlYQMPl0oXZj0G6D4LCYA6u4U=
 github.com/agnivade/levenshtein v1.1.1 h1:QY8M92nrzkmr798gCo3kmMyqXFzdQVpxLlGPRBij0P8=

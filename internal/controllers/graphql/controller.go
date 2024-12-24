@@ -55,6 +55,9 @@ func New(
 	// Read cookies for auth purposes:
 	httpHandler = middlewares.CookiesMiddleware(httpHandler, []string{"accessToken", "refreshToken"})
 
+	// Create request ID for request for later logging:
+	httpHandler = middlewares.RequestIDMiddleware(httpHandler)
+
 	// Protecting server from too long requests:
 	httpHandler = http.TimeoutHandler(
 		httpHandler,

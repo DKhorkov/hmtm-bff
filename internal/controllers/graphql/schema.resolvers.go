@@ -18,7 +18,6 @@ import (
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
-	"github.com/DKhorkov/libs/requestid"
 )
 
 // User is the resolver for the user field.
@@ -38,8 +37,6 @@ func (r *masterResolver) User(ctx context.Context, obj *entities.Master) (*entit
 
 // RegisterUser is the resolver for the registerUser field.
 func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.RegisterUserInput) (int, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
 	userData := entities.RegisterUserDTO{
@@ -53,8 +50,6 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.Re
 
 // LoginUser is the resolver for the loginUser field.
 func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.LoginUserInput) (bool, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
 	userData := entities.LoginUserDTO{
@@ -80,8 +75,6 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.Login
 
 // RefreshTokens is the resolver for the refreshTokens field.
 func (r *mutationResolver) RefreshTokens(ctx context.Context, input any) (bool, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
 	refreshToken, err := contextlib.GetValue[*http.Cookie](ctx, refreshTokenCookieName)
@@ -107,8 +100,6 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context, input any) (bool, 
 
 // RegisterMaster is the resolver for the registerMaster field.
 func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.RegisterMasterInput) (int, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
@@ -127,8 +118,6 @@ func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.
 
 // AddToy is the resolver for the addToy field.
 func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyInput) (int, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
@@ -157,8 +146,6 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 
 // UploadFile is the resolver for the uploadFile field.
 func (r *mutationResolver) UploadFile(ctx context.Context, input graphql.Upload) (string, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, input)
 
 	file, err := io.ReadAll(input.File)
@@ -171,8 +158,6 @@ func (r *mutationResolver) UploadFile(ctx context.Context, input graphql.Upload)
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*entities.User, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
 
 	users, err := r.useCases.GetAllUsers(ctx)
@@ -190,8 +175,6 @@ func (r *queryResolver) Users(ctx context.Context) ([]*entities.User, error) {
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id string) (*entities.User, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, id)
 
 	userID, err := strconv.Atoi(id)
@@ -204,8 +187,6 @@ func (r *queryResolver) User(ctx context.Context, id string) (*entities.User, er
 
 // Me is the resolver for me field.
 func (r *queryResolver) Me(ctx context.Context) (*entities.User, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
@@ -218,8 +199,6 @@ func (r *queryResolver) Me(ctx context.Context) (*entities.User, error) {
 
 // Master is the resolver for the master field.
 func (r *queryResolver) Master(ctx context.Context, id string) (*entities.Master, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, id)
 
 	masterID, err := strconv.Atoi(id)
@@ -232,8 +211,6 @@ func (r *queryResolver) Master(ctx context.Context, id string) (*entities.Master
 
 // Masters is the resolver for the masters field.
 func (r *queryResolver) Masters(ctx context.Context) ([]*entities.Master, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
 
 	masters, err := r.useCases.GetAllMasters(ctx)
@@ -251,8 +228,6 @@ func (r *queryResolver) Masters(ctx context.Context) ([]*entities.Master, error)
 
 // MasterToys is the resolver for the masterToys field.
 func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*entities.Toy, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, masterID)
 
 	processedMasterID, err := strconv.Atoi(masterID)
@@ -275,8 +250,6 @@ func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*ent
 
 // Toy is the resolver for the toy field.
 func (r *queryResolver) Toy(ctx context.Context, id string) (*entities.Toy, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, id)
 
 	toyID, err := strconv.Atoi(id)
@@ -289,8 +262,6 @@ func (r *queryResolver) Toy(ctx context.Context, id string) (*entities.Toy, erro
 
 // Toys is the resolver for the toys field.
 func (r *queryResolver) Toys(ctx context.Context) ([]*entities.Toy, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
 
 	toys, err := r.useCases.GetAllToys(ctx)
@@ -308,8 +279,6 @@ func (r *queryResolver) Toys(ctx context.Context) ([]*entities.Toy, error) {
 
 // Tag is the resolver for the tag field.
 func (r *queryResolver) Tag(ctx context.Context, id string) (*entities.Tag, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, id)
 
 	tagID, err := strconv.Atoi(id)
@@ -322,8 +291,6 @@ func (r *queryResolver) Tag(ctx context.Context, id string) (*entities.Tag, erro
 
 // Tags is the resolver for the tags field.
 func (r *queryResolver) Tags(ctx context.Context) ([]*entities.Tag, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
 
 	tags, err := r.useCases.GetAllTags(ctx)
@@ -341,8 +308,6 @@ func (r *queryResolver) Tags(ctx context.Context) ([]*entities.Tag, error) {
 
 // Category is the resolver for the category field.
 func (r *queryResolver) Category(ctx context.Context, id string) (*entities.Category, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, id)
 
 	categoryID, err := strconv.Atoi(id)
@@ -355,8 +320,6 @@ func (r *queryResolver) Category(ctx context.Context, id string) (*entities.Cate
 
 // Categories is the resolver for the categories field.
 func (r *queryResolver) Categories(ctx context.Context) ([]*entities.Category, error) {
-	requestID := requestid.New()
-	ctx = contextlib.SetValue(ctx, requestid.Key, requestID)
 	logging.LogRequest(ctx, r.logger, nil)
 
 	categories, err := r.useCases.GetAllCategories(ctx)
