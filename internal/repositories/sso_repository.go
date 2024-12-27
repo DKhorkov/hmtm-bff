@@ -23,7 +23,7 @@ func (repo *GrpcSsoRepository) RegisterUser(ctx context.Context, userData entiti
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.Register(
 		ctx,
-		&sso.RegisterRequest{
+		&sso.RegisterIn{
 			RequestID: requestID,
 			Email:     userData.Email,
 			Password:  userData.Password,
@@ -41,7 +41,7 @@ func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*ent
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUser(
 		ctx,
-		&sso.GetUserRequest{
+		&sso.GetUserIn{
 			RequestID: requestID,
 			ID:        id,
 		},
@@ -63,7 +63,7 @@ func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]entities.User
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUsers(
 		ctx,
-		&sso.GetUsersRequest{
+		&sso.GetUsersIn{
 			RequestID: requestID,
 		},
 	)
@@ -92,7 +92,7 @@ func (repo *GrpcSsoRepository) LoginUser(
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.Login(
 		ctx,
-		&sso.LoginRequest{
+		&sso.LoginIn{
 			RequestID: requestID,
 			Email:     userData.Email,
 			Password:  userData.Password,
@@ -113,7 +113,7 @@ func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetMe(
 		ctx,
-		&sso.GetMeRequest{
+		&sso.GetMeIn{
 			RequestID:   requestID,
 			AccessToken: accessToken,
 		},
@@ -135,7 +135,7 @@ func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken s
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.RefreshTokens(
 		ctx,
-		&sso.RefreshTokensRequest{
+		&sso.RefreshTokensIn{
 			RequestID:    requestID,
 			RefreshToken: refreshToken,
 		},

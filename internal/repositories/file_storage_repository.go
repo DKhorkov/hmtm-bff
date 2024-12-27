@@ -7,6 +7,8 @@ import (
 	"log"
 	"log/slog"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+
 	appconfig "github.com/DKhorkov/hmtm-bff/internal/config"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -59,7 +61,7 @@ func (repo *S3FileStorageRepository) Upload(ctx context.Context, key string, fil
 			Bucket: aws.String(repo.s3config.Bucket),
 			Key:    aws.String(key),
 			Body:   bytes.NewReader(file),
-			ACL:    "public-read",
+			ACL:    types.ObjectCannedACL(repo.s3config.ACL),
 		},
 	)
 

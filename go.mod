@@ -4,14 +4,14 @@ go 1.23.1
 
 require (
 	github.com/99designs/gqlgen v0.17.55
-	github.com/DKhorkov/hmtm-sso v1.0.7
-	github.com/DKhorkov/hmtm-toys v0.0.5
-	github.com/DKhorkov/libs v1.1.6
+	github.com/DKhorkov/hmtm-sso v1.0.8
+	github.com/DKhorkov/hmtm-toys v0.0.6
+	github.com/DKhorkov/libs v1.1.7
 	github.com/aws/aws-sdk-go-v2 v1.32.6
 	github.com/aws/aws-sdk-go-v2/config v1.28.6
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.47
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.71.0
-	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.2.0
 	github.com/rs/cors v1.11.1
 	github.com/vektah/gqlparser/v2 v2.5.17
 	google.golang.org/grpc v1.68.0
