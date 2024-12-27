@@ -87,6 +87,7 @@ func New() Config {
 			SecretAccessKey: loadenv.GetEnv("S3_SECRET_ACCESS_KEY", ""),
 			Region:          loadenv.GetEnv("S3_REGION", ""),
 			Bucket:          loadenv.GetEnv("S3_BUCKET", ""),
+			ACL:             loadenv.GetEnv("S3_ACL", "public-read"),
 		},
 	}
 }
@@ -129,6 +130,7 @@ type S3Config struct {
 	Bucket          string
 	AccessKeyID     string
 	SecretAccessKey string
+	ACL             string
 }
 
 type Config struct {

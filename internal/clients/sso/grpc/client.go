@@ -1,12 +1,12 @@
 package ssogrpcclient
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
+	customgrpc "github.com/DKhorkov/libs/grpc"
 	"github.com/DKhorkov/libs/logging"
 	grpclogging "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/retry"
@@ -49,7 +49,10 @@ func New(
 			insecure.NewCredentials(),
 		),
 		grpc.WithChainUnaryInterceptor( // Middlewares. Using chain not to overwrite interceptors.
-			grpclogging.UnaryClientInterceptor(InterceptorLogger(logger), logOptions...),
+			grpclogging.UnaryClientInterceptor(
+				customgrpc.UnaryClientLoggingInterceptor(logger),
+				logOptions...,
+			),
 			grpcretry.UnaryClientInterceptor(retryOptions...),
 		),
 	)
@@ -68,24 +71,4 @@ func New(
 		sso.NewAuthServiceClient(clientConnection),
 		sso.NewUsersServiceClient(clientConnection),
 	}, nil
-}
-
-// InterceptorLogger adapts slog logger to interceptor logger.
-// This code is simple enough to be copied and not imported.
-func InterceptorLogger(logger *slog.Logger) grpclogging.Logger {
-	return grpclogging.LoggerFunc(
-		func(
-			ctx context.Context,
-			logLevel grpclogging.Level,
-			msg string,
-			fields ...any,
-		) {
-			logger.Log(
-				ctx,
-				slog.Level(logLevel),
-				msg,
-				fields...,
-			)
-		},
-	)
 }
