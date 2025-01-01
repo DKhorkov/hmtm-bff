@@ -43,19 +43,52 @@ type Master {
     updatedAt: Time!
 }
 
+type Ticket {
+    id: ID!
+    user: User!
+    category: Category!
+    name: String!
+    description: String!
+    price: Float!
+    quantity: Int!
+    createdAt: Time!
+    updatedAt: Time!
+    tags: [Tag]!
+}
+
+type Respond {
+    id: ID!
+    ticket: Ticket!
+    master: Master!
+    createdAt: Time!
+    updatedAt: Time!
+}
+
 type Query {
+    # SSO queries:
     users: [User]!
     user(id: ID!): User!
     me: User!
+
+    # Toys queries:
     master(id: ID!): Master!
     masters: [Master]!
-    masterToys(masterID: ID!): [Toy]!
+    masterToys(masterId: ID!): [Toy]!
     toy(id: ID!): Toy!
     toys: [Toy]!
     tag(id: ID!): Tag!
     tags: [Tag]!
     category(id: ID!): Category!
     categories: [Category]!
+
+    # Tickets queries:
+    ticket(id: ID!): Ticket!
+    tickets: [Ticket]!
+    userTickets(userId: ID!): [Ticket]!
+    myTickets: [Ticket]!
+    respond(id: ID!): Respond!
+    ticketResponds(ticketId: ID!): [Respond]!
+    myResponds: [Respond]!
 }
 
 input LoginUserInput {
@@ -73,19 +106,41 @@ input RegisterMasterInput {
 }
 
 input AddToyInput {
-    CategoryID:  Int!
-    Name: String!
-    Description: String!
-    Price: Float!
-    Quantity: Int!
-    TagsIDs: [Int]!
+    categoryId: ID!
+    name: String!
+    description: String!
+    price: Float!
+    quantity: Int!
+    tagIds: [ID]
+}
+
+input CreateTicketInput {
+    categoryId: ID!
+    name: String!
+    description: String!
+    price: Float!
+    quantity: Int!
+    tagIds: [ID]
+}
+
+input RespondToTicketInput {
+    ticketId: ID!
 }
 
 type Mutation {
-    registerUser(input: RegisterUserInput!): Int!
+    # SSO mutations:
+    registerUser(input: RegisterUserInput!): ID!
     loginUser(input: LoginUserInput!): Boolean!
     refreshTokens(input: Any): Boolean!
-    registerMaster(input: RegisterMasterInput!): Int!
-    addToy(input: AddToyInput!): Int!
+
+    # Toys mutations:
+    registerMaster(input: RegisterMasterInput!): ID!
+    addToy(input: AddToyInput!): ID!
+
+    # Files mutations:
     uploadFile(input: Upload!): String!
+
+    # Tickets mutations:
+    createTicket(input: CreateTicketInput!): ID!
+    respondToTicket(input: RespondToTicketInput!): ID!
 }

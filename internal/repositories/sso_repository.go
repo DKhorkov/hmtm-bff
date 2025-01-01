@@ -11,8 +11,8 @@ import (
 	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
 )
 
-func NewGrpcSsoRepository(grpcClient interfaces.SsoGrpcClient) *GrpcSsoRepository {
-	return &GrpcSsoRepository{client: grpcClient}
+func NewGrpcSsoRepository(client interfaces.SsoGrpcClient) *GrpcSsoRepository {
+	return &GrpcSsoRepository{client: client}
 }
 
 type GrpcSsoRepository struct {

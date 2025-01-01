@@ -36,7 +36,7 @@ func (r *masterResolver) User(ctx context.Context, obj *entities.Master) (*entit
 }
 
 // RegisterUser is the resolver for the registerUser field.
-func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.RegisterUserInput) (int, error) {
+func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.RegisterUserInput) (string, error) {
 	logging.LogRequest(ctx, r.logger, input)
 
 	userData := entities.RegisterUserDTO{
@@ -45,7 +45,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.Re
 	}
 
 	userID, err := r.useCases.RegisterUser(ctx, userData)
-	return int(userID), err
+	return strconv.FormatUint(userID, 10), err
 }
 
 // LoginUser is the resolver for the loginUser field.
@@ -99,49 +99,59 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context, input any) (bool, 
 }
 
 // RegisterMaster is the resolver for the registerMaster field.
-func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.RegisterMasterInput) (int, error) {
+func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.RegisterMasterInput) (string, error) {
 	logging.LogRequest(ctx, r.logger, input)
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return 0, cookies.NotFoundError{Message: accessTokenCookieName}
+		return "", cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	masterData := entities.RegisterMasterDTO{
+	masterData := entities.RawRegisterMasterDTO{
 		AccessToken: accessToken.Value,
 		Info:        input.Info,
 	}
 
 	masterID, err := r.useCases.RegisterMaster(ctx, masterData)
-	return int(masterID), err
+	return strconv.FormatUint(masterID, 10), err
 }
 
 // AddToy is the resolver for the addToy field.
-func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyInput) (int, error) {
+func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyInput) (string, error) {
 	logging.LogRequest(ctx, r.logger, input)
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return 0, cookies.NotFoundError{Message: accessTokenCookieName}
+		return "", cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	tagsIDs := make([]uint32, len(input.TagsIDs))
-	for i, id := range input.TagsIDs {
-		tagsIDs[i] = uint32(*id)
+	tagIDs := make([]uint32, len(input.TagIds))
+	for i, id := range input.TagIds {
+		tagID, err := strconv.Atoi(*id)
+		if err != nil {
+			return "", err
+		}
+
+		tagIDs[i] = uint32(tagID)
 	}
 
-	toyData := entities.AddToyDTO{
+	categoryID, err := strconv.Atoi(input.CategoryID)
+	if err != nil {
+		return "", err
+	}
+
+	toyData := entities.RawAddToyDTO{
 		AccessToken: accessToken.Value,
-		CategoryID:  uint32(input.CategoryID),
+		CategoryID:  uint32(categoryID),
 		Name:        input.Name,
 		Description: input.Description,
 		Price:       float32(input.Price),
 		Quantity:    uint32(input.Quantity),
-		TagsIDs:     tagsIDs,
+		TagIDs:      tagIDs,
 	}
 
 	toyID, err := r.useCases.AddToy(ctx, toyData)
-	return int(toyID), err
+	return strconv.FormatUint(toyID, 10), err
 }
 
 // UploadFile is the resolver for the uploadFile field.
@@ -154,6 +164,67 @@ func (r *mutationResolver) UploadFile(ctx context.Context, input graphql.Upload)
 	}
 
 	return r.useCases.UploadFile(ctx, input.Filename, file)
+}
+
+// CreateTicket is the resolver for the createTicket field.
+func (r *mutationResolver) CreateTicket(ctx context.Context, input graphqlapi.CreateTicketInput) (string, error) {
+	logging.LogRequest(ctx, r.logger, input)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return "", cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	tagIDs := make([]uint32, len(input.TagIds))
+	for i, id := range input.TagIds {
+		tagID, err := strconv.Atoi(*id)
+		if err != nil {
+			return "", err
+		}
+
+		tagIDs[i] = uint32(tagID)
+	}
+
+	categoryID, err := strconv.Atoi(input.CategoryID)
+	if err != nil {
+		return "", err
+	}
+
+	ticketData := entities.RawCreateTicketDTO{
+		AccessToken: accessToken.Value,
+		CategoryID:  uint32(categoryID),
+		Name:        input.Name,
+		Description: input.Description,
+		Price:       float32(input.Price),
+		Quantity:    uint32(input.Quantity),
+		TagIDs:      tagIDs,
+	}
+
+	ticketID, err := r.useCases.CreateTicket(ctx, ticketData)
+	return strconv.FormatUint(ticketID, 10), err
+}
+
+// RespondToTicket is the resolver for the respondToTicket field.
+func (r *mutationResolver) RespondToTicket(ctx context.Context, input graphqlapi.RespondToTicketInput) (string, error) {
+	logging.LogRequest(ctx, r.logger, input)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return "", cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	ticketID, err := strconv.Atoi(input.TicketID)
+	if err != nil {
+		return "", err
+	}
+
+	respondData := entities.RawRespondToTicketDTO{
+		AccessToken: accessToken.Value,
+		TicketID:    uint64(ticketID),
+	}
+
+	respondID, err := r.useCases.RespondToTicket(ctx, respondData)
+	return strconv.FormatUint(respondID, 10), err
 }
 
 // Users is the resolver for the users field.
@@ -335,6 +406,215 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*entities.Category, e
 	return response, nil
 }
 
+// Ticket is the resolver for the ticket field.
+func (r *queryResolver) Ticket(ctx context.Context, id string) (*entities.Ticket, error) {
+	logging.LogRequest(ctx, r.logger, id)
+
+	ticketID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.useCases.GetTicketByID(ctx, uint64(ticketID))
+}
+
+// Tickets is the resolver for the tickets field.
+func (r *queryResolver) Tickets(ctx context.Context) ([]*entities.Ticket, error) {
+	logging.LogRequest(ctx, r.logger, nil)
+
+	tickets, err := r.useCases.GetAllTickets(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*entities.Ticket, len(tickets))
+	for index, ticket := range tickets {
+		response[index] = &ticket
+	}
+
+	return response, nil
+}
+
+// UserTickets is the resolver for the userTickets field.
+func (r *queryResolver) UserTickets(ctx context.Context, userID string) ([]*entities.Ticket, error) {
+	logging.LogRequest(ctx, r.logger, nil)
+
+	intUserID, err := strconv.Atoi(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	tickets, err := r.useCases.GetUserTickets(ctx, uint64(intUserID))
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*entities.Ticket, len(tickets))
+	for index, ticket := range tickets {
+		response[index] = &ticket
+	}
+
+	return response, nil
+}
+
+// MyTickets is the resolver for the myTickets field.
+func (r *queryResolver) MyTickets(ctx context.Context) ([]*entities.Ticket, error) {
+	logging.LogRequest(ctx, r.logger, nil)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	tickets, err := r.useCases.GetMyTickets(ctx, accessToken.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*entities.Ticket, len(tickets))
+	for index, ticket := range tickets {
+		response[index] = &ticket
+	}
+
+	return response, nil
+}
+
+// Respond is the resolver for the respond field.
+func (r *queryResolver) Respond(ctx context.Context, id string) (*entities.Respond, error) {
+	logging.LogRequest(ctx, r.logger, id)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	respondID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.useCases.GetRespondByID(ctx, uint64(respondID), accessToken.Value)
+}
+
+// TicketResponds is the resolver for the ticketResponds field.
+func (r *queryResolver) TicketResponds(ctx context.Context, ticketID string) ([]*entities.Respond, error) {
+	logging.LogRequest(ctx, r.logger, nil)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	intTicketID, err := strconv.Atoi(ticketID)
+	if err != nil {
+		return nil, err
+	}
+
+	responds, err := r.useCases.GetTicketResponds(ctx, uint64(intTicketID), accessToken.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*entities.Respond, len(responds))
+	for index, respond := range responds {
+		response[index] = &respond
+	}
+
+	return response, nil
+}
+
+// MyResponds is the resolver for the myResponds field.
+func (r *queryResolver) MyResponds(ctx context.Context) ([]*entities.Respond, error) {
+	logging.LogRequest(ctx, r.logger, nil)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	responds, err := r.useCases.GetMyResponds(ctx, accessToken.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*entities.Respond, len(responds))
+	for index, respond := range responds {
+		response[index] = &respond
+	}
+
+	return response, nil
+}
+
+// Ticket is the resolver for the ticket field.
+func (r *respondResolver) Ticket(ctx context.Context, obj *entities.Respond) (*entities.Ticket, error) {
+	ticket, err := r.useCases.GetTicketByID(ctx, obj.TicketID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			r.logger,
+			fmt.Sprintf("Failed to get Ticket for Respond with ID=%d", obj.ID),
+			err,
+		)
+	}
+
+	return ticket, err
+}
+
+// Master is the resolver for the master field.
+func (r *respondResolver) Master(ctx context.Context, obj *entities.Respond) (*entities.Master, error) {
+	master, err := r.useCases.GetMasterByID(ctx, obj.MasterID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			r.logger,
+			fmt.Sprintf("Failed to get Master for Respond with ID=%d", obj.ID),
+			err,
+		)
+	}
+
+	return master, err
+}
+
+// User is the resolver for the user field.
+func (r *ticketResolver) User(ctx context.Context, obj *entities.Ticket) (*entities.User, error) {
+	user, err := r.useCases.GetUserByID(ctx, obj.UserID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			r.logger,
+			fmt.Sprintf("Failed to get User for Ticket with ID=%d", obj.ID),
+			err,
+		)
+	}
+
+	return user, err
+}
+
+// Category is the resolver for the category field.
+func (r *ticketResolver) Category(ctx context.Context, obj *entities.Ticket) (*entities.Category, error) {
+	category, err := r.useCases.GetCategoryByID(ctx, obj.CategoryID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			r.logger,
+			fmt.Sprintf("Failed to get Category for Ticket with ID=%d", obj.ID),
+			err,
+		)
+	}
+
+	return category, err
+}
+
+// Price is the resolver for the price field.
+func (r *ticketResolver) Price(ctx context.Context, obj *entities.Ticket) (float64, error) {
+	return float64(obj.Price), nil
+}
+
+// Quantity is the resolver for the quantity field.
+func (r *ticketResolver) Quantity(ctx context.Context, obj *entities.Ticket) (int, error) {
+	return int(obj.Quantity), nil
+}
+
 // Master is the resolver for the master field.
 func (r *toyResolver) Master(ctx context.Context, obj *entities.Toy) (*entities.Master, error) {
 	master, err := r.useCases.GetMasterByID(ctx, obj.MasterID)
@@ -384,10 +664,18 @@ func (r *Resolver) Mutation() graphqlapi.MutationResolver { return &mutationReso
 // Query returns graphqlapi.QueryResolver implementation.
 func (r *Resolver) Query() graphqlapi.QueryResolver { return &queryResolver{r} }
 
+// Respond returns graphqlapi.RespondResolver implementation.
+func (r *Resolver) Respond() graphqlapi.RespondResolver { return &respondResolver{r} }
+
+// Ticket returns graphqlapi.TicketResolver implementation.
+func (r *Resolver) Ticket() graphqlapi.TicketResolver { return &ticketResolver{r} }
+
 // Toy returns graphqlapi.ToyResolver implementation.
 func (r *Resolver) Toy() graphqlapi.ToyResolver { return &toyResolver{r} }
 
 type masterResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type respondResolver struct{ *Resolver }
+type ticketResolver struct{ *Resolver }
 type toyResolver struct{ *Resolver }

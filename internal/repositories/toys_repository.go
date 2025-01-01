@@ -3,16 +3,15 @@ package repositories
 import (
 	"context"
 
-	"github.com/DKhorkov/libs/contextlib"
-	"github.com/DKhorkov/libs/requestid"
-
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
+	"github.com/DKhorkov/libs/contextlib"
+	"github.com/DKhorkov/libs/requestid"
 )
 
-func NewGrpcToysRepository(grpcClient interfaces.ToysGrpcClient) *GrpcToysRepository {
-	return &GrpcToysRepository{client: grpcClient}
+func NewGrpcToysRepository(client interfaces.ToysGrpcClient) *GrpcToysRepository {
+	return &GrpcToysRepository{client: client}
 }
 
 type GrpcToysRepository struct {
@@ -25,13 +24,13 @@ func (repo *GrpcToysRepository) AddToy(ctx context.Context, toyData entities.Add
 		ctx,
 		&toys.AddToyIn{
 			RequestID:   requestID,
-			AccessToken: toyData.AccessToken,
+			UserID:      toyData.UserID,
 			CategoryID:  toyData.CategoryID,
 			Name:        toyData.Name,
 			Description: toyData.Description,
 			Price:       toyData.Price,
 			Quantity:    toyData.Quantity,
-			TagIDs:      toyData.TagsIDs,
+			TagIDs:      toyData.TagIDs,
 		},
 	)
 
@@ -156,9 +155,9 @@ func (repo *GrpcToysRepository) RegisterMaster(
 	response, err := repo.client.RegisterMaster(
 		ctx,
 		&toys.RegisterMasterIn{
-			RequestID:   requestID,
-			AccessToken: masterData.AccessToken,
-			Info:        masterData.Info,
+			RequestID: requestID,
+			UserID:    masterData.UserID,
+			Info:      masterData.Info,
 		},
 	)
 

@@ -1,4 +1,4 @@
-package toysgrpcclient
+package ticketsgrpcclient
 
 import (
 	"fmt"
@@ -11,16 +11,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
+	"github.com/DKhorkov/hmtm-tickets/api/protobuf/generated/go/tickets"
 	customgrpc "github.com/DKhorkov/libs/grpc"
 	"github.com/DKhorkov/libs/logging"
 )
 
 type Client struct {
-	toys.ToysServiceClient
-	toys.TagsServiceClient
-	toys.MastersServiceClient
-	toys.CategoriesServiceClient
+	tickets.TicketsServiceClient
+	tickets.RespondsServiceClient
 }
 
 func New(
@@ -45,7 +43,7 @@ func New(
 		),
 	}
 
-	// Create connection with SSO gRPC-server for client:
+	// Create connection with Tickets gRPC-server for client:
 	clientConnection, err := grpc.NewClient(
 		fmt.Sprintf("%s:%d", host, port),
 		grpc.WithTransportCredentials(
@@ -63,7 +61,7 @@ func New(
 	if err != nil {
 		logging.LogError(
 			logger,
-			"Failed to create Toys gRPC client",
+			"Failed to create Tickets gRPC client",
 			err,
 		)
 
@@ -71,9 +69,7 @@ func New(
 	}
 
 	return &Client{
-		ToysServiceClient:       toys.NewToysServiceClient(clientConnection),
-		TagsServiceClient:       toys.NewTagsServiceClient(clientConnection),
-		MastersServiceClient:    toys.NewMastersServiceClient(clientConnection),
-		CategoriesServiceClient: toys.NewCategoriesServiceClient(clientConnection),
+		TicketsServiceClient:  tickets.NewTicketsServiceClient(clientConnection),
+		RespondsServiceClient: tickets.NewRespondsServiceClient(clientConnection),
 	}, nil
 }

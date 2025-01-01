@@ -3,12 +3,21 @@
 package graphqlapi
 
 type AddToyInput struct {
-	CategoryID  int     `json:"CategoryID"`
-	Name        string  `json:"Name"`
-	Description string  `json:"Description"`
-	Price       float64 `json:"Price"`
-	Quantity    int     `json:"Quantity"`
-	TagsIDs     []*int  `json:"TagsIDs"`
+	CategoryID  string    `json:"categoryId"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Price       float64   `json:"price"`
+	Quantity    int       `json:"quantity"`
+	TagIds      []*string `json:"tagIds"`
+}
+
+type CreateTicketInput struct {
+	CategoryID  string    `json:"categoryId"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Price       float64   `json:"price"`
+	Quantity    int       `json:"quantity"`
+	TagIds      []*string `json:"tagIds"`
 }
 
 type LoginUserInput struct {
@@ -29,4 +38,8 @@ type RegisterMasterInput struct {
 type RegisterUserInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type RespondToTicketInput struct {
+	TicketID string `json:"ticketId"`
 }

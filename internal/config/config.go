@@ -42,6 +42,14 @@ func New() Config {
 					loadenv.GetEnvAsInt("TOYS_RETRIES_TIMEOUT", 1),
 				),
 			},
+			Tickets: ClientConfig{
+				Host:         loadenv.GetEnv("TICKETS_CLIENT_HOST", "0.0.0.0"),
+				Port:         loadenv.GetEnvAsInt("TICKETS_CLIENT_PORT", 8050),
+				RetriesCount: loadenv.GetEnvAsInt("TICKETS_RETRIES_COUNT", 3),
+				RetryTimeout: time.Second * time.Duration(
+					loadenv.GetEnvAsInt("TICKETS_RETRIES_TIMEOUT", 1),
+				),
+			},
 		},
 		Logging: logging.Config{
 			Level:       logging.Levels.DEBUG,
@@ -116,8 +124,9 @@ type ClientConfig struct {
 }
 
 type ClientsConfig struct {
-	SSO  ClientConfig
-	Toys ClientConfig
+	SSO     ClientConfig
+	Toys    ClientConfig
+	Tickets ClientConfig
 }
 
 type CookiesConfig struct {
