@@ -11,7 +11,7 @@ task -d scripts docker_prod -v
 
 To run application via source files, use next commands:
 ```shell
-go run ./cmd/hmtmbff/main.go
+go run ./cmd/server/server.go
 ```
 
 ## GraphQL
