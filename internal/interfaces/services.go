@@ -11,3 +11,7 @@ type ToysService interface {
 type FileStorageService interface {
 	FileStorageRepository
 }
+
+type TicketsService interface {
+	TicketsRepository
+}

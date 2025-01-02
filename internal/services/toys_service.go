@@ -61,7 +61,7 @@ func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*e
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to get Toy with ID=%v", id),
+			fmt.Sprintf("Error occurred while trying to get Toy with ID=%d", id),
 			err,
 		)
 	}
@@ -84,7 +84,7 @@ func (service *CommonToysService) GetMasterByID(ctx context.Context, id uint64) 
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to get Master with ID=%v", id),
+			fmt.Sprintf("Error occurred while trying to get Master with ID=%d", id),
 			err,
 		)
 	}
@@ -119,7 +119,7 @@ func (service *CommonToysService) GetCategoryByID(ctx context.Context, id uint32
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to get Category with ID=%v", id),
+			fmt.Sprintf("Error occurred while trying to get Category with ID=%d", id),
 			err,
 		)
 	}
@@ -142,7 +142,7 @@ func (service *CommonToysService) GetTagByID(ctx context.Context, id uint32) (*e
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to get Tag with ID=%v", id),
+			fmt.Sprintf("Error occurred while trying to get Tag with ID=%d", id),
 			err,
 		)
 	}

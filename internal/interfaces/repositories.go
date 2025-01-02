@@ -32,3 +32,14 @@ type ToysRepository interface {
 type FileStorageRepository interface {
 	Upload(ctx context.Context, key string, file []byte) (string, error)
 }
+
+type TicketsRepository interface {
+	CreateTicket(ctx context.Context, ticketData entities.CreateTicketDTO) (ticketID uint64, err error)
+	GetTicketByID(ctx context.Context, id uint64) (*entities.RawTicket, error)
+	GetAllTickets(ctx context.Context) ([]entities.RawTicket, error)
+	GetUserTickets(ctx context.Context, userID uint64) ([]entities.RawTicket, error)
+	RespondToTicket(ctx context.Context, respondData entities.RespondToTicketDTO) (respondID uint64, err error)
+	GetRespondByID(ctx context.Context, id uint64) (*entities.Respond, error)
+	GetTicketResponds(ctx context.Context, ticketID uint64) ([]entities.Respond, error)
+	GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error)
+}

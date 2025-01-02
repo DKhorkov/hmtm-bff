@@ -66,6 +66,7 @@ tasks:
     desc: "Generate GraphQL base files."
     aliases:
       - graphql
+      - generate
     cmd: go run github.com/99designs/gqlgen generate
 
   tests:
