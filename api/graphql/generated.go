@@ -85,6 +85,7 @@ type ComplexityRoot struct {
 		Me             func(childComplexity int) int
 		MyResponds     func(childComplexity int) int
 		MyTickets      func(childComplexity int) int
+		MyToys         func(childComplexity int) int
 		Respond        func(childComplexity int, id string) int
 		Tag            func(childComplexity int, id string) int
 		Tags           func(childComplexity int) int
@@ -167,6 +168,7 @@ type QueryResolver interface {
 	MasterToys(ctx context.Context, masterID string) ([]*entities.Toy, error)
 	Toy(ctx context.Context, id string) (*entities.Toy, error)
 	Toys(ctx context.Context) ([]*entities.Toy, error)
+	MyToys(ctx context.Context) ([]*entities.Toy, error)
 	Tag(ctx context.Context, id string) (*entities.Tag, error)
 	Tags(ctx context.Context) ([]*entities.Tag, error)
 	Category(ctx context.Context, id string) (*entities.Category, error)
@@ -432,6 +434,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.MyTickets(childComplexity), true
+
+	case "Query.myToys":
+		if e.complexity.Query.MyToys == nil {
+			break
+		}
+
+		return e.complexity.Query.MyToys(childComplexity), true
 
 	case "Query.respond":
 		if e.complexity.Query.Respond == nil {
@@ -2818,6 +2827,72 @@ func (ec *executionContext) _Query_toys(ctx context.Context, field graphql.Colle
 }
 
 func (ec *executionContext) fieldContext_Query_toys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Toy_id(ctx, field)
+			case "master":
+				return ec.fieldContext_Toy_master(ctx, field)
+			case "category":
+				return ec.fieldContext_Toy_category(ctx, field)
+			case "name":
+				return ec.fieldContext_Toy_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Toy_description(ctx, field)
+			case "price":
+				return ec.fieldContext_Toy_price(ctx, field)
+			case "quantity":
+				return ec.fieldContext_Toy_quantity(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Toy_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Toy_updatedAt(ctx, field)
+			case "tags":
+				return ec.fieldContext_Toy_tags(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Toy", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_myToys(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_myToys(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().MyToys(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*entities.Toy)
+	fc.Result = res
+	return ec.marshalNToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToy(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_myToys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -6947,7 +7022,7 @@ func (ec *executionContext) unmarshalInputAddToyInput(ctx context.Context, obj i
 			it.Quantity = data
 		case "tagIds":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tagIds"))
-			data, err := ec.unmarshalNID2ᚕᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7009,7 +7084,7 @@ func (ec *executionContext) unmarshalInputCreateTicketInput(ctx context.Context,
 			it.Quantity = data
 		case "tagIds":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tagIds"))
-			data, err := ec.unmarshalNID2ᚕᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7565,6 +7640,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_toys(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "myToys":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_myToys(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8948,32 +9045,6 @@ func (ec *executionContext) marshalNID2uint64(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOID2ᚖstring(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNID2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalOID2ᚖstring(ctx, sel, v[i])
-	}
-
-	return ret
-}
-
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -9706,20 +9777,42 @@ func (ec *executionContext) marshalOCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtm�
 	return ec._Category(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalID(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
-func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+func (ec *executionContext) marshalOID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalID(*v)
-	return res
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalOMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx context.Context, sel ast.SelectionSet, v *entities.Master) graphql.Marshaler {

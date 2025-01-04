@@ -82,6 +82,28 @@ func (repo *GrpcToysRepository) GetMasterToys(ctx context.Context, masterID uint
 	return masterToys, nil
 }
 
+func (repo *GrpcToysRepository) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
+	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
+	response, err := repo.client.GetUserToys(
+		ctx,
+		&toys.GetUserToysIn{
+			RequestID: requestID,
+			UserID:    userID,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	userToys := make([]entities.Toy, len(response.GetToys()))
+	for index, toyResponse := range response.GetToys() {
+		userToys[index] = *repo.processToyResponse(toyResponse)
+	}
+
+	return userToys, nil
+}
+
 func (repo *GrpcToysRepository) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetToy(
