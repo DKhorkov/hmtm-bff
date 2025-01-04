@@ -18,6 +18,7 @@ type UseCases interface {
 	GetAllToys(ctx context.Context) ([]entities.Toy, error)
 	GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error)
 	GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error)
+	GetMyToys(ctx context.Context, accessToken string) ([]entities.Toy, error)
 	GetAllMasters(ctx context.Context) ([]entities.Master, error)
 	GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error)
 	RegisterMaster(ctx context.Context, rawMasterData entities.RawRegisterMasterDTO) (masterID uint64, err error)

@@ -127,7 +127,7 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 
 	tagIDs := make([]uint32, len(input.TagIds))
 	for i, id := range input.TagIds {
-		tagID, err := strconv.Atoi(*id)
+		tagID, err := strconv.Atoi(id)
 		if err != nil {
 			return "", err
 		}
@@ -177,7 +177,7 @@ func (r *mutationResolver) CreateTicket(ctx context.Context, input graphqlapi.Cr
 
 	tagIDs := make([]uint32, len(input.TagIds))
 	for i, id := range input.TagIds {
-		tagID, err := strconv.Atoi(*id)
+		tagID, err := strconv.Atoi(id)
 		if err != nil {
 			return "", err
 		}
@@ -336,6 +336,28 @@ func (r *queryResolver) Toys(ctx context.Context) ([]*entities.Toy, error) {
 	logging.LogRequest(ctx, r.logger, nil)
 
 	toys, err := r.useCases.GetAllToys(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*entities.Toy, len(toys))
+	for index, toy := range toys {
+		response[index] = &toy
+	}
+
+	return response, nil
+}
+
+// MyToys is the resolver for the myToys field.
+func (r *queryResolver) MyToys(ctx context.Context) ([]*entities.Toy, error) {
+	logging.LogRequest(ctx, r.logger, nil)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	toys, err := r.useCases.GetMyToys(ctx, accessToken.Value)
 	if err != nil {
 		return nil, err
 	}

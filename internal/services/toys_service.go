@@ -55,6 +55,20 @@ func (service *CommonToysService) GetMasterToys(ctx context.Context, masterID ui
 	return toys, err
 }
 
+func (service *CommonToysService) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
+	toys, err := service.toysRepository.GetUserToys(ctx, userID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to get all Toys for User with ID=%d", userID),
+			err,
+		)
+	}
+
+	return toys, err
+}
+
 func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	toy, err := service.toysRepository.GetToyByID(ctx, id)
 	if err != nil {

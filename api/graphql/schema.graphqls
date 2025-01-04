@@ -76,6 +76,7 @@ type Query {
     masterToys(masterId: ID!): [Toy]!
     toy(id: ID!): Toy!
     toys: [Toy]!
+    myToys: [Toy]!
     tag(id: ID!): Tag!
     tags: [Tag]!
     category(id: ID!): Category!
@@ -111,7 +112,7 @@ input AddToyInput {
     description: String!
     price: Float!
     quantity: Int!
-    tagIds: [ID]
+    tagIds: [ID!]
 }
 
 input CreateTicketInput {
@@ -120,7 +121,7 @@ input CreateTicketInput {
     description: String!
     price: Float!
     quantity: Int!
-    tagIds: [ID]
+    tagIds: [ID!]
 }
 
 input RespondToTicketInput {
@@ -137,7 +138,7 @@ type Mutation {
     registerMaster(input: RegisterMasterInput!): ID!
     addToy(input: AddToyInput!): ID!
 
-    # Files mutations:
+    # Files mutations: # TODO Delete later
     uploadFile(input: Upload!): String!
 
     # Tickets mutations:
