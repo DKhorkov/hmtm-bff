@@ -3,6 +3,8 @@ package interfaces
 import (
 	"context"
 
+	"github.com/99designs/gqlgen/graphql"
+
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 )
 
@@ -11,7 +13,8 @@ type UseCases interface {
 	SsoService
 
 	// Files cases:
-	UploadFile(ctx context.Context, filename string, file []byte) (string, error)
+	UploadFile(ctx context.Context, files *graphql.Upload) (string, error)
+	UploadFiles(ctx context.Context, files []*graphql.Upload) ([]string, error)
 
 	// Toys cases:
 	AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (toyID uint64, err error)

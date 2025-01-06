@@ -2,22 +2,28 @@
 
 package graphqlapi
 
+import (
+	"github.com/99designs/gqlgen/graphql"
+)
+
 type AddToyInput struct {
-	CategoryID  string   `json:"categoryId"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Price       float64  `json:"price"`
-	Quantity    int      `json:"quantity"`
-	TagIds      []string `json:"tagIds,omitempty"`
+	CategoryID  string            `json:"categoryId"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Price       float64           `json:"price"`
+	Quantity    int               `json:"quantity"`
+	TagIds      []string          `json:"tagIds,omitempty"`
+	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
 
 type CreateTicketInput struct {
-	CategoryID  string   `json:"categoryId"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Price       float64  `json:"price"`
-	Quantity    int      `json:"quantity"`
-	TagIds      []string `json:"tagIds,omitempty"`
+	CategoryID  string            `json:"categoryId"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Price       float64           `json:"price"`
+	Quantity    int               `json:"quantity"`
+	TagIds      []string          `json:"tagIds,omitempty"`
+	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
 
 type LoginUserInput struct {
@@ -36,8 +42,9 @@ type RegisterMasterInput struct {
 }
 
 type RegisterUserInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	DisplayName string `json:"displayName"`
+	Email       string `json:"email"`
+	Password    string `json:"password"`
 }
 
 type RespondToTicketInput struct {

@@ -282,6 +282,17 @@ func (repo *GrpcToysRepository) processToyResponse(toyResponse *toys.GetToyOut) 
 		tags[index] = *repo.processTagResponse(tagResponse)
 	}
 
+	attachments := make([]entities.ToyAttachment, len(toyResponse.GetAttachments()))
+	for i, attachment := range toyResponse.GetAttachments() {
+		attachments[i] = entities.ToyAttachment{
+			ID:        attachment.GetID(),
+			ToyID:     attachment.GetToyID(),
+			Link:      attachment.GetLink(),
+			CreatedAt: attachment.GetCreatedAt().AsTime(),
+			UpdatedAt: attachment.GetUpdatedAt().AsTime(),
+		}
+	}
+
 	return &entities.Toy{
 		ID:          toyResponse.GetID(),
 		MasterID:    toyResponse.GetMasterID(),
@@ -291,6 +302,7 @@ func (repo *GrpcToysRepository) processToyResponse(toyResponse *toys.GetToyOut) 
 		Price:       toyResponse.GetPrice(),
 		Quantity:    toyResponse.GetQuantity(),
 		Tags:        tags,
+		Attachments: attachments,
 		CreatedAt:   toyResponse.GetCreatedAt().AsTime(),
 		UpdatedAt:   toyResponse.GetUpdatedAt().AsTime(),
 	}

@@ -7,7 +7,13 @@ scalar Upload
 
 type User {
     id: ID!
+    displayName: String!
     email: String!
+    emailConfirmed: Boolean!
+    phone: String
+    phoneConfirmed: Boolean!
+    telegram: String
+    avatar: String
     createdAt: Time!
     updatedAt: Time!
 }
@@ -22,6 +28,14 @@ type Tag {
     name: String!
 }
 
+type ToyAttachment {
+    id: ID!
+    toyID: ID!
+    link: String!
+    createdAt: Time!
+    updatedAt: Time!
+}
+
 type Toy {
     id: ID!
     master: Master!
@@ -32,13 +46,22 @@ type Toy {
     quantity: Int!
     createdAt: Time!
     updatedAt: Time!
-    tags: [Tag]!
+    tags: [Tag!]
+    attachments: [ToyAttachment!]
 }
 
 type Master {
     id: ID!
     user: User!
     info: String!
+    createdAt: Time!
+    updatedAt: Time!
+}
+
+type TicketAttachment {
+    id: ID!
+    ticketID: ID!
+    link: String!
     createdAt: Time!
     updatedAt: Time!
 }
@@ -53,7 +76,8 @@ type Ticket {
     quantity: Int!
     createdAt: Time!
     updatedAt: Time!
-    tags: [Tag]!
+    tags: [Tag!]
+    attachments: [TicketAttachment!]
 }
 
 type Respond {
@@ -66,30 +90,30 @@ type Respond {
 
 type Query {
     # SSO queries:
-    users: [User]!
+    users: [User!]
     user(id: ID!): User!
     me: User!
 
     # Toys queries:
     master(id: ID!): Master!
-    masters: [Master]!
-    masterToys(masterId: ID!): [Toy]!
+    masters: [Master!]
+    masterToys(masterId: ID!): [Toy!]
     toy(id: ID!): Toy!
-    toys: [Toy]!
-    myToys: [Toy]!
+    toys: [Toy!]
+    myToys: [Toy!]
     tag(id: ID!): Tag!
-    tags: [Tag]!
+    tags: [Tag!]
     category(id: ID!): Category!
-    categories: [Category]!
+    categories: [Category!]
 
     # Tickets queries:
     ticket(id: ID!): Ticket!
-    tickets: [Ticket]!
-    userTickets(userId: ID!): [Ticket]!
-    myTickets: [Ticket]!
+    tickets: [Ticket!]
+    userTickets(userId: ID!): [Ticket!]
+    myTickets: [Ticket!]
     respond(id: ID!): Respond!
-    ticketResponds(ticketId: ID!): [Respond]!
-    myResponds: [Respond]!
+    ticketResponds(ticketId: ID!): [Respond!]
+    myResponds: [Respond!]
 }
 
 input LoginUserInput {
@@ -98,6 +122,7 @@ input LoginUserInput {
 }
 
 input RegisterUserInput {
+    displayName: String!
     email: String!
     password: String!
 }
@@ -113,6 +138,7 @@ input AddToyInput {
     price: Float!
     quantity: Int!
     tagIds: [ID!]
+    attachments: [Upload!]
 }
 
 input CreateTicketInput {
@@ -122,6 +148,7 @@ input CreateTicketInput {
     price: Float!
     quantity: Int!
     tagIds: [ID!]
+    attachments: [Upload!]
 }
 
 input RespondToTicketInput {
@@ -137,9 +164,6 @@ type Mutation {
     # Toys mutations:
     registerMaster(input: RegisterMasterInput!): ID!
     addToy(input: AddToyInput!): ID!
-
-    # Files mutations: # TODO Delete later
-    uploadFile(input: Upload!): String!
 
     # Tickets mutations:
     createTicket(input: CreateTicketInput!): ID!

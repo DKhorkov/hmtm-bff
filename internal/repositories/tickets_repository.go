@@ -195,6 +195,17 @@ func (repo *GrpcTicketsRepository) processRespondResponse(respondResponse *ticke
 }
 
 func (repo *GrpcTicketsRepository) processTicketResponse(ticketResponse *tickets.GetTicketOut) *entities.RawTicket {
+	attachments := make([]entities.TicketAttachment, len(ticketResponse.GetAttachments()))
+	for i, attachment := range ticketResponse.GetAttachments() {
+		attachments[i] = entities.TicketAttachment{
+			ID:        attachment.GetID(),
+			TicketID:  attachment.GetTicketID(),
+			Link:      attachment.GetLink(),
+			CreatedAt: attachment.GetCreatedAt().AsTime(),
+			UpdatedAt: attachment.GetUpdatedAt().AsTime(),
+		}
+	}
+
 	return &entities.RawTicket{
 		ID:          ticketResponse.GetID(),
 		UserID:      ticketResponse.GetUserID(),
@@ -206,5 +217,6 @@ func (repo *GrpcTicketsRepository) processTicketResponse(ticketResponse *tickets
 		CreatedAt:   ticketResponse.GetCreatedAt().AsTime(),
 		UpdatedAt:   ticketResponse.GetUpdatedAt().AsTime(),
 		TagIDs:      ticketResponse.GetTagIDs(),
+		Attachments: attachments,
 	}
 }

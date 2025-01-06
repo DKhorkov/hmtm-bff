@@ -78,6 +78,8 @@ func main() {
 		toysService,
 		fileStorageService,
 		ticketsService,
+		settings.Validation,
+		logger,
 	)
 
 	controller := graphqlcontroller.New(

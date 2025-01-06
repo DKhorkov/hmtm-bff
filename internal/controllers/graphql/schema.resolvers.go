@@ -7,11 +7,9 @@ package graphqlcontroller
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 
-	"github.com/99designs/gqlgen/graphql"
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/libs/contextlib"
@@ -40,8 +38,9 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.Re
 	logging.LogRequest(ctx, r.logger, input)
 
 	userData := entities.RegisterUserDTO{
-		Email:    input.Email,
-		Password: input.Password,
+		DisplayName: input.DisplayName,
+		Email:       input.Email,
+		Password:    input.Password,
 	}
 
 	userID, err := r.useCases.RegisterUser(ctx, userData)
@@ -148,22 +147,11 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 		Price:       float32(input.Price),
 		Quantity:    uint32(input.Quantity),
 		TagIDs:      tagIDs,
+		Attachments: input.Attachments,
 	}
 
 	toyID, err := r.useCases.AddToy(ctx, toyData)
 	return strconv.FormatUint(toyID, 10), err
-}
-
-// UploadFile is the resolver for the uploadFile field.
-func (r *mutationResolver) UploadFile(ctx context.Context, input graphql.Upload) (string, error) {
-	logging.LogRequest(ctx, r.logger, input)
-
-	file, err := io.ReadAll(input.File)
-	if err != nil {
-		return "", err
-	}
-
-	return r.useCases.UploadFile(ctx, input.Filename, file)
 }
 
 // CreateTicket is the resolver for the createTicket field.
@@ -198,6 +186,7 @@ func (r *mutationResolver) CreateTicket(ctx context.Context, input graphqlapi.Cr
 		Price:       float32(input.Price),
 		Quantity:    uint32(input.Quantity),
 		TagIDs:      tagIDs,
+		Attachments: input.Attachments,
 	}
 
 	ticketID, err := r.useCases.CreateTicket(ctx, ticketData)
