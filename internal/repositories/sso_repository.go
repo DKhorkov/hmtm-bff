@@ -24,9 +24,10 @@ func (repo *GrpcSsoRepository) RegisterUser(ctx context.Context, userData entiti
 	response, err := repo.client.Register(
 		ctx,
 		&sso.RegisterIn{
-			RequestID: requestID,
-			Email:     userData.Email,
-			Password:  userData.Password,
+			RequestID:   requestID,
+			DisplayName: userData.DisplayName,
+			Email:       userData.Email,
+			Password:    userData.Password,
 		},
 	)
 
@@ -51,12 +52,7 @@ func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*ent
 		return nil, err
 	}
 
-	return &entities.User{
-		ID:        response.GetID(),
-		Email:     response.GetEmail(),
-		CreatedAt: response.GetCreatedAt().AsTime(),
-		UpdatedAt: response.GetUpdatedAt().AsTime(),
-	}, nil
+	return repo.processUserResponse(response), nil
 }
 
 func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, error) {
@@ -73,13 +69,8 @@ func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]entities.User
 	}
 
 	users := make([]entities.User, len(response.GetUsers()))
-	for index, user := range response.GetUsers() {
-		users[index] = entities.User{
-			ID:        user.GetID(),
-			Email:     user.GetEmail(),
-			CreatedAt: user.GetCreatedAt().AsTime(),
-			UpdatedAt: user.GetUpdatedAt().AsTime(),
-		}
+	for index, userResponse := range response.GetUsers() {
+		users[index] = *repo.processUserResponse(userResponse)
 	}
 
 	return users, nil
@@ -123,12 +114,7 @@ func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*
 		return nil, err
 	}
 
-	return &entities.User{
-		ID:        response.GetID(),
-		Email:     response.GetEmail(),
-		CreatedAt: response.GetCreatedAt().AsTime(),
-		UpdatedAt: response.GetUpdatedAt().AsTime(),
-	}, nil
+	return repo.processUserResponse(response), nil
 }
 
 func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
@@ -149,4 +135,19 @@ func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken s
 		AccessToken:  response.GetAccessToken(),
 		RefreshToken: response.GetRefreshToken(),
 	}, nil
+}
+
+func (repo *GrpcSsoRepository) processUserResponse(userResponse *sso.GetUserOut) *entities.User {
+	return &entities.User{
+		ID:             userResponse.GetID(),
+		DisplayName:    userResponse.GetDisplayName(),
+		Email:          userResponse.GetEmail(),
+		EmailConfirmed: userResponse.GetEmailConfirmed(),
+		Phone:          userResponse.Phone,
+		PhoneConfirmed: userResponse.GetPhoneConfirmed(),
+		Telegram:       userResponse.Telegram,
+		Avatar:         userResponse.Avatar,
+		CreatedAt:      userResponse.GetCreatedAt().AsTime(),
+		UpdatedAt:      userResponse.GetUpdatedAt().AsTime(),
+	}
 }

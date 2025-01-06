@@ -67,6 +67,7 @@ tasks:
     aliases:
       - graphql
       - generate
+      - gen
     cmd: go run github.com/99designs/gqlgen generate
 
   tests:

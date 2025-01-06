@@ -3,11 +3,18 @@ package usecases
 import (
 	"context"
 	"fmt"
+	"io"
+	"log/slog"
 	"path"
+	"strconv"
+	"strings"
 
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/config"
+	"github.com/DKhorkov/libs/logging"
 
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 	"github.com/DKhorkov/libs/security"
 )
@@ -17,12 +24,16 @@ func NewCommonUseCases(
 	toysService interfaces.ToysService,
 	fileStorageService interfaces.FileStorageService,
 	ticketsService interfaces.TicketsService,
+	validationConfig config.ValidationConfig,
+	logger *slog.Logger,
 ) *CommonUseCases {
 	return &CommonUseCases{
 		ssoService:         ssoService,
 		toysService:        toysService,
 		fileStorageService: fileStorageService,
 		ticketsService:     ticketsService,
+		validationConfig:   validationConfig,
+		logger:             logger,
 	}
 }
 
@@ -31,6 +42,8 @@ type CommonUseCases struct {
 	toysService        interfaces.ToysService
 	fileStorageService interfaces.FileStorageService
 	ticketsService     interfaces.TicketsService
+	validationConfig   config.ValidationConfig
+	logger             *slog.Logger
 }
 
 func (useCases *CommonUseCases) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
@@ -66,14 +79,20 @@ func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.
 		return 0, err
 	}
 
+	uploadedFiles, err := useCases.UploadFiles(ctx, rawToyData.Attachments)
+	if err != nil {
+		return 0, err
+	}
+
 	toyData := entities.AddToyDTO{
 		UserID:      user.ID,
 		CategoryID:  rawToyData.CategoryID,
 		Name:        rawToyData.Name,
 		Description: rawToyData.Description,
-		Quantity:    rawToyData.Quantity,
 		Price:       rawToyData.Price,
+		Quantity:    rawToyData.Quantity,
 		TagIDs:      rawToyData.TagIDs,
+		Attachments: uploadedFiles,
 	}
 
 	return useCases.toysService.AddToy(ctx, toyData)
@@ -141,9 +160,53 @@ func (useCases *CommonUseCases) GetTagByID(ctx context.Context, id uint32) (*ent
 	return useCases.toysService.GetTagByID(ctx, id)
 }
 
-func (useCases *CommonUseCases) UploadFile(ctx context.Context, filename string, file []byte) (string, error) {
-	key := security.RawEncode([]byte(filename)) + path.Ext(filename)
-	return useCases.fileStorageService.Upload(ctx, key, file)
+func (useCases *CommonUseCases) UploadFile(ctx context.Context, file *graphql.Upload) (string, error) {
+	fileExtension := path.Ext(file.Filename)
+	if !validateFileExtension(fileExtension, useCases.validationConfig.FileAllowedExtensions) {
+		return "", &customerrors.InvalidFileExtensionError{Message: fileExtension}
+	}
+
+	if !validateFileSize(file.Size, useCases.validationConfig.FileMaxSize) {
+		return "", &customerrors.InvalidFileSizeError{Message: strconv.FormatInt(file.Size, 10)}
+	}
+
+	key := security.RawEncode([]byte(file.Filename)) + fileExtension
+	binaryFile, err := io.ReadAll(file.File)
+	if err != nil {
+		return "", err
+	}
+
+	return useCases.fileStorageService.Upload(ctx, key, binaryFile)
+}
+
+func (useCases *CommonUseCases) UploadFiles(ctx context.Context, files []*graphql.Upload) ([]string, error) {
+	uploadedFiles := make([]string, 0, len(files))
+	uploadingErrors := make([]error, 0, len(files))
+	for _, file := range files {
+		filename, err := useCases.UploadFile(ctx, file)
+		if err != nil {
+			uploadingErrors = append(uploadingErrors, err)
+		} else {
+			uploadedFiles = append(uploadedFiles, filename)
+		}
+	}
+
+	concatenatedErrBuilder := strings.Builder{}
+	concatenatedErrBuilder.WriteString("Failed to upload files:\n")
+	for i, err := range uploadingErrors {
+		// i + 1 due to index starts from zero
+		concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %s\n", i+1, err.Error()))
+	}
+
+	if len(uploadedFiles) == 0 && len(uploadingErrors) > 0 {
+		return nil, &customerrors.UploadFileError{Message: concatenatedErrBuilder.String()}
+	}
+
+	// Logging errors for further investigate:
+	logging.LogErrorContext(ctx, useCases.logger, concatenatedErrBuilder.String(), &customerrors.UploadFileError{})
+
+	// Return no err and any amount of uploaded files, if exists:
+	return uploadedFiles, nil
 }
 
 func (useCases *CommonUseCases) CreateTicket(
@@ -151,6 +214,11 @@ func (useCases *CommonUseCases) CreateTicket(
 	rawTicketData entities.RawCreateTicketDTO,
 ) (uint64, error) {
 	user, err := useCases.GetMe(ctx, rawTicketData.AccessToken)
+	if err != nil {
+		return 0, err
+	}
+
+	uploadedFiles, err := useCases.UploadFiles(ctx, rawTicketData.Attachments)
 	if err != nil {
 		return 0, err
 	}
@@ -163,6 +231,7 @@ func (useCases *CommonUseCases) CreateTicket(
 		Price:       rawTicketData.Price,
 		Quantity:    rawTicketData.Quantity,
 		TagIDs:      rawTicketData.TagIDs,
+		Attachments: uploadedFiles,
 	}
 
 	return useCases.ticketsService.CreateTicket(ctx, ticketData)

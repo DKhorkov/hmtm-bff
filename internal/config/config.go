@@ -97,6 +97,23 @@ func New() Config {
 			Bucket:          loadenv.GetEnv("S3_BUCKET", ""),
 			ACL:             loadenv.GetEnv("S3_ACL", "public-read"),
 		},
+		Validation: ValidationConfig{
+			FileMaxSize: int64(loadenv.GetEnvAsInt("FILE_MAX_SIZE", 5*1024*1024)), // 5 Mb
+			FileAllowedExtensions: loadenv.GetEnvAsSlice(
+				"FILE_ALLOWED_EXTENSIONS",
+				[]string{
+					".png",
+					".svg",
+					".gif",
+					".jpg",
+					".jpeg",
+					".jfif",
+					".pjpeg",
+					".pjp",
+				},
+				",",
+			),
+		},
 	}
 }
 
@@ -142,11 +159,17 @@ type S3Config struct {
 	ACL             string
 }
 
+type ValidationConfig struct {
+	FileMaxSize           int64
+	FileAllowedExtensions []string
+}
+
 type Config struct {
-	HTTP    HTTPConfig
-	CORS    CORSConfig
-	Clients ClientsConfig
-	Logging logging.Config
-	Cookies CookiesConfig
-	S3      S3Config
+	HTTP       HTTPConfig
+	CORS       CORSConfig
+	Clients    ClientsConfig
+	Logging    logging.Config
+	Cookies    CookiesConfig
+	S3         S3Config
+	Validation ValidationConfig
 }
