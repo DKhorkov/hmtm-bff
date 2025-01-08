@@ -3,11 +3,11 @@ package repositories
 import (
 	"context"
 
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 	"github.com/DKhorkov/hmtm-tickets/api/protobuf/generated/go/tickets"
-	"github.com/DKhorkov/libs/contextlib"
-	"github.com/DKhorkov/libs/requestid"
 )
 
 func NewGrpcTicketsRepository(client interfaces.TicketsGrpcClient) *GrpcTicketsRepository {
@@ -22,11 +22,9 @@ func (repo *GrpcTicketsRepository) CreateTicket(
 	ctx context.Context,
 	ticketData entities.CreateTicketDTO,
 ) (uint64, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.CreateTicket(
 		ctx,
 		&tickets.CreateTicketIn{
-			RequestID:   requestID,
 			UserID:      ticketData.UserID,
 			CategoryID:  ticketData.CategoryID,
 			Name:        ticketData.Name,
@@ -34,6 +32,7 @@ func (repo *GrpcTicketsRepository) CreateTicket(
 			Price:       ticketData.Price,
 			Quantity:    ticketData.Quantity,
 			TagIDs:      ticketData.TagIDs,
+			Attachments: ticketData.Attachments,
 		},
 	)
 
@@ -45,12 +44,10 @@ func (repo *GrpcTicketsRepository) CreateTicket(
 }
 
 func (repo *GrpcTicketsRepository) GetTicketByID(ctx context.Context, id uint64) (*entities.RawTicket, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetTicket(
 		ctx,
 		&tickets.GetTicketIn{
-			RequestID: requestID,
-			ID:        id,
+			ID: id,
 		},
 	)
 
@@ -62,10 +59,9 @@ func (repo *GrpcTicketsRepository) GetTicketByID(ctx context.Context, id uint64)
 }
 
 func (repo *GrpcTicketsRepository) GetAllTickets(ctx context.Context) ([]entities.RawTicket, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetTickets(
 		ctx,
-		&tickets.GetTicketsIn{RequestID: requestID},
+		&emptypb.Empty{},
 	)
 
 	if err != nil {
@@ -81,12 +77,10 @@ func (repo *GrpcTicketsRepository) GetAllTickets(ctx context.Context) ([]entitie
 }
 
 func (repo *GrpcTicketsRepository) GetUserTickets(ctx context.Context, userID uint64) ([]entities.RawTicket, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUserTickets(
 		ctx,
 		&tickets.GetUserTicketsIn{
-			RequestID: requestID,
-			UserID:    userID,
+			UserID: userID,
 		},
 	)
 
@@ -106,13 +100,11 @@ func (repo *GrpcTicketsRepository) RespondToTicket(
 	ctx context.Context,
 	respondData entities.RespondToTicketDTO,
 ) (uint64, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.RespondToTicket(
 		ctx,
 		&tickets.RespondToTicketIn{
-			RequestID: requestID,
-			UserID:    respondData.UserID,
-			TicketID:  respondData.TicketID,
+			UserID:   respondData.UserID,
+			TicketID: respondData.TicketID,
 		},
 	)
 
@@ -124,12 +116,10 @@ func (repo *GrpcTicketsRepository) RespondToTicket(
 }
 
 func (repo *GrpcTicketsRepository) GetRespondByID(ctx context.Context, id uint64) (*entities.Respond, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetRespond(
 		ctx,
 		&tickets.GetRespondIn{
-			RequestID: requestID,
-			ID:        id,
+			ID: id,
 		},
 	)
 
@@ -141,12 +131,10 @@ func (repo *GrpcTicketsRepository) GetRespondByID(ctx context.Context, id uint64
 }
 
 func (repo *GrpcTicketsRepository) GetTicketResponds(ctx context.Context, ticketID uint64) ([]entities.Respond, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetTicketResponds(
 		ctx,
 		&tickets.GetTicketRespondsIn{
-			RequestID: requestID,
-			TicketID:  ticketID,
+			TicketID: ticketID,
 		},
 	)
 
@@ -163,12 +151,10 @@ func (repo *GrpcTicketsRepository) GetTicketResponds(ctx context.Context, ticket
 }
 
 func (repo *GrpcTicketsRepository) GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUserResponds(
 		ctx,
 		&tickets.GetUserRespondsIn{
-			RequestID: requestID,
-			UserID:    userID,
+			UserID: userID,
 		},
 	)
 

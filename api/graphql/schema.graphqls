@@ -13,6 +13,7 @@ type User {
     phone: String
     phoneConfirmed: Boolean!
     telegram: String
+    telegramConfirmed: Boolean!
     avatar: String
     createdAt: Time!
     updatedAt: Time!

@@ -3,8 +3,7 @@ package repositories
 import (
 	"context"
 
-	"github.com/DKhorkov/libs/contextlib"
-	"github.com/DKhorkov/libs/requestid"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
@@ -20,11 +19,9 @@ type GrpcSsoRepository struct {
 }
 
 func (repo *GrpcSsoRepository) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.Register(
 		ctx,
 		&sso.RegisterIn{
-			RequestID:   requestID,
 			DisplayName: userData.DisplayName,
 			Email:       userData.Email,
 			Password:    userData.Password,
@@ -39,12 +36,10 @@ func (repo *GrpcSsoRepository) RegisterUser(ctx context.Context, userData entiti
 }
 
 func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*entities.User, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUser(
 		ctx,
 		&sso.GetUserIn{
-			RequestID: requestID,
-			ID:        id,
+			ID: id,
 		},
 	)
 
@@ -56,12 +51,9 @@ func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*ent
 }
 
 func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUsers(
 		ctx,
-		&sso.GetUsersIn{
-			RequestID: requestID,
-		},
+		&emptypb.Empty{},
 	)
 
 	if err != nil {
@@ -80,13 +72,11 @@ func (repo *GrpcSsoRepository) LoginUser(
 	ctx context.Context,
 	userData entities.LoginUserDTO,
 ) (*entities.TokensDTO, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.Login(
 		ctx,
 		&sso.LoginIn{
-			RequestID: requestID,
-			Email:     userData.Email,
-			Password:  userData.Password,
+			Email:    userData.Email,
+			Password: userData.Password,
 		},
 	)
 
@@ -101,11 +91,9 @@ func (repo *GrpcSsoRepository) LoginUser(
 }
 
 func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetMe(
 		ctx,
 		&sso.GetMeIn{
-			RequestID:   requestID,
 			AccessToken: accessToken,
 		},
 	)
@@ -118,11 +106,9 @@ func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*
 }
 
 func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.RefreshTokens(
 		ctx,
 		&sso.RefreshTokensIn{
-			RequestID:    requestID,
 			RefreshToken: refreshToken,
 		},
 	)
@@ -139,15 +125,16 @@ func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken s
 
 func (repo *GrpcSsoRepository) processUserResponse(userResponse *sso.GetUserOut) *entities.User {
 	return &entities.User{
-		ID:             userResponse.GetID(),
-		DisplayName:    userResponse.GetDisplayName(),
-		Email:          userResponse.GetEmail(),
-		EmailConfirmed: userResponse.GetEmailConfirmed(),
-		Phone:          userResponse.Phone,
-		PhoneConfirmed: userResponse.GetPhoneConfirmed(),
-		Telegram:       userResponse.Telegram,
-		Avatar:         userResponse.Avatar,
-		CreatedAt:      userResponse.GetCreatedAt().AsTime(),
-		UpdatedAt:      userResponse.GetUpdatedAt().AsTime(),
+		ID:                userResponse.GetID(),
+		DisplayName:       userResponse.GetDisplayName(),
+		Email:             userResponse.GetEmail(),
+		EmailConfirmed:    userResponse.GetEmailConfirmed(),
+		Phone:             userResponse.Phone,
+		PhoneConfirmed:    userResponse.GetPhoneConfirmed(),
+		Telegram:          userResponse.Telegram,
+		TelegramConfirmed: userResponse.GetTelegramConfirmed(),
+		Avatar:            userResponse.Avatar,
+		CreatedAt:         userResponse.GetCreatedAt().AsTime(),
+		UpdatedAt:         userResponse.GetUpdatedAt().AsTime(),
 	}
 }

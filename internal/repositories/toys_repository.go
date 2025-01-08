@@ -3,11 +3,11 @@ package repositories
 import (
 	"context"
 
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
-	"github.com/DKhorkov/libs/contextlib"
-	"github.com/DKhorkov/libs/requestid"
 )
 
 func NewGrpcToysRepository(client interfaces.ToysGrpcClient) *GrpcToysRepository {
@@ -19,11 +19,9 @@ type GrpcToysRepository struct {
 }
 
 func (repo *GrpcToysRepository) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.AddToy(
 		ctx,
 		&toys.AddToyIn{
-			RequestID:   requestID,
 			UserID:      toyData.UserID,
 			CategoryID:  toyData.CategoryID,
 			Name:        toyData.Name,
@@ -31,6 +29,7 @@ func (repo *GrpcToysRepository) AddToy(ctx context.Context, toyData entities.Add
 			Price:       toyData.Price,
 			Quantity:    toyData.Quantity,
 			TagIDs:      toyData.TagIDs,
+			Attachments: toyData.Attachments,
 		},
 	)
 
@@ -42,10 +41,9 @@ func (repo *GrpcToysRepository) AddToy(ctx context.Context, toyData entities.Add
 }
 
 func (repo *GrpcToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetToys(
 		ctx,
-		&toys.GetToysIn{RequestID: requestID},
+		&emptypb.Empty{},
 	)
 
 	if err != nil {
@@ -61,12 +59,10 @@ func (repo *GrpcToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy,
 }
 
 func (repo *GrpcToysRepository) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetMasterToys(
 		ctx,
 		&toys.GetMasterToysIn{
-			RequestID: requestID,
-			MasterID:  masterID,
+			MasterID: masterID,
 		},
 	)
 
@@ -83,12 +79,10 @@ func (repo *GrpcToysRepository) GetMasterToys(ctx context.Context, masterID uint
 }
 
 func (repo *GrpcToysRepository) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetUserToys(
 		ctx,
 		&toys.GetUserToysIn{
-			RequestID: requestID,
-			UserID:    userID,
+			UserID: userID,
 		},
 	)
 
@@ -105,12 +99,10 @@ func (repo *GrpcToysRepository) GetUserToys(ctx context.Context, userID uint64) 
 }
 
 func (repo *GrpcToysRepository) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetToy(
 		ctx,
 		&toys.GetToyIn{
-			RequestID: requestID,
-			ID:        id,
+			ID: id,
 		},
 	)
 
@@ -122,10 +114,9 @@ func (repo *GrpcToysRepository) GetToyByID(ctx context.Context, id uint64) (*ent
 }
 
 func (repo *GrpcToysRepository) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetMasters(
 		ctx,
-		&toys.GetMastersIn{RequestID: requestID},
+		&emptypb.Empty{},
 	)
 
 	if err != nil {
@@ -147,12 +138,10 @@ func (repo *GrpcToysRepository) GetAllMasters(ctx context.Context) ([]entities.M
 }
 
 func (repo *GrpcToysRepository) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetMaster(
 		ctx,
 		&toys.GetMasterIn{
-			RequestID: requestID,
-			ID:        id,
+			ID: id,
 		},
 	)
 
@@ -173,13 +162,11 @@ func (repo *GrpcToysRepository) RegisterMaster(
 	ctx context.Context,
 	masterData entities.RegisterMasterDTO,
 ) (uint64, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.RegisterMaster(
 		ctx,
 		&toys.RegisterMasterIn{
-			RequestID: requestID,
-			UserID:    masterData.UserID,
-			Info:      masterData.Info,
+			UserID: masterData.UserID,
+			Info:   masterData.Info,
 		},
 	)
 
@@ -191,10 +178,9 @@ func (repo *GrpcToysRepository) RegisterMaster(
 }
 
 func (repo *GrpcToysRepository) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetCategories(
 		ctx,
-		&toys.GetCategoriesIn{RequestID: requestID},
+		&emptypb.Empty{},
 	)
 
 	if err != nil {
@@ -210,12 +196,10 @@ func (repo *GrpcToysRepository) GetAllCategories(ctx context.Context) ([]entitie
 }
 
 func (repo *GrpcToysRepository) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetCategory(
 		ctx,
 		&toys.GetCategoryIn{
-			RequestID: requestID,
-			ID:        id,
+			ID: id,
 		},
 	)
 
@@ -227,10 +211,9 @@ func (repo *GrpcToysRepository) GetCategoryByID(ctx context.Context, id uint32) 
 }
 
 func (repo *GrpcToysRepository) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetTags(
 		ctx,
-		&toys.GetTagsIn{RequestID: requestID},
+		&emptypb.Empty{},
 	)
 
 	if err != nil {
@@ -246,12 +229,10 @@ func (repo *GrpcToysRepository) GetAllTags(ctx context.Context) ([]entities.Tag,
 }
 
 func (repo *GrpcToysRepository) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
-	requestID, _ := contextlib.GetValue[string](ctx, requestid.Key)
 	response, err := repo.client.GetTag(
 		ctx,
 		&toys.GetTagIn{
-			RequestID: requestID,
-			ID:        id,
+			ID: id,
 		},
 	)
 
