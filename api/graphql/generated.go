@@ -156,16 +156,17 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Avatar         func(childComplexity int) int
-		CreatedAt      func(childComplexity int) int
-		DisplayName    func(childComplexity int) int
-		Email          func(childComplexity int) int
-		EmailConfirmed func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Phone          func(childComplexity int) int
-		PhoneConfirmed func(childComplexity int) int
-		Telegram       func(childComplexity int) int
-		UpdatedAt      func(childComplexity int) int
+		Avatar            func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		DisplayName       func(childComplexity int) int
+		Email             func(childComplexity int) int
+		EmailConfirmed    func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Phone             func(childComplexity int) int
+		PhoneConfirmed    func(childComplexity int) int
+		Telegram          func(childComplexity int) int
+		TelegramConfirmed func(childComplexity int) int
+		UpdatedAt         func(childComplexity int) int
 	}
 }
 
@@ -899,6 +900,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Telegram(childComplexity), true
+
+	case "User.telegramConfirmed":
+		if e.complexity.User.TelegramConfirmed == nil {
+			break
+		}
+
+		return e.complexity.User.TelegramConfirmed(childComplexity), true
 
 	case "User.updatedAt":
 		if e.complexity.User.UpdatedAt == nil {
@@ -1870,6 +1878,8 @@ func (ec *executionContext) fieldContext_Master_user(_ context.Context, field gr
 				return ec.fieldContext_User_phoneConfirmed(ctx, field)
 			case "telegram":
 				return ec.fieldContext_User_telegram(ctx, field)
+			case "telegramConfirmed":
+				return ec.fieldContext_User_telegramConfirmed(ctx, field)
 			case "avatar":
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "createdAt":
@@ -2456,6 +2466,8 @@ func (ec *executionContext) fieldContext_Query_users(_ context.Context, field gr
 				return ec.fieldContext_User_phoneConfirmed(ctx, field)
 			case "telegram":
 				return ec.fieldContext_User_telegram(ctx, field)
+			case "telegramConfirmed":
+				return ec.fieldContext_User_telegramConfirmed(ctx, field)
 			case "avatar":
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "createdAt":
@@ -2522,6 +2534,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_phoneConfirmed(ctx, field)
 			case "telegram":
 				return ec.fieldContext_User_telegram(ctx, field)
+			case "telegramConfirmed":
+				return ec.fieldContext_User_telegramConfirmed(ctx, field)
 			case "avatar":
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "createdAt":
@@ -2599,6 +2613,8 @@ func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graph
 				return ec.fieldContext_User_phoneConfirmed(ctx, field)
 			case "telegram":
 				return ec.fieldContext_User_telegram(ctx, field)
+			case "telegramConfirmed":
+				return ec.fieldContext_User_telegramConfirmed(ctx, field)
 			case "avatar":
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "createdAt":
@@ -4272,6 +4288,8 @@ func (ec *executionContext) fieldContext_Ticket_user(_ context.Context, field gr
 				return ec.fieldContext_User_phoneConfirmed(ctx, field)
 			case "telegram":
 				return ec.fieldContext_User_telegram(ctx, field)
+			case "telegramConfirmed":
+				return ec.fieldContext_User_telegramConfirmed(ctx, field)
 			case "avatar":
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "createdAt":
@@ -5950,6 +5968,50 @@ func (ec *executionContext) fieldContext_User_telegram(_ context.Context, field 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_telegramConfirmed(ctx context.Context, field graphql.CollectedField, obj *entities.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_telegramConfirmed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TelegramConfirmed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_telegramConfirmed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9548,6 +9610,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "telegram":
 			out.Values[i] = ec._User_telegram(ctx, field, obj)
+		case "telegramConfirmed":
+			out.Values[i] = ec._User_telegramConfirmed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "avatar":
 			out.Values[i] = ec._User_avatar(ctx, field, obj)
 		case "createdAt":
