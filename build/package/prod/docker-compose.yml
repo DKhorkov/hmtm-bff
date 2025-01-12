@@ -5,9 +5,9 @@ services:
     container_name: hmtm_bff
     image: hmtm_bff
     build:
-      context: ../..
+      context: ../../..
       dockerfile: ./build/package/Dockerfile
     ports:
       - "${HMTM_BFF_OUTER_PORT}:${HMTM_BFF_INNER_PORT}"
     volumes:
-      - ../../logs/:/app/logs/
+      - ../../../logs/:/app/logs/
