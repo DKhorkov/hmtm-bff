@@ -11,3 +11,8 @@ services:
       - "${HMTM_BFF_OUTER_PORT}:${HMTM_BFF_INNER_PORT}"
     volumes:
       - ../../../logs/:/app/logs/
+    networks:
+      - hmtm_network
+
+networks:
+  hmtm_network:
