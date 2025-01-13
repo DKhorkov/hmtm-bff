@@ -129,7 +129,7 @@ tasks:
       - upload
     dir: ../
     cmds:
-      - task: copy_env_file_for_docker
-      - task: docker_build
+      - task: prepare_env_file_prod
+      - task: docker_build_prod
       - sudo docker tag hmtm_bff d3m0s/hmtm_bff
       - sudo docker push d3m0s/hmtm_bff
