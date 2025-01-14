@@ -61,8 +61,8 @@ func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]entities.User
 	}
 
 	users := make([]entities.User, len(response.GetUsers()))
-	for index, userResponse := range response.GetUsers() {
-		users[index] = *repo.processUserResponse(userResponse)
+	for i, userResponse := range response.GetUsers() {
+		users[i] = *repo.processUserResponse(userResponse)
 	}
 
 	return users, nil

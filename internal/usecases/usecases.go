@@ -259,9 +259,9 @@ func (useCases *CommonUseCases) processRawTicket(ctx context.Context, ticket ent
 			tagsMap[tag.ID] = tag
 		}
 
-		for index, tag := range processedTags {
+		for i, tag := range processedTags {
 			if _, ok := tagsMap[tag.ID]; ok {
-				processedTags[index].Name = tagsMap[tag.ID].Name
+				processedTags[i].Name = tagsMap[tag.ID].Name
 			}
 		}
 	}
@@ -287,8 +287,8 @@ func (useCases *CommonUseCases) GetAllTickets(ctx context.Context) ([]entities.T
 	}
 
 	tickets := make([]entities.Ticket, len(rawTickets))
-	for index, rawTicket := range rawTickets {
-		tickets[index] = *useCases.processRawTicket(ctx, rawTicket)
+	for i, rawTicket := range rawTickets {
+		tickets[i] = *useCases.processRawTicket(ctx, rawTicket)
 	}
 
 	return tickets, err
@@ -301,8 +301,8 @@ func (useCases *CommonUseCases) GetUserTickets(ctx context.Context, userID uint6
 	}
 
 	tickets := make([]entities.Ticket, len(rawTickets))
-	for index, rawTicket := range rawTickets {
-		tickets[index] = *useCases.processRawTicket(ctx, rawTicket)
+	for i, rawTicket := range rawTickets {
+		tickets[i] = *useCases.processRawTicket(ctx, rawTicket)
 	}
 
 	return tickets, err
