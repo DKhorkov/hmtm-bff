@@ -69,8 +69,8 @@ func (repo *GrpcTicketsRepository) GetAllTickets(ctx context.Context) ([]entitie
 	}
 
 	allTickets := make([]entities.RawTicket, len(response.GetTickets()))
-	for index, ticketResponse := range response.GetTickets() {
-		allTickets[index] = *repo.processTicketResponse(ticketResponse)
+	for i, ticketResponse := range response.GetTickets() {
+		allTickets[i] = *repo.processTicketResponse(ticketResponse)
 	}
 
 	return allTickets, nil
@@ -89,8 +89,8 @@ func (repo *GrpcTicketsRepository) GetUserTickets(ctx context.Context, userID ui
 	}
 
 	userTickets := make([]entities.RawTicket, len(response.GetTickets()))
-	for index, ticketResponse := range response.GetTickets() {
-		userTickets[index] = *repo.processTicketResponse(ticketResponse)
+	for i, ticketResponse := range response.GetTickets() {
+		userTickets[i] = *repo.processTicketResponse(ticketResponse)
 	}
 
 	return userTickets, nil
@@ -143,8 +143,8 @@ func (repo *GrpcTicketsRepository) GetTicketResponds(ctx context.Context, ticket
 	}
 
 	ticketResponds := make([]entities.Respond, len(response.GetResponds()))
-	for index, respondResponse := range response.GetResponds() {
-		ticketResponds[index] = *repo.processRespondResponse(respondResponse)
+	for i, respondResponse := range response.GetResponds() {
+		ticketResponds[i] = *repo.processRespondResponse(respondResponse)
 	}
 
 	return ticketResponds, nil
@@ -163,8 +163,8 @@ func (repo *GrpcTicketsRepository) GetUserResponds(ctx context.Context, userID u
 	}
 
 	userResponds := make([]entities.Respond, len(response.GetResponds()))
-	for index, respondResponse := range response.GetResponds() {
-		userResponds[index] = *repo.processRespondResponse(respondResponse)
+	for i, respondResponse := range response.GetResponds() {
+		userResponds[i] = *repo.processRespondResponse(respondResponse)
 	}
 
 	return userResponds, nil

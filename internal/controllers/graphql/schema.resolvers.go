@@ -226,8 +226,8 @@ func (r *queryResolver) Users(ctx context.Context) ([]*entities.User, error) {
 	}
 
 	response := make([]*entities.User, len(users))
-	for index, user := range users {
-		response[index] = &user
+	for i, user := range users {
+		response[i] = &user
 	}
 
 	return response, nil
@@ -279,8 +279,8 @@ func (r *queryResolver) Masters(ctx context.Context) ([]*entities.Master, error)
 	}
 
 	response := make([]*entities.Master, len(masters))
-	for index, master := range masters {
-		response[index] = &master
+	for i, master := range masters {
+		response[i] = &master
 	}
 
 	return response, nil
@@ -301,8 +301,8 @@ func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*ent
 	}
 
 	response := make([]*entities.Toy, len(toys))
-	for index, toy := range toys {
-		response[index] = &toy
+	for i, toy := range toys {
+		response[i] = &toy
 	}
 
 	return response, nil
@@ -330,8 +330,8 @@ func (r *queryResolver) Toys(ctx context.Context) ([]*entities.Toy, error) {
 	}
 
 	response := make([]*entities.Toy, len(toys))
-	for index, toy := range toys {
-		response[index] = &toy
+	for i, toy := range toys {
+		response[i] = &toy
 	}
 
 	return response, nil
@@ -352,8 +352,8 @@ func (r *queryResolver) MyToys(ctx context.Context) ([]*entities.Toy, error) {
 	}
 
 	response := make([]*entities.Toy, len(toys))
-	for index, toy := range toys {
-		response[index] = &toy
+	for i, toy := range toys {
+		response[i] = &toy
 	}
 
 	return response, nil
@@ -381,8 +381,8 @@ func (r *queryResolver) Tags(ctx context.Context) ([]*entities.Tag, error) {
 	}
 
 	response := make([]*entities.Tag, len(tags))
-	for index, tag := range tags {
-		response[index] = &tag
+	for i, tag := range tags {
+		response[i] = &tag
 	}
 
 	return response, nil
@@ -410,8 +410,8 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*entities.Category, e
 	}
 
 	response := make([]*entities.Category, len(categories))
-	for index, category := range categories {
-		response[index] = &category
+	for i, category := range categories {
+		response[i] = &category
 	}
 
 	return response, nil
@@ -439,8 +439,8 @@ func (r *queryResolver) Tickets(ctx context.Context) ([]*entities.Ticket, error)
 	}
 
 	response := make([]*entities.Ticket, len(tickets))
-	for index, ticket := range tickets {
-		response[index] = &ticket
+	for i, ticket := range tickets {
+		response[i] = &ticket
 	}
 
 	return response, nil
@@ -461,8 +461,8 @@ func (r *queryResolver) UserTickets(ctx context.Context, userID string) ([]*enti
 	}
 
 	response := make([]*entities.Ticket, len(tickets))
-	for index, ticket := range tickets {
-		response[index] = &ticket
+	for i, ticket := range tickets {
+		response[i] = &ticket
 	}
 
 	return response, nil
@@ -483,8 +483,8 @@ func (r *queryResolver) MyTickets(ctx context.Context) ([]*entities.Ticket, erro
 	}
 
 	response := make([]*entities.Ticket, len(tickets))
-	for index, ticket := range tickets {
-		response[index] = &ticket
+	for i, ticket := range tickets {
+		response[i] = &ticket
 	}
 
 	return response, nil
@@ -527,8 +527,8 @@ func (r *queryResolver) TicketResponds(ctx context.Context, ticketID string) ([]
 	}
 
 	response := make([]*entities.Respond, len(responds))
-	for index, respond := range responds {
-		response[index] = &respond
+	for i, respond := range responds {
+		response[i] = &respond
 	}
 
 	return response, nil
@@ -549,8 +549,8 @@ func (r *queryResolver) MyResponds(ctx context.Context) ([]*entities.Respond, er
 	}
 
 	response := make([]*entities.Respond, len(responds))
-	for index, respond := range responds {
-		response[index] = &respond
+	for i, respond := range responds {
+		response[i] = &respond
 	}
 
 	return response, nil

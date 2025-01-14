@@ -51,8 +51,8 @@ func (repo *GrpcToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy,
 	}
 
 	allToys := make([]entities.Toy, len(response.GetToys()))
-	for index, toyResponse := range response.GetToys() {
-		allToys[index] = *repo.processToyResponse(toyResponse)
+	for i, toyResponse := range response.GetToys() {
+		allToys[i] = *repo.processToyResponse(toyResponse)
 	}
 
 	return allToys, nil
@@ -71,8 +71,8 @@ func (repo *GrpcToysRepository) GetMasterToys(ctx context.Context, masterID uint
 	}
 
 	masterToys := make([]entities.Toy, len(response.GetToys()))
-	for index, toyResponse := range response.GetToys() {
-		masterToys[index] = *repo.processToyResponse(toyResponse)
+	for i, toyResponse := range response.GetToys() {
+		masterToys[i] = *repo.processToyResponse(toyResponse)
 	}
 
 	return masterToys, nil
@@ -91,8 +91,8 @@ func (repo *GrpcToysRepository) GetUserToys(ctx context.Context, userID uint64) 
 	}
 
 	userToys := make([]entities.Toy, len(response.GetToys()))
-	for index, toyResponse := range response.GetToys() {
-		userToys[index] = *repo.processToyResponse(toyResponse)
+	for i, toyResponse := range response.GetToys() {
+		userToys[i] = *repo.processToyResponse(toyResponse)
 	}
 
 	return userToys, nil
@@ -124,8 +124,8 @@ func (repo *GrpcToysRepository) GetAllMasters(ctx context.Context) ([]entities.M
 	}
 
 	masters := make([]entities.Master, len(response.GetMasters()))
-	for index, masterResponse := range response.GetMasters() {
-		masters[index] = entities.Master{
+	for i, masterResponse := range response.GetMasters() {
+		masters[i] = entities.Master{
 			ID:        masterResponse.GetID(),
 			UserID:    masterResponse.GetUserID(),
 			Info:      masterResponse.GetInfo(),
@@ -188,8 +188,8 @@ func (repo *GrpcToysRepository) GetAllCategories(ctx context.Context) ([]entitie
 	}
 
 	categories := make([]entities.Category, len(response.GetCategories()))
-	for index, categoryResponse := range response.GetCategories() {
-		categories[index] = *repo.processCategoryResponse(categoryResponse)
+	for i, categoryResponse := range response.GetCategories() {
+		categories[i] = *repo.processCategoryResponse(categoryResponse)
 	}
 
 	return categories, nil
@@ -221,8 +221,8 @@ func (repo *GrpcToysRepository) GetAllTags(ctx context.Context) ([]entities.Tag,
 	}
 
 	tags := make([]entities.Tag, len(response.GetTags()))
-	for index, tagResponse := range response.GetTags() {
-		tags[index] = *repo.processTagResponse(tagResponse)
+	for i, tagResponse := range response.GetTags() {
+		tags[i] = *repo.processTagResponse(tagResponse)
 	}
 
 	return tags, nil
@@ -259,8 +259,8 @@ func (repo *GrpcToysRepository) processCategoryResponse(categoryResponse *toys.G
 
 func (repo *GrpcToysRepository) processToyResponse(toyResponse *toys.GetToyOut) *entities.Toy {
 	tags := make([]entities.Tag, len(toyResponse.GetTags()))
-	for index, tagResponse := range toyResponse.GetTags() {
-		tags[index] = *repo.processTagResponse(tagResponse)
+	for i, tagResponse := range toyResponse.GetTags() {
+		tags[i] = *repo.processTagResponse(tagResponse)
 	}
 
 	attachments := make([]entities.ToyAttachment, len(toyResponse.GetAttachments()))
