@@ -12,8 +12,9 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/DKhorkov/hmtm-tickets/api/protobuf/generated/go/tickets"
-	customgrpc "github.com/DKhorkov/libs/grpc"
+	customgrpc "github.com/DKhorkov/libs/grpc/interceptors"
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
 )
 
 type Client struct {
@@ -27,6 +28,8 @@ func New(
 	retriesCount int,
 	retriesTimeout time.Duration,
 	logger *slog.Logger,
+	traceProvider tracing.TraceProvider,
+	spanConfig tracing.SpanConfig,
 ) (*Client, error) {
 	// Options for interceptors (перехватчики / middlewares) for retries purposes:
 	retryOptions := []grpcretry.CallOption{
@@ -50,6 +53,7 @@ func New(
 			insecure.NewCredentials(),
 		),
 		grpc.WithChainUnaryInterceptor( // Middlewares. Using chain not to overwrite interceptors.
+			customgrpc.UnaryClientTracingInterceptor(traceProvider, spanConfig),
 			grpclogging.UnaryClientInterceptor(
 				customgrpc.UnaryClientLoggingInterceptor(logger),
 				logOptions...,

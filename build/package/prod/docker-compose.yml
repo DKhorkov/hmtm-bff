@@ -9,8 +9,18 @@ services:
       dockerfile: ./build/package/Dockerfile
     ports:
       - "${HMTM_BFF_OUTER_PORT}:${HMTM_BFF_INNER_PORT}"
+    depends_on:
+      - jaeger
     volumes:
       - ../../../logs/:/app/logs/
+    networks:
+      - hmtm_network
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "${TRACING_OUTER_API_TRACES_PORT}:${TRACING_INNER_API_TRACES_PORT}"
+      - "${TRACING_OUTER_WEB_PORT}:${TRACING_INNER_WEB_PORT}"
     networks:
       - hmtm_network
 

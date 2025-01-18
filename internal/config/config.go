@@ -5,13 +5,19 @@ import (
 	"net/http"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/loadenv"
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
 )
 
 func New() Config {
 	return Config{
+		Environment: loadenv.GetEnv("ENVIRONMENT", "local"),
+		Version:     loadenv.GetEnv("VERSION", "latest"),
 		HTTP: HTTPConfig{
 			Host: loadenv.GetEnv("HOST", "0.0.0.0"),
 			Port: loadenv.GetEnvAsInt("PORT", 8080),
@@ -114,6 +120,122 @@ func New() Config {
 				",",
 			),
 		},
+		Tracing: TracingConfig{
+			Server: tracing.Config{
+				ServiceName:    loadenv.GetEnv("TRACING_SERVICE_NAME", "hmtm-bff"),
+				ServiceVersion: loadenv.GetEnv("VERSION", "latest"),
+				JaegerURL: fmt.Sprintf(
+					"http://%s:%d/api/traces",
+					loadenv.GetEnv("TRACING_JAEGER_HOST", "0.0.0.0"),
+					loadenv.GetEnvAsInt("TRACING_API_TRACES_PORT", 14268),
+				),
+			},
+			Spans: SpansConfig{
+				Root: tracing.SpanConfig{
+					Name: "Root",
+					Opts: []trace.SpanStartOption{
+						trace.WithAttributes(
+							attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+						),
+					},
+					Events: tracing.SpanEventsConfig{
+						Start: tracing.SpanEventConfig{
+							Name: "Calling handler",
+							Opts: []trace.EventOption{
+								trace.WithAttributes(
+									attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								),
+							},
+						},
+						End: tracing.SpanEventConfig{
+							Name: "Received response from handler",
+							Opts: []trace.EventOption{
+								trace.WithAttributes(
+									attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								),
+							},
+						},
+					},
+				},
+				Clients: SpanClients{
+					SSO: tracing.SpanConfig{
+						Opts: []trace.SpanStartOption{
+							trace.WithAttributes(
+								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+							),
+						},
+						Events: tracing.SpanEventsConfig{
+							Start: tracing.SpanEventConfig{
+								Name: "Calling gRPC SSO client",
+								Opts: []trace.EventOption{
+									trace.WithAttributes(
+										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									),
+								},
+							},
+							End: tracing.SpanEventConfig{
+								Name: "Received response from gRPC SSO client",
+								Opts: []trace.EventOption{
+									trace.WithAttributes(
+										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									),
+								},
+							},
+						},
+					},
+					Toys: tracing.SpanConfig{
+						Opts: []trace.SpanStartOption{
+							trace.WithAttributes(
+								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+							),
+						},
+						Events: tracing.SpanEventsConfig{
+							Start: tracing.SpanEventConfig{
+								Name: "Calling gRPC Toys client",
+								Opts: []trace.EventOption{
+									trace.WithAttributes(
+										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									),
+								},
+							},
+							End: tracing.SpanEventConfig{
+								Name: "Received response from gRPC Toys client",
+								Opts: []trace.EventOption{
+									trace.WithAttributes(
+										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									),
+								},
+							},
+						},
+					},
+					Tickets: tracing.SpanConfig{
+						Opts: []trace.SpanStartOption{
+							trace.WithAttributes(
+								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+							),
+						},
+						Events: tracing.SpanEventsConfig{
+							Start: tracing.SpanEventConfig{
+								Name: "Calling gRPC Tickets client",
+								Opts: []trace.EventOption{
+									trace.WithAttributes(
+										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									),
+								},
+							},
+							End: tracing.SpanEventConfig{
+								Name: "Received response from gRPC Tickets client",
+								Opts: []trace.EventOption{
+									trace.WithAttributes(
+										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -164,12 +286,31 @@ type ValidationConfig struct {
 	FileAllowedExtensions []string
 }
 
+type TracingConfig struct {
+	Server tracing.Config
+	Spans  SpansConfig
+}
+
+type SpansConfig struct {
+	Root    tracing.SpanConfig
+	Clients SpanClients
+}
+
+type SpanClients struct {
+	SSO     tracing.SpanConfig
+	Toys    tracing.SpanConfig
+	Tickets tracing.SpanConfig
+}
+
 type Config struct {
-	HTTP       HTTPConfig
-	CORS       CORSConfig
-	Clients    ClientsConfig
-	Logging    logging.Config
-	Cookies    CookiesConfig
-	S3         S3Config
-	Validation ValidationConfig
+	HTTP        HTTPConfig
+	CORS        CORSConfig
+	Clients     ClientsConfig
+	Logging     logging.Config
+	Cookies     CookiesConfig
+	S3          S3Config
+	Validation  ValidationConfig
+	Tracing     TracingConfig
+	Environment string
+	Version     string
 }

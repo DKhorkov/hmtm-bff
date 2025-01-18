@@ -373,6 +373,7 @@ issues:
     - path: "internal/config/config.go"
       linters:
         - funlen
+        - nosprintfhostport
     - path: "internal/repositories/sso_repository.go"
       linters:
         - protogetter # to be able using optional fields like *string

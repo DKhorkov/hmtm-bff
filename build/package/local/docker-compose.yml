@@ -1,4 +1,13 @@
 version: '3'
 
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "${TRACING_OUTER_API_TRACES_PORT}:${TRACING_INNER_API_TRACES_PORT}"
+      - "${TRACING_OUTER_WEB_PORT}:${TRACING_INNER_WEB_PORT}"
+    networks:
+      - hmtm_network
+
 networks:
   hmtm_network:

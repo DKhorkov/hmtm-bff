@@ -57,3 +57,8 @@ To run benchmarks, use next command:
 ```shell
 task -d scripts bench -v
 ```
+
+## Tracing
+
+To see tracing open
+next [link](http://localhost:16686) in browser.
