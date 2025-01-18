@@ -7,15 +7,15 @@ import (
 	"log/slog"
 	"net/http"
 
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
-
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/config"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
+	"github.com/DKhorkov/libs/tracing"
 	"github.com/rs/cors"
 )
 
@@ -25,6 +25,8 @@ func New(
 	cookiesConfig config.CookiesConfig,
 	useCases interfaces.UseCases,
 	logger *slog.Logger,
+	traceProvider tracing.TraceProvider,
+	tracingConfig config.TracingConfig,
 ) *Controller {
 	graphqlServer := graphqlhandler.NewDefaultServer(
 		graphqlapi.NewExecutableSchema(
@@ -51,6 +53,9 @@ func New(
 			AllowCredentials: corsConfig.AllowCredentials,
 		},
 	).Handler(mux)
+
+	// Configures tracing:
+	httpHandler = middlewares.TracingMiddleware(httpHandler, traceProvider, tracingConfig.Spans.Root)
 
 	// Read cookies for auth purposes:
 	httpHandler = middlewares.CookiesMiddleware(httpHandler, []string{"accessToken", "refreshToken"})

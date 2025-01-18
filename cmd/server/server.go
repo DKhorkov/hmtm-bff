@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
+
+	"github.com/DKhorkov/libs/tracing"
 
 	"github.com/DKhorkov/hmtm-bff/internal/app"
 	ssogrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/sso/grpc"
@@ -25,12 +28,25 @@ func main() {
 	// App configs info for frontend purposes:
 	logging.LogInfo(logger, fmt.Sprintf("Application settings: %+v", settings))
 
+	traceProvider, err := tracing.New(settings.Tracing.Server)
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err = traceProvider.Shutdown(context.Background()); err != nil {
+			logging.LogError(logger, "Error shutting down traceProvider", err)
+		}
+	}()
+
 	ssoClient, err := ssogrpcclient.New(
 		settings.Clients.SSO.Host,
 		settings.Clients.SSO.Port,
 		settings.Clients.SSO.RetriesCount,
 		settings.Clients.SSO.RetryTimeout,
 		logger,
+		traceProvider,
+		settings.Tracing.Spans.Clients.SSO,
 	)
 
 	if err != nil {
@@ -43,6 +59,8 @@ func main() {
 		settings.Clients.Toys.RetriesCount,
 		settings.Clients.Toys.RetryTimeout,
 		logger,
+		traceProvider,
+		settings.Tracing.Spans.Clients.Toys,
 	)
 
 	if err != nil {
@@ -55,6 +73,8 @@ func main() {
 		settings.Clients.Tickets.RetriesCount,
 		settings.Clients.Tickets.RetryTimeout,
 		logger,
+		traceProvider,
+		settings.Tracing.Spans.Clients.Tickets,
 	)
 
 	if err != nil {
@@ -88,6 +108,8 @@ func main() {
 		settings.Cookies,
 		useCases,
 		logger,
+		traceProvider,
+		settings.Tracing,
 	)
 
 	application := app.New(controller)
