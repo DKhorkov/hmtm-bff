@@ -72,6 +72,32 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.Login
 	return true, nil
 }
 
+// LogoutUser is the resolver for the logoutUser field.
+func (r *mutationResolver) LogoutUser(ctx context.Context) (bool, error) {
+	logging.LogRequest(ctx, r.logger, nil)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	err = r.useCases.LogoutUser(ctx, accessToken.Value)
+	if err != nil {
+		return false, err
+	}
+
+	writer, err := contextlib.GetValue[http.ResponseWriter](ctx, middlewares.CookiesWriterName)
+	if err != nil {
+		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
+		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
+	}
+
+	// Deleting cookies:
+	cookies.Set(writer, accessTokenCookieName, "", cookies.Config{MaxAge: -1})
+	cookies.Set(writer, refreshTokenCookieName, "", cookies.Config{MaxAge: -1})
+	return true, nil
+}
+
 // RefreshTokens is the resolver for the refreshTokens field.
 func (r *mutationResolver) RefreshTokens(ctx context.Context, input any) (bool, error) {
 	logging.LogRequest(ctx, r.logger, input)

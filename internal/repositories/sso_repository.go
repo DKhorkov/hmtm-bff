@@ -90,6 +90,17 @@ func (repo *GrpcSsoRepository) LoginUser(
 	}, nil
 }
 
+func (repo *GrpcSsoRepository) LogoutUser(ctx context.Context, accessToken string) error {
+	_, err := repo.client.Logout(
+		ctx,
+		&sso.LogoutIn{
+			AccessToken: accessToken,
+		},
+	)
+
+	return err
+}
+
 func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	response, err := repo.client.GetMe(
 		ctx,
