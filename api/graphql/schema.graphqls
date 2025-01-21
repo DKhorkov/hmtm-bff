@@ -160,6 +160,7 @@ type Mutation {
     # SSO mutations:
     registerUser(input: RegisterUserInput!): ID!
     loginUser(input: LoginUserInput!): Boolean!
+    logoutUser: Boolean!
     refreshTokens(input: Any): Boolean!
 
     # Toys mutations:

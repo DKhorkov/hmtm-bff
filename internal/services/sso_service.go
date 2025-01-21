@@ -72,6 +72,20 @@ func (service *CommonSsoService) LoginUser(
 	return tokens, err
 }
 
+func (service *CommonSsoService) LogoutUser(ctx context.Context, accessToken string) error {
+	err := service.ssoRepository.LogoutUser(ctx, accessToken)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to logout User with AccessToken=%s", accessToken),
+			err,
+		)
+	}
+
+	return err
+}
+
 func (service *CommonSsoService) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	user, err := service.ssoRepository.GetMe(ctx, accessToken)
 	if err != nil {
