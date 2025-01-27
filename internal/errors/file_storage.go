@@ -16,6 +16,10 @@ func (e UploadFileError) Error() string {
 	return fmt.Sprintf(template, e.Message)
 }
 
+func (e UploadFileError) Unwrap() error {
+	return e.BaseErr
+}
+
 type InvalidFileExtensionError struct {
 	Message string
 	BaseErr error
@@ -30,6 +34,10 @@ func (e InvalidFileExtensionError) Error() string {
 	return fmt.Sprintf(template, e.Message)
 }
 
+func (e InvalidFileExtensionError) Unwrap() error {
+	return e.BaseErr
+}
+
 type InvalidFileSizeError struct {
 	Message string
 	BaseErr error
@@ -42,4 +50,8 @@ func (e InvalidFileSizeError) Error() string {
 	}
 
 	return fmt.Sprintf(template, e.Message)
+}
+
+func (e InvalidFileSizeError) Unwrap() error {
+	return e.BaseErr
 }

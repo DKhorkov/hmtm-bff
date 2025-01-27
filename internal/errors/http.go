@@ -19,3 +19,7 @@ func (e HTTPHandlerTimeoutError) Error() string {
 
 	return template
 }
+
+func (e HTTPHandlerTimeoutError) Unwrap() error {
+	return e.BaseErr
+}
