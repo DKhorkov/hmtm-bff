@@ -19,3 +19,7 @@ func (e PermissionDeniedError) Error() string {
 
 	return template
 }
+
+func (e PermissionDeniedError) Unwrap() error {
+	return e.BaseErr
+}

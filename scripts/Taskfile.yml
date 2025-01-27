@@ -100,7 +100,7 @@ tasks:
     cmd: go run github.com/99designs/gqlgen generate
 
   tests:
-    desc: "Run tests and save coverage to ./tests/coverage folder."
+    desc: "Run tests and save coverage to coverage folder."
     aliases:
       - test
     dir: ../
