@@ -56,10 +56,18 @@ func New() Config {
 					loadenv.GetEnvAsInt("TICKETS_RETRIES_TIMEOUT", 1),
 				),
 			},
+			Notifications: ClientConfig{
+				Host:         loadenv.GetEnv("NOTIFICATIONS_CLIENT_HOST", "0.0.0.0"),
+				Port:         loadenv.GetEnvAsInt("NOTIFICATIONS_CLIENT_HOST_CLIENT_PORT", 8040),
+				RetriesCount: loadenv.GetEnvAsInt("NOTIFICATIONS_CLIENT_HOST_RETRIES_COUNT", 3),
+				RetryTimeout: time.Second * time.Duration(
+					loadenv.GetEnvAsInt("NOTIFICATIONS_CLIENT_HOST_RETRIES_TIMEOUT", 1),
+				),
+			},
 		},
 		Logging: logging.Config{
 			Level:       logging.Levels.DEBUG,
-			LogFilePath: fmt.Sprintf("logs/%s.log", time.Now().Format("02-01-2006")),
+			LogFilePath: fmt.Sprintf("logs/%s.log", time.Now().UTC().Format("02-01-2006")),
 		},
 		CORS: CORSConfig{
 			AllowedOrigins:   loadenv.GetEnvAsSlice("CORS_ALLOWED_ORIGINS", []string{"*"}, ", "),
@@ -233,6 +241,31 @@ func New() Config {
 							},
 						},
 					},
+					Notifications: tracing.SpanConfig{
+						Opts: []trace.SpanStartOption{
+							trace.WithAttributes(
+								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+							),
+						},
+						Events: tracing.SpanEventsConfig{
+							Start: tracing.SpanEventConfig{
+								Name: "Calling gRPC Notifications client",
+								Opts: []trace.EventOption{
+									trace.WithAttributes(
+										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									),
+								},
+							},
+							End: tracing.SpanEventConfig{
+								Name: "Received response from gRPC Notifications client",
+								Opts: []trace.EventOption{
+									trace.WithAttributes(
+										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									),
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -263,9 +296,10 @@ type ClientConfig struct {
 }
 
 type ClientsConfig struct {
-	SSO     ClientConfig
-	Toys    ClientConfig
-	Tickets ClientConfig
+	SSO           ClientConfig
+	Toys          ClientConfig
+	Tickets       ClientConfig
+	Notifications ClientConfig
 }
 
 type CookiesConfig struct {
@@ -297,9 +331,10 @@ type SpansConfig struct {
 }
 
 type SpanClients struct {
-	SSO     tracing.SpanConfig
-	Toys    tracing.SpanConfig
-	Tickets tracing.SpanConfig
+	SSO           tracing.SpanConfig
+	Toys          tracing.SpanConfig
+	Tickets       tracing.SpanConfig
+	Notifications tracing.SpanConfig
 }
 
 type Config struct {

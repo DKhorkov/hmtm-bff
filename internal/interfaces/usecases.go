@@ -40,4 +40,7 @@ type UseCases interface {
 	GetRespondByID(ctx context.Context, id uint64, accessToken string) (*entities.Respond, error)
 	GetTicketResponds(ctx context.Context, ticketID uint64, accessToken string) ([]entities.Respond, error)
 	GetMyResponds(ctx context.Context, accessToken string) ([]entities.Respond, error)
+
+	// Notifications cases:
+	GetMyEmailCommunications(ctx context.Context, accessToken string) ([]entities.Email, error)
 }

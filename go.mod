@@ -4,10 +4,11 @@ go 1.23.4
 
 require (
 	github.com/99designs/gqlgen v0.17.55
+	github.com/DKhorkov/hmtm-notifications v1.0.0
 	github.com/DKhorkov/hmtm-sso v1.1.3
 	github.com/DKhorkov/hmtm-tickets v0.0.3
 	github.com/DKhorkov/hmtm-toys v0.1.0
-	github.com/DKhorkov/libs v1.2.10
+	github.com/DKhorkov/libs v1.2.12
 	github.com/aws/aws-sdk-go-v2 v1.32.6
 	github.com/aws/aws-sdk-go-v2/config v1.28.6
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.47

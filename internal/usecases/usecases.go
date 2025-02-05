@@ -24,26 +24,29 @@ func NewCommonUseCases(
 	toysService interfaces.ToysService,
 	fileStorageService interfaces.FileStorageService,
 	ticketsService interfaces.TicketsService,
+	notificationsService interfaces.NotificationsService,
 	validationConfig config.ValidationConfig,
 	logger *slog.Logger,
 ) *CommonUseCases {
 	return &CommonUseCases{
-		ssoService:         ssoService,
-		toysService:        toysService,
-		fileStorageService: fileStorageService,
-		ticketsService:     ticketsService,
-		validationConfig:   validationConfig,
-		logger:             logger,
+		ssoService:           ssoService,
+		toysService:          toysService,
+		fileStorageService:   fileStorageService,
+		ticketsService:       ticketsService,
+		notificationsService: notificationsService,
+		validationConfig:     validationConfig,
+		logger:               logger,
 	}
 }
 
 type CommonUseCases struct {
-	ssoService         interfaces.SsoService
-	toysService        interfaces.ToysService
-	fileStorageService interfaces.FileStorageService
-	ticketsService     interfaces.TicketsService
-	validationConfig   config.ValidationConfig
-	logger             *slog.Logger
+	ssoService           interfaces.SsoService
+	toysService          interfaces.ToysService
+	fileStorageService   interfaces.FileStorageService
+	ticketsService       interfaces.TicketsService
+	notificationsService interfaces.NotificationsService
+	validationConfig     config.ValidationConfig
+	logger               *slog.Logger
 }
 
 func (useCases *CommonUseCases) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
@@ -420,4 +423,16 @@ func (useCases *CommonUseCases) GetMyResponds(
 	}
 
 	return useCases.ticketsService.GetUserResponds(ctx, user.ID)
+}
+
+func (useCases *CommonUseCases) GetMyEmailCommunications(
+	ctx context.Context,
+	accessToken string,
+) ([]entities.Email, error) {
+	user, err := useCases.GetMe(ctx, accessToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return useCases.notificationsService.GetUserEmailCommunications(ctx, user.ID)
 }

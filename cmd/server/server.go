@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/DKhorkov/libs/tracing"
-
 	"github.com/DKhorkov/hmtm-bff/internal/app"
+	notificationsgrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/notifications/grpc"
 	ssogrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/sso/grpc"
 	ticketsgrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/tickets/grpc"
 	toysgrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/toys/grpc"
@@ -16,6 +15,7 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/services"
 	"github.com/DKhorkov/hmtm-bff/internal/usecases"
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
 )
 
 func main() {
@@ -81,6 +81,20 @@ func main() {
 		panic(err)
 	}
 
+	notificationsClient, err := notificationsgrpcclient.New(
+		settings.Clients.Notifications.Host,
+		settings.Clients.Notifications.Port,
+		settings.Clients.Notifications.RetriesCount,
+		settings.Clients.Notifications.RetryTimeout,
+		logger,
+		traceProvider,
+		settings.Tracing.Spans.Clients.Notifications,
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
 	ssoRepository := repositories.NewGrpcSsoRepository(ssoClient)
 	ssoService := services.NewCommonSsoService(ssoRepository, logger)
 
@@ -93,11 +107,15 @@ func main() {
 	ticketsRepository := repositories.NewGrpcTicketsRepository(ticketsClient)
 	ticketsService := services.NewCommonTicketsService(ticketsRepository, logger)
 
+	notificationsRepository := repositories.NewGrpcNotificationsRepository(notificationsClient)
+	notificationsService := services.NewCommonNotificationsService(notificationsRepository, logger)
+
 	useCases := usecases.NewCommonUseCases(
 		ssoService,
 		toysService,
 		fileStorageService,
 		ticketsService,
+		notificationsService,
 		settings.Validation,
 		logger,
 	)
