@@ -362,6 +362,9 @@ issues:
     - path: "internal/clients/tickets/grpc/client.go"
       linters:
         - gosec
+    - path: "internal/clients/notifications/grpc/client.go"
+      linters:
+        - gosec
     - path: "mocks/repositories/sso_repository.go"
       linters:
         - revive
@@ -380,3 +383,6 @@ issues:
     - path: "internal/usecases/validators_test.go"
       linters:
         - testpackage
+    - path: "cmd/server/server.go"
+      linters:
+        - funlen

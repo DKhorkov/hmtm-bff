@@ -15,3 +15,7 @@ type FileStorageService interface {
 type TicketsService interface {
 	TicketsRepository
 }
+
+type NotificationsService interface {
+	NotificationsRepository
+}

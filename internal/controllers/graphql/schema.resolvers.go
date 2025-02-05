@@ -19,6 +19,21 @@ import (
 )
 
 // User is the resolver for the user field.
+func (r *emailResolver) User(ctx context.Context, obj *entities.Email) (*entities.User, error) {
+	user, err := r.useCases.GetUserByID(ctx, obj.UserID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			r.logger,
+			fmt.Sprintf("Failed to get User for Email Communication with ID=%d", obj.ID),
+			err,
+		)
+	}
+
+	return user, err
+}
+
+// User is the resolver for the user field.
 func (r *masterResolver) User(ctx context.Context, obj *entities.Master) (*entities.User, error) {
 	user, err := r.useCases.GetUserByID(ctx, obj.UserID)
 	if err != nil {
@@ -582,6 +597,28 @@ func (r *queryResolver) MyResponds(ctx context.Context) ([]*entities.Respond, er
 	return response, nil
 }
 
+// MyEmailCommunications is the resolver for the myEmailCommunications field.
+func (r *queryResolver) MyEmailCommunications(ctx context.Context) ([]*entities.Email, error) {
+	logging.LogRequest(ctx, r.logger, nil)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	emailCommunications, err := r.useCases.GetMyEmailCommunications(ctx, accessToken.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*entities.Email, len(emailCommunications))
+	for i, communication := range emailCommunications {
+		response[i] = &communication
+	}
+
+	return response, nil
+}
+
 // Ticket is the resolver for the ticket field.
 func (r *respondResolver) Ticket(ctx context.Context, obj *entities.Respond) (*entities.Ticket, error) {
 	ticket, err := r.useCases.GetTicketByID(ctx, obj.TicketID)
@@ -692,6 +729,9 @@ func (r *toyResolver) Quantity(ctx context.Context, obj *entities.Toy) (int, err
 	return int(obj.Quantity), nil
 }
 
+// Email returns graphqlapi.EmailResolver implementation.
+func (r *Resolver) Email() graphqlapi.EmailResolver { return &emailResolver{r} }
+
 // Master returns graphqlapi.MasterResolver implementation.
 func (r *Resolver) Master() graphqlapi.MasterResolver { return &masterResolver{r} }
 
@@ -710,6 +750,7 @@ func (r *Resolver) Ticket() graphqlapi.TicketResolver { return &ticketResolver{r
 // Toy returns graphqlapi.ToyResolver implementation.
 func (r *Resolver) Toy() graphqlapi.ToyResolver { return &toyResolver{r} }
 
+type emailResolver struct{ *Resolver }
 type masterResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

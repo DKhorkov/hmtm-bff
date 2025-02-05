@@ -89,6 +89,13 @@ type Respond {
     updatedAt: Time!
 }
 
+type Email {
+    id: ID!
+    user: User!
+    content: String!
+    sentAt: Time!
+}
+
 type Query {
     # SSO queries:
     users: [User!]
@@ -115,6 +122,9 @@ type Query {
     respond(id: ID!): Respond!
     ticketResponds(ticketId: ID!): [Respond!]
     myResponds: [Respond!]
+
+    # Notifications queries:
+    myEmailCommunications: [Email!]
 }
 
 input LoginUserInput {

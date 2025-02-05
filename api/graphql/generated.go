@@ -40,6 +40,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Email() EmailResolver
 	Master() MasterResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
@@ -55,6 +56,13 @@ type ComplexityRoot struct {
 	Category struct {
 		ID   func(childComplexity int) int
 		Name func(childComplexity int) int
+	}
+
+	Email struct {
+		Content func(childComplexity int) int
+		ID      func(childComplexity int) int
+		SentAt  func(childComplexity int) int
+		User    func(childComplexity int) int
 	}
 
 	Master struct {
@@ -77,26 +85,27 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Categories     func(childComplexity int) int
-		Category       func(childComplexity int, id string) int
-		Master         func(childComplexity int, id string) int
-		MasterToys     func(childComplexity int, masterID string) int
-		Masters        func(childComplexity int) int
-		Me             func(childComplexity int) int
-		MyResponds     func(childComplexity int) int
-		MyTickets      func(childComplexity int) int
-		MyToys         func(childComplexity int) int
-		Respond        func(childComplexity int, id string) int
-		Tag            func(childComplexity int, id string) int
-		Tags           func(childComplexity int) int
-		Ticket         func(childComplexity int, id string) int
-		TicketResponds func(childComplexity int, ticketID string) int
-		Tickets        func(childComplexity int) int
-		Toy            func(childComplexity int, id string) int
-		Toys           func(childComplexity int) int
-		User           func(childComplexity int, id string) int
-		UserTickets    func(childComplexity int, userID string) int
-		Users          func(childComplexity int) int
+		Categories            func(childComplexity int) int
+		Category              func(childComplexity int, id string) int
+		Master                func(childComplexity int, id string) int
+		MasterToys            func(childComplexity int, masterID string) int
+		Masters               func(childComplexity int) int
+		Me                    func(childComplexity int) int
+		MyEmailCommunications func(childComplexity int) int
+		MyResponds            func(childComplexity int) int
+		MyTickets             func(childComplexity int) int
+		MyToys                func(childComplexity int) int
+		Respond               func(childComplexity int, id string) int
+		Tag                   func(childComplexity int, id string) int
+		Tags                  func(childComplexity int) int
+		Ticket                func(childComplexity int, id string) int
+		TicketResponds        func(childComplexity int, ticketID string) int
+		Tickets               func(childComplexity int) int
+		Toy                   func(childComplexity int, id string) int
+		Toys                  func(childComplexity int) int
+		User                  func(childComplexity int, id string) int
+		UserTickets           func(childComplexity int, userID string) int
+		Users                 func(childComplexity int) int
 	}
 
 	Respond struct {
@@ -171,6 +180,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type EmailResolver interface {
+	User(ctx context.Context, obj *entities.Email) (*entities.User, error)
+}
 type MasterResolver interface {
 	User(ctx context.Context, obj *entities.Master) (*entities.User, error)
 }
@@ -205,6 +217,7 @@ type QueryResolver interface {
 	Respond(ctx context.Context, id string) (*entities.Respond, error)
 	TicketResponds(ctx context.Context, ticketID string) ([]*entities.Respond, error)
 	MyResponds(ctx context.Context) ([]*entities.Respond, error)
+	MyEmailCommunications(ctx context.Context) ([]*entities.Email, error)
 }
 type RespondResolver interface {
 	Ticket(ctx context.Context, obj *entities.Respond) (*entities.Ticket, error)
@@ -257,6 +270,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.Name(childComplexity), true
+
+	case "Email.content":
+		if e.complexity.Email.Content == nil {
+			break
+		}
+
+		return e.complexity.Email.Content(childComplexity), true
+
+	case "Email.id":
+		if e.complexity.Email.ID == nil {
+			break
+		}
+
+		return e.complexity.Email.ID(childComplexity), true
+
+	case "Email.sentAt":
+		if e.complexity.Email.SentAt == nil {
+			break
+		}
+
+		return e.complexity.Email.SentAt(childComplexity), true
+
+	case "Email.user":
+		if e.complexity.Email.User == nil {
+			break
+		}
+
+		return e.complexity.Email.User(childComplexity), true
 
 	case "Master.createdAt":
 		if e.complexity.Master.CreatedAt == nil {
@@ -440,6 +481,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Me(childComplexity), true
+
+	case "Query.myEmailCommunications":
+		if e.complexity.Query.MyEmailCommunications == nil {
+			break
+		}
+
+		return e.complexity.Query.MyEmailCommunications(childComplexity), true
 
 	case "Query.myResponds":
 		if e.complexity.Query.MyResponds == nil {
@@ -1785,6 +1833,206 @@ func (ec *executionContext) fieldContext_Category_name(_ context.Context, field 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Email_id(ctx context.Context, field graphql.CollectedField, obj *entities.Email) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Email_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNID2uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Email_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Email",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Email_user(ctx context.Context, field graphql.CollectedField, obj *entities.Email) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Email_user(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Email().User(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Email_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Email",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "displayName":
+				return ec.fieldContext_User_displayName(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "emailConfirmed":
+				return ec.fieldContext_User_emailConfirmed(ctx, field)
+			case "phone":
+				return ec.fieldContext_User_phone(ctx, field)
+			case "phoneConfirmed":
+				return ec.fieldContext_User_phoneConfirmed(ctx, field)
+			case "telegram":
+				return ec.fieldContext_User_telegram(ctx, field)
+			case "telegramConfirmed":
+				return ec.fieldContext_User_telegramConfirmed(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Email_content(ctx context.Context, field graphql.CollectedField, obj *entities.Email) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Email_content(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Content, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Email_content(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Email",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Email_sentAt(ctx context.Context, field graphql.CollectedField, obj *entities.Email) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Email_sentAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SentAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Email_sentAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Email",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3766,6 +4014,57 @@ func (ec *executionContext) fieldContext_Query_myResponds(_ context.Context, fie
 				return ec.fieldContext_Respond_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Respond", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_myEmailCommunications(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_myEmailCommunications(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().MyEmailCommunications(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*entities.Email)
+	fc.Result = res
+	return ec.marshalOEmail2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐEmailᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_myEmailCommunications(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Email_id(ctx, field)
+			case "user":
+				return ec.fieldContext_Email_user(ctx, field)
+			case "content":
+				return ec.fieldContext_Email_content(ctx, field)
+			case "sentAt":
+				return ec.fieldContext_Email_sentAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Email", field.Name)
 		},
 	}
 	return fc, nil
@@ -8291,6 +8590,91 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var emailImplementors = []string{"Email"}
+
+func (ec *executionContext) _Email(ctx context.Context, sel ast.SelectionSet, obj *entities.Email) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, emailImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Email")
+		case "id":
+			out.Values[i] = ec._Email_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "user":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Email_user(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "content":
+			out.Values[i] = ec._Email_content(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "sentAt":
+			out.Values[i] = ec._Email_sentAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var masterImplementors = []string{"Master"}
 
 func (ec *executionContext) _Master(ctx context.Context, sel ast.SelectionSet, obj *entities.Master) graphql.Marshaler {
@@ -8893,6 +9277,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_myResponds(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "myEmailCommunications":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_myEmailCommunications(ctx, field)
 				return res
 			}
 
@@ -10075,6 +10478,16 @@ func (ec *executionContext) unmarshalNCreateTicketInput2githubᚗcomᚋDKhorkov�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNEmail2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐEmail(ctx context.Context, sel ast.SelectionSet, v *entities.Email) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Email(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
 	res, err := graphql.UnmarshalFloatContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -10636,6 +11049,53 @@ func (ec *executionContext) marshalOCategory2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmt
 				defer wg.Done()
 			}
 			ret[i] = ec.marshalNCategory2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐCategory(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalOEmail2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐEmailᚄ(ctx context.Context, sel ast.SelectionSet, v []*entities.Email) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNEmail2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐEmail(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

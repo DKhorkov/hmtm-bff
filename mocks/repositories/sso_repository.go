@@ -21,8 +21,8 @@ func (repo *MockedSsoRepository) RegisterUser(userData entities.RegisterUserDTO)
 	var user entities.User
 	user.Email = userData.Email
 	user.ID = uint64(len(repo.UsersStorage) + 1)
-	user.CreatedAt = time.Now()
-	user.UpdatedAt = time.Now()
+	user.CreatedAt = time.Now().UTC()
+	user.UpdatedAt = time.Now().UTC()
 
 	repo.UsersStorage[user.ID] = &user
 	return user.ID, nil

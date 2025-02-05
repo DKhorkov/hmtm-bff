@@ -45,3 +45,7 @@ type TicketsRepository interface {
 	GetTicketResponds(ctx context.Context, ticketID uint64) ([]entities.Respond, error)
 	GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error)
 }
+
+type NotificationsRepository interface {
+	GetUserEmailCommunications(ctx context.Context, userID uint64) ([]entities.Email, error)
+}
