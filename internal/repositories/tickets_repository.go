@@ -5,9 +5,10 @@ import (
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
+	"github.com/DKhorkov/hmtm-tickets/api/protobuf/generated/go/tickets"
+
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-	"github.com/DKhorkov/hmtm-tickets/api/protobuf/generated/go/tickets"
 )
 
 func NewGrpcTicketsRepository(client interfaces.TicketsGrpcClient) *GrpcTicketsRepository {

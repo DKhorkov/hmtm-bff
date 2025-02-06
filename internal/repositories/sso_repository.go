@@ -5,9 +5,10 @@ import (
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
+	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
+
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
 )
 
 func NewGrpcSsoRepository(client interfaces.SsoGrpcClient) *GrpcSsoRepository {

@@ -5,9 +5,10 @@ import (
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
+	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
+
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 )
 
 func NewGrpcToysRepository(client interfaces.ToysGrpcClient) *GrpcToysRepository {

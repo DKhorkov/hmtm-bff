@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/DKhorkov/libs/logging"
+
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-	"github.com/DKhorkov/libs/logging"
 )
 
 func NewCommonTicketsService(

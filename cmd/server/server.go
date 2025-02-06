@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
+
 	"github.com/DKhorkov/hmtm-bff/internal/app"
 	notificationsgrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/notifications/grpc"
 	ssogrpcclient "github.com/DKhorkov/hmtm-bff/internal/clients/sso/grpc"
@@ -14,8 +17,6 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/repositories"
 	"github.com/DKhorkov/hmtm-bff/internal/services"
 	"github.com/DKhorkov/hmtm-bff/internal/usecases"
-	"github.com/DKhorkov/libs/logging"
-	"github.com/DKhorkov/libs/tracing"
 )
 
 func main() {
@@ -118,6 +119,7 @@ func main() {
 		notificationsService,
 		settings.Validation,
 		logger,
+		traceProvider,
 	)
 
 	controller := graphqlcontroller.New(

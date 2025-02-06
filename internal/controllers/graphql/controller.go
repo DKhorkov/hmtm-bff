@@ -9,14 +9,16 @@ import (
 
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/rs/cors"
+
+	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/middlewares"
+	"github.com/DKhorkov/libs/tracing"
+
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/config"
 	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-	"github.com/DKhorkov/libs/logging"
-	"github.com/DKhorkov/libs/middlewares"
-	"github.com/DKhorkov/libs/tracing"
-	"github.com/rs/cors"
 )
 
 func New(

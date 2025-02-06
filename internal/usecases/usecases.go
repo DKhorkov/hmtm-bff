@@ -10,13 +10,15 @@ import (
 	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/DKhorkov/hmtm-bff/internal/config"
-	"github.com/DKhorkov/libs/logging"
 
+	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/security"
+	"github.com/DKhorkov/libs/tracing"
+
+	"github.com/DKhorkov/hmtm-bff/internal/config"
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
-	"github.com/DKhorkov/libs/security"
 )
 
 func NewCommonUseCases(
@@ -27,6 +29,7 @@ func NewCommonUseCases(
 	notificationsService interfaces.NotificationsService,
 	validationConfig config.ValidationConfig,
 	logger *slog.Logger,
+	traceProvider tracing.TraceProvider,
 ) *CommonUseCases {
 	return &CommonUseCases{
 		ssoService:           ssoService,
@@ -36,6 +39,7 @@ func NewCommonUseCases(
 		notificationsService: notificationsService,
 		validationConfig:     validationConfig,
 		logger:               logger,
+		traceProvider:        traceProvider,
 	}
 }
 
@@ -47,6 +51,7 @@ type CommonUseCases struct {
 	notificationsService interfaces.NotificationsService
 	validationConfig     config.ValidationConfig
 	logger               *slog.Logger
+	traceProvider        tracing.TraceProvider
 }
 
 func (useCases *CommonUseCases) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
@@ -205,12 +210,23 @@ func (useCases *CommonUseCases) UploadFiles(ctx context.Context, files []*graphq
 		concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %s\n", i+1, err.Error()))
 	}
 
-	if len(uploadedFiles) == 0 && len(uploadingErrors) > 0 {
-		return nil, &customerrors.UploadFileError{Message: concatenatedErrBuilder.String()}
+	if len(uploadingErrors) > 0 {
+		// Logging errors for further investigate:
+		logging.LogErrorContext(
+			ctx,
+			useCases.logger,
+			concatenatedErrBuilder.String(),
+			&customerrors.UploadFileError{Message: concatenatedErrBuilder.String()},
+		)
 	}
 
-	// Logging errors for further investigate:
-	logging.LogErrorContext(ctx, useCases.logger, concatenatedErrBuilder.String(), &customerrors.UploadFileError{})
+	if len(uploadedFiles) == 0 && len(uploadingErrors) > 0 {
+		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+		defer span.End()
+
+		span.SetStatus(tracing.StatusError, concatenatedErrBuilder.String())
+		return nil, &customerrors.UploadFileError{Message: concatenatedErrBuilder.String()}
+	}
 
 	// Return no err and any amount of uploaded files, if exists:
 	return uploadedFiles, nil
@@ -371,13 +387,20 @@ func (useCases *CommonUseCases) GetRespondByID(
 
 	// Check if Respond belongs to Ticket owner or to Master, which responded to Ticket.
 	if ticket.UserID != user.ID && master.UserID != user.ID {
+		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+		defer span.End()
+
+		errorMessage := fmt.Sprintf(
+			"User with ID=%d is not rather owner of Respond with ID=%d, or owner of Ticket with ID=%d",
+			user.ID,
+			id,
+			ticket.ID,
+		)
+
+		span.SetStatus(tracing.StatusError, errorMessage)
+
 		return nil, &customerrors.PermissionDeniedError{
-			Message: fmt.Sprintf(
-				"User with ID=%d is not rather owner of Respond with ID=%d, or owner of Ticket with ID=%d",
-				user.ID,
-				id,
-				ticket.ID,
-			),
+			Message: errorMessage,
 		}
 	}
 
@@ -401,12 +424,19 @@ func (useCases *CommonUseCases) GetTicketResponds(
 
 	// Check if Ticket belongs to current User.
 	if ticket.UserID != user.ID {
+		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+		defer span.End()
+
+		errorMessage := fmt.Sprintf(
+			"Ticket with ID=%d does not belong to current User with ID=%d",
+			ticketID,
+			user.ID,
+		)
+
+		span.SetStatus(tracing.StatusError, errorMessage)
+
 		return nil, &customerrors.PermissionDeniedError{
-			Message: fmt.Sprintf(
-				"Ticket with ID=%d does not belong to current User with ID=%d",
-				ticketID,
-				user.ID,
-			),
+			Message: errorMessage,
 		}
 	}
 

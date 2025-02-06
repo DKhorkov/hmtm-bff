@@ -10,12 +10,13 @@ import (
 	"net/http"
 	"strconv"
 
-	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
+
+	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
 )
 
 // User is the resolver for the user field.
