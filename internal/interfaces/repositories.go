@@ -14,6 +14,7 @@ type SsoRepository interface {
 	LogoutUser(ctx context.Context, accessToken string) error
 	GetMe(ctx context.Context, accessToken string) (*entities.User, error)
 	RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error)
+	VerifyUserEmail(ctx context.Context, verifyEmailToken string) error
 }
 
 type ToysRepository interface {
