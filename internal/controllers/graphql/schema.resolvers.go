@@ -10,13 +10,12 @@ import (
 	"net/http"
 	"strconv"
 
+	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
-
-	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
 )
 
 // User is the resolver for the user field.
@@ -49,7 +48,7 @@ func (r *masterResolver) User(ctx context.Context, obj *entities.Master) (*entit
 	return user, err
 }
 
-// RegisterUser is the resolver for the registerUser field.
+// RegisterUser is the resolver for the register field.
 func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.RegisterUserInput) (string, error) {
 	logging.LogRequest(ctx, r.logger, input)
 
@@ -63,7 +62,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.Re
 	return strconv.FormatUint(userID, 10), err
 }
 
-// LoginUser is the resolver for the loginUser field.
+// LoginUser is the resolver for the login field.
 func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.LoginUserInput) (bool, error) {
 	logging.LogRequest(ctx, r.logger, input)
 
@@ -88,7 +87,7 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.Login
 	return true, nil
 }
 
-// LogoutUser is the resolver for the logoutUser field.
+// LogoutUser is the resolver for the logout field.
 func (r *mutationResolver) LogoutUser(ctx context.Context) (bool, error) {
 	logging.LogRequest(ctx, r.logger, nil)
 
@@ -115,8 +114,8 @@ func (r *mutationResolver) LogoutUser(ctx context.Context) (bool, error) {
 }
 
 // RefreshTokens is the resolver for the refreshTokens field.
-func (r *mutationResolver) RefreshTokens(ctx context.Context, input any) (bool, error) {
-	logging.LogRequest(ctx, r.logger, input)
+func (r *mutationResolver) RefreshTokens(ctx context.Context) (bool, error) {
+	logging.LogRequest(ctx, r.logger, nil)
 
 	refreshToken, err := contextlib.GetValue[*http.Cookie](ctx, refreshTokenCookieName)
 	if err != nil {
@@ -136,6 +135,17 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context, input any) (bool, 
 
 	cookies.Set(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
 	cookies.Set(writer, refreshTokenCookieName, tokens.RefreshToken, r.cookiesConfig.RefreshToken)
+	return true, nil
+}
+
+// VerifyUserEmail is the resolver for the verifyEmail field.
+func (r *mutationResolver) VerifyUserEmail(ctx context.Context, input graphqlapi.VerifyUserEmailInput) (bool, error) {
+	logging.LogRequest(ctx, r.logger, input)
+
+	if err := r.useCases.VerifyUserEmail(ctx, input.VerifyEmailToken); err != nil {
+		return false, err
+	}
+
 	return true, nil
 }
 

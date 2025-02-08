@@ -86,6 +86,23 @@ func (service *CommonSsoService) LogoutUser(ctx context.Context, accessToken str
 	return err
 }
 
+func (service *CommonSsoService) VerifyUserEmail(ctx context.Context, verifyEmailToken string) error {
+	err := service.ssoRepository.VerifyUserEmail(ctx, verifyEmailToken)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf(
+				"Error occurred while trying to verify email for User with verify email token=%s",
+				verifyEmailToken,
+			),
+			err,
+		)
+	}
+
+	return err
+}
+
 func (service *CommonSsoService) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	user, err := service.ssoRepository.GetMe(ctx, accessToken)
 	if err != nil {

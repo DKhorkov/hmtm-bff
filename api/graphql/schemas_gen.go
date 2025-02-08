@@ -50,3 +50,7 @@ type RegisterUserInput struct {
 type RespondToTicketInput struct {
 	TicketID string `json:"ticketId"`
 }
+
+type VerifyUserEmailInput struct {
+	VerifyEmailToken string `json:"verifyEmailToken"`
+}

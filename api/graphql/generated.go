@@ -78,10 +78,11 @@ type ComplexityRoot struct {
 		CreateTicket    func(childComplexity int, input CreateTicketInput) int
 		LoginUser       func(childComplexity int, input LoginUserInput) int
 		LogoutUser      func(childComplexity int) int
-		RefreshTokens   func(childComplexity int, input any) int
+		RefreshTokens   func(childComplexity int) int
 		RegisterMaster  func(childComplexity int, input RegisterMasterInput) int
 		RegisterUser    func(childComplexity int, input RegisterUserInput) int
 		RespondToTicket func(childComplexity int, input RespondToTicketInput) int
+		VerifyUserEmail func(childComplexity int, input VerifyUserEmailInput) int
 	}
 
 	Query struct {
@@ -190,7 +191,8 @@ type MutationResolver interface {
 	RegisterUser(ctx context.Context, input RegisterUserInput) (string, error)
 	LoginUser(ctx context.Context, input LoginUserInput) (bool, error)
 	LogoutUser(ctx context.Context) (bool, error)
-	RefreshTokens(ctx context.Context, input any) (bool, error)
+	RefreshTokens(ctx context.Context) (bool, error)
+	VerifyUserEmail(ctx context.Context, input VerifyUserEmailInput) (bool, error)
 	RegisterMaster(ctx context.Context, input RegisterMasterInput) (string, error)
 	AddToy(ctx context.Context, input AddToyInput) (string, error)
 	CreateTicket(ctx context.Context, input CreateTicketInput) (string, error)
@@ -382,12 +384,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_refreshTokens_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.RefreshTokens(childComplexity, args["input"].(any)), true
+		return e.complexity.Mutation.RefreshTokens(childComplexity), true
 
 	case "Mutation.registerMaster":
 		if e.complexity.Mutation.RegisterMaster == nil {
@@ -424,6 +421,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RespondToTicket(childComplexity, args["input"].(RespondToTicketInput)), true
+
+	case "Mutation.verifyUserEmail":
+		if e.complexity.Mutation.VerifyUserEmail == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_verifyUserEmail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.VerifyUserEmail(childComplexity, args["input"].(VerifyUserEmailInput)), true
 
 	case "Query.categories":
 		if e.complexity.Query.Categories == nil {
@@ -986,6 +995,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRegisterMasterInput,
 		ec.unmarshalInputRegisterUserInput,
 		ec.unmarshalInputRespondToTicketInput,
+		ec.unmarshalInputVerifyUserEmailInput,
 	)
 	first := true
 
@@ -1198,38 +1208,6 @@ func (ec *executionContext) field_Mutation_loginUser_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_refreshTokens_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_refreshTokens_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_refreshTokens_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (any, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
-		var zeroVal any
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalOAny2interface(ctx, tmp)
-	}
-
-	var zeroVal any
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_registerMaster_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1323,6 +1301,38 @@ func (ec *executionContext) field_Mutation_respondToTicket_argsInput(
 	}
 
 	var zeroVal RespondToTicketInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_verifyUserEmail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_verifyUserEmail_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_verifyUserEmail_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (VerifyUserEmailInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal VerifyUserEmailInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNVerifyUserEmailInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐVerifyUserEmailInput(ctx, tmp)
+	}
+
+	var zeroVal VerifyUserEmailInput
 	return zeroVal, nil
 }
 
@@ -2450,13 +2460,7 @@ func (ec *executionContext) _Mutation_refreshTokens(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RefreshTokens(rctx,
-			func() interface{} {
-				if fc.Args["input"] == nil {
-					return nil
-				}
-				return fc.Args["input"].(interface{})
-			}())
+		return ec.resolvers.Mutation().RefreshTokens(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2473,7 +2477,51 @@ func (ec *executionContext) _Mutation_refreshTokens(ctx context.Context, field g
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_refreshTokens(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_refreshTokens(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_verifyUserEmail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_verifyUserEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().VerifyUserEmail(rctx, fc.Args["input"].(VerifyUserEmailInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_verifyUserEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2490,7 +2538,7 @@ func (ec *executionContext) fieldContext_Mutation_refreshTokens(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_refreshTokens_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_verifyUserEmail_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -8538,6 +8586,33 @@ func (ec *executionContext) unmarshalInputRespondToTicketInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputVerifyUserEmailInput(ctx context.Context, obj interface{}) (VerifyUserEmailInput, error) {
+	var it VerifyUserEmailInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"verifyEmailToken"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "verifyEmailToken":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("verifyEmailToken"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VerifyEmailToken = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -8808,6 +8883,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "refreshTokens":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_refreshTokens(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "verifyUserEmail":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_verifyUserEmail(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -10726,6 +10808,11 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbff
 	return ec._User(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNVerifyUserEmailInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐVerifyUserEmailInput(ctx context.Context, v interface{}) (VerifyUserEmailInput, error) {
+	res, err := ec.unmarshalInputVerifyUserEmailInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
@@ -10976,22 +11063,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
-	return res
-}
-
-func (ec *executionContext) unmarshalOAny2interface(ctx context.Context, v interface{}) (any, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalAny(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOAny2interface(ctx context.Context, sel ast.SelectionSet, v any) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalAny(v)
 	return res
 }
 

@@ -102,6 +102,17 @@ func (repo *GrpcSsoRepository) LogoutUser(ctx context.Context, accessToken strin
 	return err
 }
 
+func (repo *GrpcSsoRepository) VerifyUserEmail(ctx context.Context, verifyEmailToken string) error {
+	_, err := repo.client.VerifyEmail(
+		ctx,
+		&sso.VerifyEmailIn{
+			VerifyEmailToken: verifyEmailToken,
+		},
+	)
+
+	return err
+}
+
 func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	response, err := repo.client.GetMe(
 		ctx,

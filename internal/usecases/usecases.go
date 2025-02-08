@@ -69,6 +69,10 @@ func (useCases *CommonUseCases) LogoutUser(ctx context.Context, accessToken stri
 	return useCases.ssoService.LogoutUser(ctx, accessToken)
 }
 
+func (useCases *CommonUseCases) VerifyUserEmail(ctx context.Context, verifyEmailToken string) error {
+	return useCases.ssoService.VerifyUserEmail(ctx, verifyEmailToken)
+}
+
 func (useCases *CommonUseCases) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	return useCases.ssoService.GetMe(ctx, accessToken)
 }

@@ -166,12 +166,18 @@ input RespondToTicketInput {
     ticketId: ID!
 }
 
+input VerifyUserEmailInput {
+    verifyEmailToken: String!
+}
+
+
 type Mutation {
     # SSO mutations:
     registerUser(input: RegisterUserInput!): ID!
     loginUser(input: LoginUserInput!): Boolean!
     logoutUser: Boolean!
-    refreshTokens(input: Any): Boolean!
+    refreshTokens: Boolean!
+    verifyUserEmail(input: VerifyUserEmailInput!): Boolean!
 
     # Toys mutations:
     registerMaster(input: RegisterMasterInput!): ID!
