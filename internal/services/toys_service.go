@@ -163,3 +163,12 @@ func (service *CommonToysService) GetTagByID(ctx context.Context, id uint32) (*e
 
 	return tag, err
 }
+
+func (service *CommonToysService) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+	tagIDs, err := service.toysRepository.CreateTags(ctx, tagsData)
+	if err != nil {
+		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to create Tags", err)
+	}
+
+	return tagIDs, err
+}

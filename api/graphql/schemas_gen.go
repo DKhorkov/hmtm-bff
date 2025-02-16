@@ -12,7 +12,7 @@ type AddToyInput struct {
 	Description string            `json:"description"`
 	Price       float64           `json:"price"`
 	Quantity    int               `json:"quantity"`
-	TagIds      []string          `json:"tagIds,omitempty"`
+	Tags        []string          `json:"tags,omitempty"`
 	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
 
@@ -22,7 +22,7 @@ type CreateTicketInput struct {
 	Description string            `json:"description"`
 	Price       float64           `json:"price"`
 	Quantity    int               `json:"quantity"`
-	TagIds      []string          `json:"tagIds,omitempty"`
+	Tags        []string          `json:"tags,omitempty"`
 	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
 

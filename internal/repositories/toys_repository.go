@@ -289,3 +289,24 @@ func (repo *GrpcToysRepository) processToyResponse(toyResponse *toys.GetToyOut) 
 		UpdatedAt:   toyResponse.GetUpdatedAt().AsTime(),
 	}
 }
+
+func (repo *GrpcToysRepository) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+	tagsRequest := make([]*toys.CreateTagIn, len(tagsData))
+	for i, tag := range tagsData {
+		tagsRequest[i] = &toys.CreateTagIn{
+			Name: tag.Name,
+		}
+	}
+
+	response, err := repo.client.CreateTags(ctx, &toys.CreateTagsIn{Tags: tagsRequest})
+	if err != nil {
+		return nil, err
+	}
+
+	tagIDs := make([]uint32, len(response.GetTags()))
+	for i, tagResponse := range response.GetTags() {
+		tagIDs[i] = tagResponse.GetID()
+	}
+
+	return tagIDs, nil
+}

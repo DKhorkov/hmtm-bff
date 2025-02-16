@@ -13,7 +13,7 @@ type RawAddToyDTO struct {
 	Description string            `json:"description"`
 	Price       float32           `json:"price"`
 	Quantity    uint32            `json:"quantity"`
-	TagIDs      []uint32          `json:"tag_ids,omitempty"`
+	Tags        []string          `json:"tags,omitempty"`
 	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
 
@@ -53,6 +53,10 @@ type RegisterMasterDTO struct {
 
 type Tag struct {
 	ID   uint32 `json:"id"`
+	Name string `json:"name"`
+}
+
+type CreateTagDTO struct {
 	Name string `json:"name"`
 }
 

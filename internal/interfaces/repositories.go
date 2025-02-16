@@ -30,6 +30,7 @@ type ToysRepository interface {
 	GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error)
 	GetAllTags(ctx context.Context) ([]entities.Tag, error)
 	GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error)
+	CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error)
 }
 
 type FileStorageRepository interface {

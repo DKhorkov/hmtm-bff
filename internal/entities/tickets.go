@@ -67,7 +67,7 @@ type CreateTicketDTO struct {
 	Description string   `json:"description"`
 	Price       float32  `json:"price"`
 	Quantity    uint32   `json:"quantity"`
-	TagIDs      []uint32 `json:"tag_ids"`
+	TagIDs      []uint32 `json:"tag_ids,omitempty"`
 	Attachments []string `json:"attachments,omitempty"`
 }
 
@@ -78,6 +78,6 @@ type RawCreateTicketDTO struct {
 	Description string            `json:"description"`
 	Price       float32           `json:"price"`
 	Quantity    uint32            `json:"quantity"`
-	TagIDs      []uint32          `json:"tag_ids"`
+	Tags        []string          `json:"tags,omitempty"`
 	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
