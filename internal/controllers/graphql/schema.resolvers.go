@@ -176,16 +176,6 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 		return "", cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	tagIDs := make([]uint32, len(input.TagIds))
-	for i, id := range input.TagIds {
-		tagID, err := strconv.Atoi(id)
-		if err != nil {
-			return "", err
-		}
-
-		tagIDs[i] = uint32(tagID)
-	}
-
 	categoryID, err := strconv.Atoi(input.CategoryID)
 	if err != nil {
 		return "", err
@@ -198,7 +188,7 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 		Description: input.Description,
 		Price:       float32(input.Price),
 		Quantity:    uint32(input.Quantity),
-		TagIDs:      tagIDs,
+		Tags:        input.Tags,
 		Attachments: input.Attachments,
 	}
 
@@ -215,16 +205,6 @@ func (r *mutationResolver) CreateTicket(ctx context.Context, input graphqlapi.Cr
 		return "", cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	tagIDs := make([]uint32, len(input.TagIds))
-	for i, id := range input.TagIds {
-		tagID, err := strconv.Atoi(id)
-		if err != nil {
-			return "", err
-		}
-
-		tagIDs[i] = uint32(tagID)
-	}
-
 	categoryID, err := strconv.Atoi(input.CategoryID)
 	if err != nil {
 		return "", err
@@ -237,7 +217,7 @@ func (r *mutationResolver) CreateTicket(ctx context.Context, input graphqlapi.Cr
 		Description: input.Description,
 		Price:       float32(input.Price),
 		Quantity:    uint32(input.Quantity),
-		TagIDs:      tagIDs,
+		Tags:        input.Tags,
 		Attachments: input.Attachments,
 	}
 

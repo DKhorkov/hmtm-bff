@@ -8326,7 +8326,7 @@ func (ec *executionContext) unmarshalInputAddToyInput(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"categoryId", "name", "description", "price", "quantity", "tagIds", "attachments"}
+	fieldsInOrder := [...]string{"categoryId", "name", "description", "price", "quantity", "tags", "attachments"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8368,13 +8368,13 @@ func (ec *executionContext) unmarshalInputAddToyInput(ctx context.Context, obj i
 				return it, err
 			}
 			it.Quantity = data
-		case "tagIds":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tagIds"))
-			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+		case "tags":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TagIds = data
+			it.Tags = data
 		case "attachments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attachments"))
 			data, err := ec.unmarshalOUpload2ᚕᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUploadᚄ(ctx, v)
@@ -8395,7 +8395,7 @@ func (ec *executionContext) unmarshalInputCreateTicketInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"categoryId", "name", "description", "price", "quantity", "tagIds", "attachments"}
+	fieldsInOrder := [...]string{"categoryId", "name", "description", "price", "quantity", "tags", "attachments"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8437,13 +8437,13 @@ func (ec *executionContext) unmarshalInputCreateTicketInput(ctx context.Context,
 				return it, err
 			}
 			it.Quantity = data
-		case "tagIds":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tagIds"))
-			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+		case "tags":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TagIds = data
+			it.Tags = data
 		case "attachments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attachments"))
 			data, err := ec.unmarshalOUpload2ᚕᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUploadᚄ(ctx, v)
@@ -11186,44 +11186,6 @@ func (ec *executionContext) marshalOEmail2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtm�
 	return ret
 }
 
-func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalOMaster2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMasterᚄ(ctx context.Context, sel ast.SelectionSet, v []*entities.Master) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -11308,6 +11270,44 @@ func (ec *executionContext) marshalORespond2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtm
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
 
 	for _, e := range ret {
 		if e == graphql.Null {

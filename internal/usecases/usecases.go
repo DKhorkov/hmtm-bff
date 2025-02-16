@@ -100,6 +100,18 @@ func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.
 		return 0, err
 	}
 
+	tagsData := make([]entities.CreateTagDTO, len(rawToyData.Tags))
+	for i, tag := range rawToyData.Tags {
+		tagsData[i] = entities.CreateTagDTO{
+			Name: tag,
+		}
+	}
+
+	tagIDs, err := useCases.toysService.CreateTags(ctx, tagsData)
+	if err != nil {
+		return 0, err
+	}
+
 	toyData := entities.AddToyDTO{
 		UserID:      user.ID,
 		CategoryID:  rawToyData.CategoryID,
@@ -107,7 +119,7 @@ func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.
 		Description: rawToyData.Description,
 		Price:       rawToyData.Price,
 		Quantity:    rawToyData.Quantity,
-		TagIDs:      rawToyData.TagIDs,
+		TagIDs:      tagIDs,
 		Attachments: uploadedFiles,
 	}
 
@@ -250,6 +262,18 @@ func (useCases *CommonUseCases) CreateTicket(
 		return 0, err
 	}
 
+	tagsData := make([]entities.CreateTagDTO, len(rawTicketData.Tags))
+	for i, tag := range rawTicketData.Tags {
+		tagsData[i] = entities.CreateTagDTO{
+			Name: tag,
+		}
+	}
+
+	tagIDs, err := useCases.toysService.CreateTags(ctx, tagsData)
+	if err != nil {
+		return 0, err
+	}
+
 	ticketData := entities.CreateTicketDTO{
 		UserID:      user.ID,
 		CategoryID:  rawTicketData.CategoryID,
@@ -257,7 +281,7 @@ func (useCases *CommonUseCases) CreateTicket(
 		Description: rawTicketData.Description,
 		Price:       rawTicketData.Price,
 		Quantity:    rawTicketData.Quantity,
-		TagIDs:      rawTicketData.TagIDs,
+		TagIDs:      tagIDs,
 		Attachments: uploadedFiles,
 	}
 

@@ -148,7 +148,7 @@ input AddToyInput {
     description: String!
     price: Float!
     quantity: Int!
-    tagIds: [ID!]
+    tags: [String!]
     attachments: [Upload!]
 }
 
@@ -158,7 +158,7 @@ input CreateTicketInput {
     description: String!
     price: Float!
     quantity: Int!
-    tagIds: [ID!]
+    tags: [String!]
     attachments: [Upload!]
 }
 

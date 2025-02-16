@@ -386,3 +386,6 @@ issues:
     - path: "cmd/server/server.go"
       linters:
         - funlen
+    - path: "internal/usecases/usecases.go"
+      linters:
+        - dupl
