@@ -11,19 +11,19 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewCommonToysService(toysRepository interfaces.ToysRepository, logger *slog.Logger) *CommonToysService {
-	return &CommonToysService{
+func NewToysService(toysRepository interfaces.ToysRepository, logger *slog.Logger) *ToysService {
+	return &ToysService{
 		toysRepository: toysRepository,
 		logger:         logger,
 	}
 }
 
-type CommonToysService struct {
+type ToysService struct {
 	toysRepository interfaces.ToysRepository
 	logger         *slog.Logger
 }
 
-func (service *CommonToysService) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
+func (service *ToysService) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
 	toyID, err := service.toysRepository.AddToy(ctx, toyData)
 	if err != nil {
 		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to add new Toy", err)
@@ -32,7 +32,7 @@ func (service *CommonToysService) AddToy(ctx context.Context, toyData entities.A
 	return toyID, err
 }
 
-func (service *CommonToysService) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
+func (service *ToysService) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	toys, err := service.toysRepository.GetAllToys(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get all Toys", err)
@@ -41,7 +41,7 @@ func (service *CommonToysService) GetAllToys(ctx context.Context) ([]entities.To
 	return toys, err
 }
 
-func (service *CommonToysService) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (service *ToysService) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
 	toys, err := service.toysRepository.GetMasterToys(ctx, masterID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -55,7 +55,7 @@ func (service *CommonToysService) GetMasterToys(ctx context.Context, masterID ui
 	return toys, err
 }
 
-func (service *CommonToysService) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
+func (service *ToysService) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
 	toys, err := service.toysRepository.GetUserToys(ctx, userID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -69,7 +69,7 @@ func (service *CommonToysService) GetUserToys(ctx context.Context, userID uint64
 	return toys, err
 }
 
-func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
+func (service *ToysService) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	toy, err := service.toysRepository.GetToyByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -83,7 +83,7 @@ func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*e
 	return toy, err
 }
 
-func (service *CommonToysService) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
+func (service *ToysService) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
 	masters, err := service.toysRepository.GetAllMasters(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get all Masters", err)
@@ -92,7 +92,7 @@ func (service *CommonToysService) GetAllMasters(ctx context.Context) ([]entities
 	return masters, err
 }
 
-func (service *CommonToysService) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
+func (service *ToysService) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
 	master, err := service.toysRepository.GetMasterByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -106,7 +106,7 @@ func (service *CommonToysService) GetMasterByID(ctx context.Context, id uint64) 
 	return master, err
 }
 
-func (service *CommonToysService) RegisterMaster(
+func (service *ToysService) RegisterMaster(
 	ctx context.Context,
 	masterData entities.RegisterMasterDTO,
 ) (uint64, error) {
@@ -118,7 +118,7 @@ func (service *CommonToysService) RegisterMaster(
 	return masterID, err
 }
 
-func (service *CommonToysService) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
+func (service *ToysService) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
 	categories, err := service.toysRepository.GetAllCategories(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get all Categories", err)
@@ -127,7 +127,7 @@ func (service *CommonToysService) GetAllCategories(ctx context.Context) ([]entit
 	return categories, err
 }
 
-func (service *CommonToysService) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+func (service *ToysService) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
 	category, err := service.toysRepository.GetCategoryByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -141,7 +141,7 @@ func (service *CommonToysService) GetCategoryByID(ctx context.Context, id uint32
 	return category, err
 }
 
-func (service *CommonToysService) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
+func (service *ToysService) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
 	tags, err := service.toysRepository.GetAllTags(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get all Tags", err)
@@ -150,7 +150,7 @@ func (service *CommonToysService) GetAllTags(ctx context.Context) ([]entities.Ta
 	return tags, err
 }
 
-func (service *CommonToysService) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
+func (service *ToysService) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
 	tag, err := service.toysRepository.GetTagByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -164,7 +164,7 @@ func (service *CommonToysService) GetTagByID(ctx context.Context, id uint32) (*e
 	return tag, err
 }
 
-func (service *CommonToysService) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+func (service *ToysService) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
 	tagIDs, err := service.toysRepository.CreateTags(ctx, tagsData)
 	if err != nil {
 		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to create Tags", err)

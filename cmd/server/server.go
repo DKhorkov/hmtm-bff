@@ -96,22 +96,22 @@ func main() {
 		panic(err)
 	}
 
-	ssoRepository := repositories.NewGrpcSsoRepository(ssoClient)
-	ssoService := services.NewCommonSsoService(ssoRepository, logger)
+	ssoRepository := repositories.NewSsoRepository(ssoClient)
+	ssoService := services.NewSsoService(ssoRepository, logger)
 
-	toysRepository := repositories.NewGrpcToysRepository(toysClient)
-	toysService := services.NewCommonToysService(toysRepository, logger)
+	toysRepository := repositories.NewToysRepository(toysClient)
+	toysService := services.NewToysService(toysRepository, logger)
 
 	fileStorageRepository := repositories.NewS3FileStorageRepository(settings.S3, logger)
-	fileStorageService := services.NewCommonFileStorageService(fileStorageRepository, logger)
+	fileStorageService := services.NewFileStorageService(fileStorageRepository, logger)
 
-	ticketsRepository := repositories.NewGrpcTicketsRepository(ticketsClient)
-	ticketsService := services.NewCommonTicketsService(ticketsRepository, logger)
+	ticketsRepository := repositories.NewTicketsRepository(ticketsClient)
+	ticketsService := services.NewTicketsService(ticketsRepository, logger)
 
-	notificationsRepository := repositories.NewGrpcNotificationsRepository(notificationsClient)
-	notificationsService := services.NewCommonNotificationsService(notificationsRepository, logger)
+	notificationsRepository := repositories.NewNotificationsRepository(notificationsClient)
+	notificationsService := services.NewNotificationsService(notificationsRepository, logger)
 
-	useCases := usecases.NewCommonUseCases(
+	useCases := usecases.New(
 		ssoService,
 		toysService,
 		fileStorageService,

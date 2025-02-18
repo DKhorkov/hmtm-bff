@@ -9,15 +9,15 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewGrpcNotificationsRepository(client interfaces.NotificationsGrpcClient) *GrpcNotificationsRepository {
-	return &GrpcNotificationsRepository{client: client}
+func NewNotificationsRepository(client interfaces.NotificationsClient) *NotificationsRepository {
+	return &NotificationsRepository{client: client}
 }
 
-type GrpcNotificationsRepository struct {
-	client interfaces.NotificationsGrpcClient
+type NotificationsRepository struct {
+	client interfaces.NotificationsClient
 }
 
-func (repo *GrpcNotificationsRepository) GetUserEmailCommunications(
+func (repo *NotificationsRepository) GetUserEmailCommunications(
 	ctx context.Context,
 	userID uint64,
 ) ([]entities.Email, error) {
@@ -40,7 +40,7 @@ func (repo *GrpcNotificationsRepository) GetUserEmailCommunications(
 	return emailCommunications, nil
 }
 
-func (repo *GrpcNotificationsRepository) processEmailCommunicationResponse(
+func (repo *NotificationsRepository) processEmailCommunicationResponse(
 	emailCommunicationResponse *notifications.Email,
 ) *entities.Email {
 	return &entities.Email{

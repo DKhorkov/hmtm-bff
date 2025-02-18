@@ -11,19 +11,19 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewCommonSsoService(ssoRepository interfaces.SsoRepository, logger *slog.Logger) *CommonSsoService {
-	return &CommonSsoService{
+func NewSsoService(ssoRepository interfaces.SsoRepository, logger *slog.Logger) *SsoService {
+	return &SsoService{
 		ssoRepository: ssoRepository,
 		logger:        logger,
 	}
 }
 
-type CommonSsoService struct {
+type SsoService struct {
 	ssoRepository interfaces.SsoRepository
 	logger        *slog.Logger
 }
 
-func (service *CommonSsoService) GetAllUsers(ctx context.Context) ([]entities.User, error) {
+func (service *SsoService) GetAllUsers(ctx context.Context) ([]entities.User, error) {
 	users, err := service.ssoRepository.GetAllUsers(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get all Users", err)
@@ -32,7 +32,7 @@ func (service *CommonSsoService) GetAllUsers(ctx context.Context) ([]entities.Us
 	return users, err
 }
 
-func (service *CommonSsoService) GetUserByID(ctx context.Context, id uint64) (*entities.User, error) {
+func (service *SsoService) GetUserByID(ctx context.Context, id uint64) (*entities.User, error) {
 	user, err := service.ssoRepository.GetUserByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -46,7 +46,7 @@ func (service *CommonSsoService) GetUserByID(ctx context.Context, id uint64) (*e
 	return user, err
 }
 
-func (service *CommonSsoService) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
+func (service *SsoService) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
 	userID, err := service.ssoRepository.RegisterUser(ctx, userData)
 	if err != nil {
 		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to register User", err)
@@ -55,7 +55,7 @@ func (service *CommonSsoService) RegisterUser(ctx context.Context, userData enti
 	return userID, err
 }
 
-func (service *CommonSsoService) LoginUser(
+func (service *SsoService) LoginUser(
 	ctx context.Context,
 	userData entities.LoginUserDTO,
 ) (*entities.TokensDTO, error) {
@@ -72,7 +72,7 @@ func (service *CommonSsoService) LoginUser(
 	return tokens, err
 }
 
-func (service *CommonSsoService) LogoutUser(ctx context.Context, accessToken string) error {
+func (service *SsoService) LogoutUser(ctx context.Context, accessToken string) error {
 	err := service.ssoRepository.LogoutUser(ctx, accessToken)
 	if err != nil {
 		logging.LogErrorContext(
@@ -86,7 +86,7 @@ func (service *CommonSsoService) LogoutUser(ctx context.Context, accessToken str
 	return err
 }
 
-func (service *CommonSsoService) VerifyUserEmail(ctx context.Context, verifyEmailToken string) error {
+func (service *SsoService) VerifyUserEmail(ctx context.Context, verifyEmailToken string) error {
 	err := service.ssoRepository.VerifyUserEmail(ctx, verifyEmailToken)
 	if err != nil {
 		logging.LogErrorContext(
@@ -103,7 +103,7 @@ func (service *CommonSsoService) VerifyUserEmail(ctx context.Context, verifyEmai
 	return err
 }
 
-func (service *CommonSsoService) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
+func (service *SsoService) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	user, err := service.ssoRepository.GetMe(ctx, accessToken)
 	if err != nil {
 		logging.LogErrorContext(
@@ -117,7 +117,7 @@ func (service *CommonSsoService) GetMe(ctx context.Context, accessToken string) 
 	return user, err
 }
 
-func (service *CommonSsoService) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
+func (service *SsoService) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
 	tokens, err := service.ssoRepository.RefreshTokens(ctx, refreshToken)
 	if err != nil {
 		logging.LogErrorContext(

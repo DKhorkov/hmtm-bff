@@ -21,7 +21,7 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewCommonUseCases(
+func New(
 	ssoService interfaces.SsoService,
 	toysService interfaces.ToysService,
 	fileStorageService interfaces.FileStorageService,
@@ -29,9 +29,9 @@ func NewCommonUseCases(
 	notificationsService interfaces.NotificationsService,
 	validationConfig config.ValidationConfig,
 	logger *slog.Logger,
-	traceProvider tracing.TraceProvider,
-) *CommonUseCases {
-	return &CommonUseCases{
+	traceProvider tracing.Provider,
+) *UseCases {
+	return &UseCases{
 		ssoService:           ssoService,
 		toysService:          toysService,
 		fileStorageService:   fileStorageService,
@@ -43,7 +43,7 @@ func NewCommonUseCases(
 	}
 }
 
-type CommonUseCases struct {
+type UseCases struct {
 	ssoService           interfaces.SsoService
 	toysService          interfaces.ToysService
 	fileStorageService   interfaces.FileStorageService
@@ -51,45 +51,45 @@ type CommonUseCases struct {
 	notificationsService interfaces.NotificationsService
 	validationConfig     config.ValidationConfig
 	logger               *slog.Logger
-	traceProvider        tracing.TraceProvider
+	traceProvider        tracing.Provider
 }
 
-func (useCases *CommonUseCases) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
+func (useCases *UseCases) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
 	return useCases.ssoService.RegisterUser(ctx, userData)
 }
 
-func (useCases *CommonUseCases) LoginUser(
+func (useCases *UseCases) LoginUser(
 	ctx context.Context,
 	userData entities.LoginUserDTO,
 ) (*entities.TokensDTO, error) {
 	return useCases.ssoService.LoginUser(ctx, userData)
 }
 
-func (useCases *CommonUseCases) LogoutUser(ctx context.Context, accessToken string) error {
+func (useCases *UseCases) LogoutUser(ctx context.Context, accessToken string) error {
 	return useCases.ssoService.LogoutUser(ctx, accessToken)
 }
 
-func (useCases *CommonUseCases) VerifyUserEmail(ctx context.Context, verifyEmailToken string) error {
+func (useCases *UseCases) VerifyUserEmail(ctx context.Context, verifyEmailToken string) error {
 	return useCases.ssoService.VerifyUserEmail(ctx, verifyEmailToken)
 }
 
-func (useCases *CommonUseCases) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
+func (useCases *UseCases) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	return useCases.ssoService.GetMe(ctx, accessToken)
 }
 
-func (useCases *CommonUseCases) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
+func (useCases *UseCases) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
 	return useCases.ssoService.RefreshTokens(ctx, refreshToken)
 }
 
-func (useCases *CommonUseCases) GetUserByID(ctx context.Context, id uint64) (*entities.User, error) {
+func (useCases *UseCases) GetUserByID(ctx context.Context, id uint64) (*entities.User, error) {
 	return useCases.ssoService.GetUserByID(ctx, id)
 }
 
-func (useCases *CommonUseCases) GetAllUsers(ctx context.Context) ([]entities.User, error) {
+func (useCases *UseCases) GetAllUsers(ctx context.Context) ([]entities.User, error) {
 	return useCases.ssoService.GetAllUsers(ctx)
 }
 
-func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (uint64, error) {
+func (useCases *UseCases) AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (uint64, error) {
 	user, err := useCases.GetMe(ctx, rawToyData.AccessToken)
 	if err != nil {
 		return 0, err
@@ -126,15 +126,15 @@ func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.
 	return useCases.toysService.AddToy(ctx, toyData)
 }
 
-func (useCases *CommonUseCases) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
+func (useCases *UseCases) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	return useCases.toysService.GetAllToys(ctx)
 }
 
-func (useCases *CommonUseCases) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (useCases *UseCases) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
 	return useCases.toysService.GetMasterToys(ctx, masterID)
 }
 
-func (useCases *CommonUseCases) GetMyToys(ctx context.Context, accessToken string) ([]entities.Toy, error) {
+func (useCases *UseCases) GetMyToys(ctx context.Context, accessToken string) ([]entities.Toy, error) {
 	user, err := useCases.GetMe(ctx, accessToken)
 	if err != nil {
 		return nil, err
@@ -143,19 +143,19 @@ func (useCases *CommonUseCases) GetMyToys(ctx context.Context, accessToken strin
 	return useCases.toysService.GetUserToys(ctx, user.ID)
 }
 
-func (useCases *CommonUseCases) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
+func (useCases *UseCases) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	return useCases.toysService.GetToyByID(ctx, id)
 }
 
-func (useCases *CommonUseCases) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
+func (useCases *UseCases) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
 	return useCases.toysService.GetAllMasters(ctx)
 }
 
-func (useCases *CommonUseCases) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
+func (useCases *UseCases) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
 	return useCases.toysService.GetMasterByID(ctx, id)
 }
 
-func (useCases *CommonUseCases) RegisterMaster(
+func (useCases *UseCases) RegisterMaster(
 	ctx context.Context,
 	rawMasterData entities.RawRegisterMasterDTO,
 ) (uint64, error) {
@@ -172,23 +172,23 @@ func (useCases *CommonUseCases) RegisterMaster(
 	return useCases.toysService.RegisterMaster(ctx, masterData)
 }
 
-func (useCases *CommonUseCases) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
+func (useCases *UseCases) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
 	return useCases.toysService.GetAllCategories(ctx)
 }
 
-func (useCases *CommonUseCases) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+func (useCases *UseCases) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
 	return useCases.toysService.GetCategoryByID(ctx, id)
 }
 
-func (useCases *CommonUseCases) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
+func (useCases *UseCases) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
 	return useCases.toysService.GetAllTags(ctx)
 }
 
-func (useCases *CommonUseCases) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
+func (useCases *UseCases) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
 	return useCases.toysService.GetTagByID(ctx, id)
 }
 
-func (useCases *CommonUseCases) UploadFile(ctx context.Context, file *graphql.Upload) (string, error) {
+func (useCases *UseCases) UploadFile(ctx context.Context, file *graphql.Upload) (string, error) {
 	fileExtension := path.Ext(file.Filename)
 	if !validateFileExtension(fileExtension, useCases.validationConfig.FileAllowedExtensions) {
 		return "", &customerrors.InvalidFileExtensionError{Message: fileExtension}
@@ -207,7 +207,7 @@ func (useCases *CommonUseCases) UploadFile(ctx context.Context, file *graphql.Up
 	return useCases.fileStorageService.Upload(ctx, key, binaryFile)
 }
 
-func (useCases *CommonUseCases) UploadFiles(ctx context.Context, files []*graphql.Upload) ([]string, error) {
+func (useCases *UseCases) UploadFiles(ctx context.Context, files []*graphql.Upload) ([]string, error) {
 	uploadedFiles := make([]string, 0, len(files))
 	uploadingErrors := make([]error, 0, len(files))
 	for _, file := range files {
@@ -248,7 +248,7 @@ func (useCases *CommonUseCases) UploadFiles(ctx context.Context, files []*graphq
 	return uploadedFiles, nil
 }
 
-func (useCases *CommonUseCases) CreateTicket(
+func (useCases *UseCases) CreateTicket(
 	ctx context.Context,
 	rawTicketData entities.RawCreateTicketDTO,
 ) (uint64, error) {
@@ -288,7 +288,7 @@ func (useCases *CommonUseCases) CreateTicket(
 	return useCases.ticketsService.CreateTicket(ctx, ticketData)
 }
 
-func (useCases *CommonUseCases) GetTicketByID(ctx context.Context, id uint64) (*entities.Ticket, error) {
+func (useCases *UseCases) GetTicketByID(ctx context.Context, id uint64) (*entities.Ticket, error) {
 	rawTicket, err := useCases.ticketsService.GetTicketByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -297,7 +297,7 @@ func (useCases *CommonUseCases) GetTicketByID(ctx context.Context, id uint64) (*
 	return useCases.processRawTicket(ctx, *rawTicket), nil
 }
 
-func (useCases *CommonUseCases) processRawTicket(ctx context.Context, ticket entities.RawTicket) *entities.Ticket {
+func (useCases *UseCases) processRawTicket(ctx context.Context, ticket entities.RawTicket) *entities.Ticket {
 	processedTags := make([]entities.Tag, len(ticket.TagIDs))
 	for tagIndex := range ticket.TagIDs {
 		processedTags[tagIndex] = entities.Tag{ID: ticket.TagIDs[tagIndex]}
@@ -331,7 +331,7 @@ func (useCases *CommonUseCases) processRawTicket(ctx context.Context, ticket ent
 	}
 }
 
-func (useCases *CommonUseCases) GetAllTickets(ctx context.Context) ([]entities.Ticket, error) {
+func (useCases *UseCases) GetAllTickets(ctx context.Context) ([]entities.Ticket, error) {
 	rawTickets, err := useCases.ticketsService.GetAllTickets(ctx)
 	if err != nil {
 		return nil, err
@@ -345,7 +345,7 @@ func (useCases *CommonUseCases) GetAllTickets(ctx context.Context) ([]entities.T
 	return tickets, err
 }
 
-func (useCases *CommonUseCases) GetUserTickets(ctx context.Context, userID uint64) ([]entities.Ticket, error) {
+func (useCases *UseCases) GetUserTickets(ctx context.Context, userID uint64) ([]entities.Ticket, error) {
 	rawTickets, err := useCases.ticketsService.GetUserTickets(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -359,7 +359,7 @@ func (useCases *CommonUseCases) GetUserTickets(ctx context.Context, userID uint6
 	return tickets, err
 }
 
-func (useCases *CommonUseCases) GetMyTickets(
+func (useCases *UseCases) GetMyTickets(
 	ctx context.Context,
 	accessToken string,
 ) ([]entities.Ticket, error) {
@@ -371,7 +371,7 @@ func (useCases *CommonUseCases) GetMyTickets(
 	return useCases.GetUserTickets(ctx, user.ID)
 }
 
-func (useCases *CommonUseCases) RespondToTicket(
+func (useCases *UseCases) RespondToTicket(
 	ctx context.Context,
 	rawRespondData entities.RawRespondToTicketDTO,
 ) (uint64, error) {
@@ -388,7 +388,7 @@ func (useCases *CommonUseCases) RespondToTicket(
 	return useCases.ticketsService.RespondToTicket(ctx, respondData)
 }
 
-func (useCases *CommonUseCases) GetRespondByID(
+func (useCases *UseCases) GetRespondByID(
 	ctx context.Context,
 	id uint64,
 	accessToken string,
@@ -435,7 +435,7 @@ func (useCases *CommonUseCases) GetRespondByID(
 	return respond, nil
 }
 
-func (useCases *CommonUseCases) GetTicketResponds(
+func (useCases *UseCases) GetTicketResponds(
 	ctx context.Context,
 	ticketID uint64,
 	accessToken string,
@@ -471,7 +471,7 @@ func (useCases *CommonUseCases) GetTicketResponds(
 	return useCases.ticketsService.GetTicketResponds(ctx, ticketID)
 }
 
-func (useCases *CommonUseCases) GetMyResponds(
+func (useCases *UseCases) GetMyResponds(
 	ctx context.Context,
 	accessToken string,
 ) ([]entities.Respond, error) {
@@ -483,7 +483,7 @@ func (useCases *CommonUseCases) GetMyResponds(
 	return useCases.ticketsService.GetUserResponds(ctx, user.ID)
 }
 
-func (useCases *CommonUseCases) GetMyEmailCommunications(
+func (useCases *UseCases) GetMyEmailCommunications(
 	ctx context.Context,
 	accessToken string,
 ) ([]entities.Email, error) {

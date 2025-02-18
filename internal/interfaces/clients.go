@@ -7,23 +7,23 @@ import (
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 )
 
-type SsoGrpcClient interface {
+type SsoClient interface {
 	sso.AuthServiceClient
 	sso.UsersServiceClient
 }
 
-type ToysGrpcClient interface {
+type ToysClient interface {
 	toys.CategoriesServiceClient
 	toys.ToysServiceClient
 	toys.TagsServiceClient
 	toys.MastersServiceClient
 }
 
-type TicketsGrpcClient interface {
+type TicketsClient interface {
 	tickets.TicketsServiceClient
 	tickets.RespondsServiceClient
 }
 
-type NotificationsGrpcClient interface {
+type NotificationsClient interface {
 	notifications.EmailsServiceClient
 }

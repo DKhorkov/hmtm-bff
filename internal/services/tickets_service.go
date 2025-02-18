@@ -11,22 +11,22 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewCommonTicketsService(
+func NewTicketsService(
 	ticketsRepository interfaces.TicketsRepository,
 	logger *slog.Logger,
-) *CommonTicketsService {
-	return &CommonTicketsService{
+) *TicketsService {
+	return &TicketsService{
 		ticketsRepository: ticketsRepository,
 		logger:            logger,
 	}
 }
 
-type CommonTicketsService struct {
+type TicketsService struct {
 	ticketsRepository interfaces.TicketsRepository
 	logger            *slog.Logger
 }
 
-func (service *CommonTicketsService) CreateTicket(
+func (service *TicketsService) CreateTicket(
 	ctx context.Context,
 	ticketData entities.CreateTicketDTO,
 ) (uint64, error) {
@@ -38,7 +38,7 @@ func (service *CommonTicketsService) CreateTicket(
 	return ticketID, err
 }
 
-func (service *CommonTicketsService) GetTicketByID(ctx context.Context, id uint64) (*entities.RawTicket, error) {
+func (service *TicketsService) GetTicketByID(ctx context.Context, id uint64) (*entities.RawTicket, error) {
 	ticket, err := service.ticketsRepository.GetTicketByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -52,7 +52,7 @@ func (service *CommonTicketsService) GetTicketByID(ctx context.Context, id uint6
 	return ticket, err
 }
 
-func (service *CommonTicketsService) GetAllTickets(ctx context.Context) ([]entities.RawTicket, error) {
+func (service *TicketsService) GetAllTickets(ctx context.Context) ([]entities.RawTicket, error) {
 	tickets, err := service.ticketsRepository.GetAllTickets(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get all Tickets", err)
@@ -61,7 +61,7 @@ func (service *CommonTicketsService) GetAllTickets(ctx context.Context) ([]entit
 	return tickets, err
 }
 
-func (service *CommonTicketsService) GetUserTickets(ctx context.Context, userID uint64) ([]entities.RawTicket, error) {
+func (service *TicketsService) GetUserTickets(ctx context.Context, userID uint64) ([]entities.RawTicket, error) {
 	tickets, err := service.ticketsRepository.GetUserTickets(ctx, userID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -75,7 +75,7 @@ func (service *CommonTicketsService) GetUserTickets(ctx context.Context, userID 
 	return tickets, err
 }
 
-func (service *CommonTicketsService) RespondToTicket(
+func (service *TicketsService) RespondToTicket(
 	ctx context.Context,
 	respondData entities.RespondToTicketDTO,
 ) (uint64, error) {
@@ -92,7 +92,7 @@ func (service *CommonTicketsService) RespondToTicket(
 	return respondID, err
 }
 
-func (service *CommonTicketsService) GetRespondByID(ctx context.Context, id uint64) (*entities.Respond, error) {
+func (service *TicketsService) GetRespondByID(ctx context.Context, id uint64) (*entities.Respond, error) {
 	respond, err := service.ticketsRepository.GetRespondByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -106,7 +106,7 @@ func (service *CommonTicketsService) GetRespondByID(ctx context.Context, id uint
 	return respond, err
 }
 
-func (service *CommonTicketsService) GetTicketResponds(
+func (service *TicketsService) GetTicketResponds(
 	ctx context.Context,
 	ticketID uint64,
 ) ([]entities.Respond, error) {
@@ -123,7 +123,7 @@ func (service *CommonTicketsService) GetTicketResponds(
 	return responds, err
 }
 
-func (service *CommonTicketsService) GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error) {
+func (service *TicketsService) GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error) {
 	responds, err := service.ticketsRepository.GetUserResponds(ctx, userID)
 	if err != nil {
 		logging.LogErrorContext(
