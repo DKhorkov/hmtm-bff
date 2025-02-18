@@ -27,7 +27,7 @@ func New(
 	cookiesConfig config.CookiesConfig,
 	useCases interfaces.UseCases,
 	logger *slog.Logger,
-	traceProvider tracing.TraceProvider,
+	traceProvider tracing.Provider,
 	tracingConfig config.TracingConfig,
 ) *Controller {
 	graphqlServer := graphqlhandler.NewDefaultServer(

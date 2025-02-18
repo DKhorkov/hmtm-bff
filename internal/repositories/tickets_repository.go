@@ -11,15 +11,15 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewGrpcTicketsRepository(client interfaces.TicketsGrpcClient) *GrpcTicketsRepository {
-	return &GrpcTicketsRepository{client: client}
+func NewTicketsRepository(client interfaces.TicketsClient) *TicketsRepository {
+	return &TicketsRepository{client: client}
 }
 
-type GrpcTicketsRepository struct {
-	client interfaces.TicketsGrpcClient
+type TicketsRepository struct {
+	client interfaces.TicketsClient
 }
 
-func (repo *GrpcTicketsRepository) CreateTicket(
+func (repo *TicketsRepository) CreateTicket(
 	ctx context.Context,
 	ticketData entities.CreateTicketDTO,
 ) (uint64, error) {
@@ -44,7 +44,7 @@ func (repo *GrpcTicketsRepository) CreateTicket(
 	return response.GetTicketID(), nil
 }
 
-func (repo *GrpcTicketsRepository) GetTicketByID(ctx context.Context, id uint64) (*entities.RawTicket, error) {
+func (repo *TicketsRepository) GetTicketByID(ctx context.Context, id uint64) (*entities.RawTicket, error) {
 	response, err := repo.client.GetTicket(
 		ctx,
 		&tickets.GetTicketIn{
@@ -59,7 +59,7 @@ func (repo *GrpcTicketsRepository) GetTicketByID(ctx context.Context, id uint64)
 	return repo.processTicketResponse(response), nil
 }
 
-func (repo *GrpcTicketsRepository) GetAllTickets(ctx context.Context) ([]entities.RawTicket, error) {
+func (repo *TicketsRepository) GetAllTickets(ctx context.Context) ([]entities.RawTicket, error) {
 	response, err := repo.client.GetTickets(
 		ctx,
 		&emptypb.Empty{},
@@ -77,7 +77,7 @@ func (repo *GrpcTicketsRepository) GetAllTickets(ctx context.Context) ([]entitie
 	return allTickets, nil
 }
 
-func (repo *GrpcTicketsRepository) GetUserTickets(ctx context.Context, userID uint64) ([]entities.RawTicket, error) {
+func (repo *TicketsRepository) GetUserTickets(ctx context.Context, userID uint64) ([]entities.RawTicket, error) {
 	response, err := repo.client.GetUserTickets(
 		ctx,
 		&tickets.GetUserTicketsIn{
@@ -97,7 +97,7 @@ func (repo *GrpcTicketsRepository) GetUserTickets(ctx context.Context, userID ui
 	return userTickets, nil
 }
 
-func (repo *GrpcTicketsRepository) RespondToTicket(
+func (repo *TicketsRepository) RespondToTicket(
 	ctx context.Context,
 	respondData entities.RespondToTicketDTO,
 ) (uint64, error) {
@@ -116,7 +116,7 @@ func (repo *GrpcTicketsRepository) RespondToTicket(
 	return response.GetRespondID(), nil
 }
 
-func (repo *GrpcTicketsRepository) GetRespondByID(ctx context.Context, id uint64) (*entities.Respond, error) {
+func (repo *TicketsRepository) GetRespondByID(ctx context.Context, id uint64) (*entities.Respond, error) {
 	response, err := repo.client.GetRespond(
 		ctx,
 		&tickets.GetRespondIn{
@@ -131,7 +131,7 @@ func (repo *GrpcTicketsRepository) GetRespondByID(ctx context.Context, id uint64
 	return repo.processRespondResponse(response), nil
 }
 
-func (repo *GrpcTicketsRepository) GetTicketResponds(ctx context.Context, ticketID uint64) ([]entities.Respond, error) {
+func (repo *TicketsRepository) GetTicketResponds(ctx context.Context, ticketID uint64) ([]entities.Respond, error) {
 	response, err := repo.client.GetTicketResponds(
 		ctx,
 		&tickets.GetTicketRespondsIn{
@@ -151,7 +151,7 @@ func (repo *GrpcTicketsRepository) GetTicketResponds(ctx context.Context, ticket
 	return ticketResponds, nil
 }
 
-func (repo *GrpcTicketsRepository) GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error) {
+func (repo *TicketsRepository) GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error) {
 	response, err := repo.client.GetUserResponds(
 		ctx,
 		&tickets.GetUserRespondsIn{
@@ -171,7 +171,7 @@ func (repo *GrpcTicketsRepository) GetUserResponds(ctx context.Context, userID u
 	return userResponds, nil
 }
 
-func (repo *GrpcTicketsRepository) processRespondResponse(respondResponse *tickets.GetRespondOut) *entities.Respond {
+func (repo *TicketsRepository) processRespondResponse(respondResponse *tickets.GetRespondOut) *entities.Respond {
 	return &entities.Respond{
 		ID:        respondResponse.GetID(),
 		MasterID:  respondResponse.GetMasterID(),
@@ -181,7 +181,7 @@ func (repo *GrpcTicketsRepository) processRespondResponse(respondResponse *ticke
 	}
 }
 
-func (repo *GrpcTicketsRepository) processTicketResponse(ticketResponse *tickets.GetTicketOut) *entities.RawTicket {
+func (repo *TicketsRepository) processTicketResponse(ticketResponse *tickets.GetTicketOut) *entities.RawTicket {
 	attachments := make([]entities.TicketAttachment, len(ticketResponse.GetAttachments()))
 	for i, attachment := range ticketResponse.GetAttachments() {
 		attachments[i] = entities.TicketAttachment{

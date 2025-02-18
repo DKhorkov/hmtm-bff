@@ -11,22 +11,22 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewCommonFileStorageService(
+func NewFileStorageService(
 	fileStorageRepository interfaces.FileStorageRepository,
 	logger *slog.Logger,
-) *CommonFileStorageService {
-	return &CommonFileStorageService{
+) *FileStorageService {
+	return &FileStorageService{
 		fileStorageRepository: fileStorageRepository,
 		logger:                logger,
 	}
 }
 
-type CommonFileStorageService struct {
+type FileStorageService struct {
 	fileStorageRepository interfaces.FileStorageRepository
 	logger                *slog.Logger
 }
 
-func (service *CommonFileStorageService) Upload(ctx context.Context, key string, data []byte) (string, error) {
+func (service *FileStorageService) Upload(ctx context.Context, key string, data []byte) (string, error) {
 	url, err := service.fileStorageRepository.Upload(ctx, key, data)
 	if err != nil {
 		logging.LogErrorContext(

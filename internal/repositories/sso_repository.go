@@ -11,15 +11,15 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewGrpcSsoRepository(client interfaces.SsoGrpcClient) *GrpcSsoRepository {
-	return &GrpcSsoRepository{client: client}
+func NewSsoRepository(client interfaces.SsoClient) *SsoRepository {
+	return &SsoRepository{client: client}
 }
 
-type GrpcSsoRepository struct {
-	client interfaces.SsoGrpcClient
+type SsoRepository struct {
+	client interfaces.SsoClient
 }
 
-func (repo *GrpcSsoRepository) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
+func (repo *SsoRepository) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
 	response, err := repo.client.Register(
 		ctx,
 		&sso.RegisterIn{
@@ -36,7 +36,7 @@ func (repo *GrpcSsoRepository) RegisterUser(ctx context.Context, userData entiti
 	return response.GetUserID(), nil
 }
 
-func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*entities.User, error) {
+func (repo *SsoRepository) GetUserByID(ctx context.Context, id uint64) (*entities.User, error) {
 	response, err := repo.client.GetUser(
 		ctx,
 		&sso.GetUserIn{
@@ -51,7 +51,7 @@ func (repo *GrpcSsoRepository) GetUserByID(ctx context.Context, id uint64) (*ent
 	return repo.processUserResponse(response), nil
 }
 
-func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, error) {
+func (repo *SsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, error) {
 	response, err := repo.client.GetUsers(
 		ctx,
 		&emptypb.Empty{},
@@ -69,7 +69,7 @@ func (repo *GrpcSsoRepository) GetAllUsers(ctx context.Context) ([]entities.User
 	return users, nil
 }
 
-func (repo *GrpcSsoRepository) LoginUser(
+func (repo *SsoRepository) LoginUser(
 	ctx context.Context,
 	userData entities.LoginUserDTO,
 ) (*entities.TokensDTO, error) {
@@ -91,7 +91,7 @@ func (repo *GrpcSsoRepository) LoginUser(
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) LogoutUser(ctx context.Context, accessToken string) error {
+func (repo *SsoRepository) LogoutUser(ctx context.Context, accessToken string) error {
 	_, err := repo.client.Logout(
 		ctx,
 		&sso.LogoutIn{
@@ -102,7 +102,7 @@ func (repo *GrpcSsoRepository) LogoutUser(ctx context.Context, accessToken strin
 	return err
 }
 
-func (repo *GrpcSsoRepository) VerifyUserEmail(ctx context.Context, verifyEmailToken string) error {
+func (repo *SsoRepository) VerifyUserEmail(ctx context.Context, verifyEmailToken string) error {
 	_, err := repo.client.VerifyEmail(
 		ctx,
 		&sso.VerifyEmailIn{
@@ -113,7 +113,7 @@ func (repo *GrpcSsoRepository) VerifyUserEmail(ctx context.Context, verifyEmailT
 	return err
 }
 
-func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
+func (repo *SsoRepository) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	response, err := repo.client.GetMe(
 		ctx,
 		&sso.GetMeIn{
@@ -128,7 +128,7 @@ func (repo *GrpcSsoRepository) GetMe(ctx context.Context, accessToken string) (*
 	return repo.processUserResponse(response), nil
 }
 
-func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
+func (repo *SsoRepository) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
 	response, err := repo.client.RefreshTokens(
 		ctx,
 		&sso.RefreshTokensIn{
@@ -146,7 +146,7 @@ func (repo *GrpcSsoRepository) RefreshTokens(ctx context.Context, refreshToken s
 	}, nil
 }
 
-func (repo *GrpcSsoRepository) processUserResponse(userResponse *sso.GetUserOut) *entities.User {
+func (repo *SsoRepository) processUserResponse(userResponse *sso.GetUserOut) *entities.User {
 	return &entities.User{
 		ID:                userResponse.GetID(),
 		DisplayName:       userResponse.GetDisplayName(),

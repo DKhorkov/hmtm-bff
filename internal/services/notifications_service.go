@@ -11,22 +11,22 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewCommonNotificationsService(
+func NewNotificationsService(
 	notificationsRepository interfaces.NotificationsRepository,
 	logger *slog.Logger,
-) *CommonNotificationsService {
-	return &CommonNotificationsService{
+) *NotificationsService {
+	return &NotificationsService{
 		notificationsRepository: notificationsRepository,
 		logger:                  logger,
 	}
 }
 
-type CommonNotificationsService struct {
+type NotificationsService struct {
 	notificationsRepository interfaces.NotificationsRepository
 	logger                  *slog.Logger
 }
 
-func (service *CommonNotificationsService) GetUserEmailCommunications(
+func (service *NotificationsService) GetUserEmailCommunications(
 	ctx context.Context,
 	userID uint64,
 ) ([]entities.Email, error) {
