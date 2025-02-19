@@ -5,7 +5,7 @@ go 1.23.4
 require (
 	github.com/99designs/gqlgen v0.17.55
 	github.com/DKhorkov/hmtm-notifications v1.0.0
-	github.com/DKhorkov/hmtm-sso v1.2.0
+	github.com/DKhorkov/hmtm-sso v1.2.1
 	github.com/DKhorkov/hmtm-tickets v0.0.3
 	github.com/DKhorkov/hmtm-toys v0.2.0
 	github.com/DKhorkov/libs v1.3.2

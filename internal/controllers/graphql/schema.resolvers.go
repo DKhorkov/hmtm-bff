@@ -12,6 +12,7 @@ import (
 
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
@@ -65,6 +66,17 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.Re
 // LoginUser is the resolver for the login field.
 func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.LoginUserInput) (bool, error) {
 	logging.LogRequest(ctx, r.logger, input)
+
+	user, err := r.useCases.GetUserByEmail(ctx, input.Email)
+	if err != nil {
+		return false, err
+	}
+
+	if !user.EmailConfirmed {
+		return false, &customerrors.PermissionDeniedError{
+			Message: fmt.Sprintf("User with Email=%s has not confirmed it", input.Email),
+		}
+	}
 
 	userData := entities.LoginUserDTO{
 		Email:    input.Email,

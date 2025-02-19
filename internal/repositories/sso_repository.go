@@ -51,6 +51,21 @@ func (repo *SsoRepository) GetUserByID(ctx context.Context, id uint64) (*entitie
 	return repo.processUserResponse(response), nil
 }
 
+func (repo *SsoRepository) GetUserByEmail(ctx context.Context, email string) (*entities.User, error) {
+	response, err := repo.client.GetUserByEmail(
+		ctx,
+		&sso.GetUserByEmailIn{
+			Email: email,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.processUserResponse(response), nil
+}
+
 func (repo *SsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, error) {
 	response, err := repo.client.GetUsers(
 		ctx,
