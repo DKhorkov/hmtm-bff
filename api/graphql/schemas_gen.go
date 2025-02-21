@@ -16,6 +16,11 @@ type AddToyInput struct {
 	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
 
+type ChangePasswordInput struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}
+
 type CreateTicketInput struct {
 	CategoryID  string            `json:"categoryId"`
 	Name        string            `json:"name"`
@@ -49,6 +54,10 @@ type RegisterUserInput struct {
 
 type RespondToTicketInput struct {
 	TicketID string `json:"ticketId"`
+}
+
+type SendVerifyEmailMessageInput struct {
+	Email string `json:"email"`
 }
 
 type VerifyUserEmailInput struct {

@@ -170,6 +170,14 @@ input VerifyUserEmailInput {
     verifyEmailToken: String!
 }
 
+input SendVerifyEmailMessageInput {
+    email: String!
+}
+
+input ChangePasswordInput {
+    oldPassword: String!
+    newPassword: String!
+}
 
 type Mutation {
     # SSO mutations:
@@ -178,6 +186,9 @@ type Mutation {
     logoutUser: Boolean!
     refreshTokens: Boolean!
     verifyUserEmail(input: VerifyUserEmailInput!): Boolean!
+    forgetPassword: Boolean!
+    sendVerifyEmailMessage(input: SendVerifyEmailMessageInput!): Boolean!
+    changePassword(input: ChangePasswordInput!): Boolean!
 
     # Toys mutations:
     registerMaster(input: RegisterMasterInput!): ID!
