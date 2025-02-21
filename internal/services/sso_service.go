@@ -117,6 +117,53 @@ func (service *SsoService) VerifyUserEmail(ctx context.Context, verifyEmailToken
 	return err
 }
 
+func (service *SsoService) ForgetPassword(ctx context.Context, accessToken string) error {
+	err := service.ssoRepository.ForgetPassword(ctx, accessToken)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to forget password for User with AccessToken=%s", accessToken),
+			err,
+		)
+	}
+
+	return err
+}
+
+func (service *SsoService) ChangePassword(
+	ctx context.Context,
+	accessToken string,
+	oldPassword string,
+	newPassword string,
+) error {
+	err := service.ssoRepository.ChangePassword(ctx, accessToken, oldPassword, newPassword)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to change password for User with AccessToken=%s", accessToken),
+			err,
+		)
+	}
+
+	return err
+}
+
+func (service *SsoService) SendVerifyEmailMessage(ctx context.Context, email string) error {
+	err := service.ssoRepository.SendVerifyEmailMessage(ctx, email)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to send verify email message to User with email=%s", email),
+			err,
+		)
+	}
+
+	return err
+}
+
 func (service *SsoService) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	user, err := service.ssoRepository.GetMe(ctx, accessToken)
 	if err != nil {

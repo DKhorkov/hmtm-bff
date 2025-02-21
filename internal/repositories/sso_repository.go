@@ -128,6 +128,46 @@ func (repo *SsoRepository) VerifyUserEmail(ctx context.Context, verifyEmailToken
 	return err
 }
 
+func (repo *SsoRepository) ForgetPassword(ctx context.Context, accessToken string) error {
+	_, err := repo.client.ForgetPassword(
+		ctx,
+		&sso.ForgetPasswordIn{
+			AccessToken: accessToken,
+		},
+	)
+
+	return err
+}
+
+func (repo *SsoRepository) ChangePassword(
+	ctx context.Context,
+	accessToken string,
+	oldPassword string,
+	newPassword string,
+) error {
+	_, err := repo.client.ChangePassword(
+		ctx,
+		&sso.ChangePasswordIn{
+			AccessToken: accessToken,
+			OldPassword: oldPassword,
+			NewPassword: newPassword,
+		},
+	)
+
+	return err
+}
+
+func (repo *SsoRepository) SendVerifyEmailMessage(ctx context.Context, email string) error {
+	_, err := repo.client.SendVerifyEmailMessage(
+		ctx,
+		&sso.SendVerifyEmailMessageIn{
+			Email: email,
+		},
+	)
+
+	return err
+}
+
 func (repo *SsoRepository) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	response, err := repo.client.GetMe(
 		ctx,

@@ -161,6 +161,52 @@ func (r *mutationResolver) VerifyUserEmail(ctx context.Context, input graphqlapi
 	return true, nil
 }
 
+// ForgetPassword is the resolver for the forgetPassword field.
+func (r *mutationResolver) ForgetPassword(ctx context.Context) (bool, error) {
+	logging.LogRequest(ctx, r.logger, nil)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	if err = r.useCases.ForgetPassword(ctx, accessToken.Value); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// SendVerifyEmailMessage is the resolver for the sendVerifyEmailMessage field.
+func (r *mutationResolver) SendVerifyEmailMessage(
+	ctx context.Context,
+	input graphqlapi.SendVerifyEmailMessageInput,
+) (bool, error) {
+	logging.LogRequest(ctx, r.logger, input)
+
+	if err := r.useCases.SendVerifyEmailMessage(ctx, input.Email); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// ChangePassword is the resolver for the changePassword field.
+func (r *mutationResolver) ChangePassword(ctx context.Context, input graphqlapi.ChangePasswordInput) (bool, error) {
+	logging.LogRequest(ctx, r.logger, input)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	if err = r.useCases.ChangePassword(ctx, accessToken.Value, input.OldPassword, input.NewPassword); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // RegisterMaster is the resolver for the registerMaster field.
 func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.RegisterMasterInput) (string, error) {
 	logging.LogRequest(ctx, r.logger, input)
