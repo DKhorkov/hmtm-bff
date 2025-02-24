@@ -201,6 +201,21 @@ func (repo *SsoRepository) RefreshTokens(ctx context.Context, refreshToken strin
 	}, nil
 }
 
+func (repo *SsoRepository) UpdateUserProfile(ctx context.Context, userProfileData entities.UpdateUserProfileDTO) error {
+	_, err := repo.client.UpdateUserProfile(
+		ctx,
+		&sso.UpdateUserProfileIn{
+			AccessToken: userProfileData.AccessToken,
+			DisplayName: userProfileData.DisplayName,
+			Phone:       userProfileData.Phone,
+			Telegram:    userProfileData.Telegram,
+			Avatar:      userProfileData.Avatar,
+		},
+	)
+
+	return err
+}
+
 func (repo *SsoRepository) processUserResponse(userResponse *sso.GetUserOut) *entities.User {
 	return &entities.User{
 		ID:                userResponse.GetID(),

@@ -19,6 +19,7 @@ type SsoRepository interface {
 	ForgetPassword(ctx context.Context, accessToken string) error
 	ChangePassword(ctx context.Context, accessToken string, oldPassword string, newPassword string) error
 	SendVerifyEmailMessage(ctx context.Context, email string) error
+	UpdateUserProfile(ctx context.Context, userProfileData entities.UpdateUserProfileDTO) error
 }
 
 type ToysRepository interface {
@@ -39,6 +40,8 @@ type ToysRepository interface {
 
 type FileStorageRepository interface {
 	Upload(ctx context.Context, key string, file []byte) (string, error)
+	Delete(ctx context.Context, key string) error
+	DeleteMany(ctx context.Context, keys []string) []error
 }
 
 type TicketsRepository interface {

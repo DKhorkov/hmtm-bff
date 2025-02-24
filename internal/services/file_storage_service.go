@@ -41,3 +41,31 @@ func (service *FileStorageService) Upload(ctx context.Context, key string, data 
 
 	return url, nil
 }
+
+func (service *FileStorageService) Delete(ctx context.Context, key string) error {
+	err := service.fileStorageRepository.Delete(ctx, key)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to delete File with key=%s", key),
+			err,
+		)
+	}
+
+	return err
+}
+
+func (service *FileStorageService) DeleteMany(ctx context.Context, keys []string) []error {
+	deleteErrors := service.fileStorageRepository.DeleteMany(ctx, keys)
+	if deleteErrors != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Errors occurred while trying to delete Files with keys=%s", keys),
+			fmt.Errorf("%v", deleteErrors),
+		)
+	}
+
+	return deleteErrors
+}

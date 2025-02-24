@@ -179,6 +179,13 @@ input ChangePasswordInput {
     newPassword: String!
 }
 
+input UpdateUserProfileInput {
+    displayName: String
+    phone: String
+    telegram: String
+    avatar: Upload
+}
+
 type Mutation {
     # SSO mutations:
     registerUser(input: RegisterUserInput!): ID!
@@ -189,6 +196,7 @@ type Mutation {
     forgetPassword: Boolean!
     sendVerifyEmailMessage(input: SendVerifyEmailMessageInput!): Boolean!
     changePassword(input: ChangePasswordInput!): Boolean!
+    updateUserProfile(input: UpdateUserProfileInput!): Boolean!
 
     # Toys mutations:
     registerMaster(input: RegisterMasterInput!): ID!

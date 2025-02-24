@@ -10,13 +10,14 @@ import (
 	"net/http"
 	"strconv"
 
-	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
+
+	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 )
 
 // User is the resolver for the user field.
@@ -105,7 +106,7 @@ func (r *mutationResolver) LogoutUser(ctx context.Context) (bool, error) {
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return false, cookies.NotFoundError{Message: accessTokenCookieName}
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	err = r.useCases.LogoutUser(ctx, accessToken.Value)
@@ -131,7 +132,7 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context) (bool, error) {
 
 	refreshToken, err := contextlib.GetValue[*http.Cookie](ctx, refreshTokenCookieName)
 	if err != nil {
-		return false, cookies.NotFoundError{Message: refreshTokenCookieName}
+		return false, &cookies.NotFoundError{Message: refreshTokenCookieName}
 	}
 
 	tokens, err := r.useCases.RefreshTokens(ctx, refreshToken.Value)
@@ -167,7 +168,7 @@ func (r *mutationResolver) ForgetPassword(ctx context.Context) (bool, error) {
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return false, cookies.NotFoundError{Message: accessTokenCookieName}
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	if err = r.useCases.ForgetPassword(ctx, accessToken.Value); err != nil {
@@ -178,10 +179,7 @@ func (r *mutationResolver) ForgetPassword(ctx context.Context) (bool, error) {
 }
 
 // SendVerifyEmailMessage is the resolver for the sendVerifyEmailMessage field.
-func (r *mutationResolver) SendVerifyEmailMessage(
-	ctx context.Context,
-	input graphqlapi.SendVerifyEmailMessageInput,
-) (bool, error) {
+func (r *mutationResolver) SendVerifyEmailMessage(ctx context.Context, input graphqlapi.SendVerifyEmailMessageInput) (bool, error) {
 	logging.LogRequest(ctx, r.logger, input)
 
 	if err := r.useCases.SendVerifyEmailMessage(ctx, input.Email); err != nil {
@@ -197,10 +195,34 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, input graphqlapi.
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return false, cookies.NotFoundError{Message: accessTokenCookieName}
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	if err = r.useCases.ChangePassword(ctx, accessToken.Value, input.OldPassword, input.NewPassword); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// UpdateUserProfile is the resolver for the updateUserProfile field.
+func (r *mutationResolver) UpdateUserProfile(ctx context.Context, input graphqlapi.UpdateUserProfileInput) (bool, error) {
+	logging.LogRequest(ctx, r.logger, input)
+
+	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	userProfileData := entities.RawUpdateUserProfileDTO{
+		AccessToken: accessToken.Value,
+		DisplayName: input.DisplayName,
+		Phone:       input.Phone,
+		Telegram:    input.Telegram,
+		Avatar:      input.Avatar,
+	}
+
+	if err = r.useCases.UpdateUserProfile(ctx, userProfileData); err != nil {
 		return false, err
 	}
 
@@ -213,7 +235,7 @@ func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return "", cookies.NotFoundError{Message: accessTokenCookieName}
+		return "", &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	masterData := entities.RawRegisterMasterDTO{
@@ -231,7 +253,7 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return "", cookies.NotFoundError{Message: accessTokenCookieName}
+		return "", &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	categoryID, err := strconv.Atoi(input.CategoryID)
@@ -260,7 +282,7 @@ func (r *mutationResolver) CreateTicket(ctx context.Context, input graphqlapi.Cr
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return "", cookies.NotFoundError{Message: accessTokenCookieName}
+		return "", &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	categoryID, err := strconv.Atoi(input.CategoryID)
@@ -289,7 +311,7 @@ func (r *mutationResolver) RespondToTicket(ctx context.Context, input graphqlapi
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return "", cookies.NotFoundError{Message: accessTokenCookieName}
+		return "", &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	ticketID, err := strconv.Atoi(input.TicketID)
@@ -341,7 +363,7 @@ func (r *queryResolver) Me(ctx context.Context) (*entities.User, error) {
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	return r.useCases.GetMe(ctx, accessToken.Value)
@@ -433,7 +455,7 @@ func (r *queryResolver) MyToys(ctx context.Context) ([]*entities.Toy, error) {
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	toys, err := r.useCases.GetMyToys(ctx, accessToken.Value)
@@ -564,7 +586,7 @@ func (r *queryResolver) MyTickets(ctx context.Context) ([]*entities.Ticket, erro
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	tickets, err := r.useCases.GetMyTickets(ctx, accessToken.Value)
@@ -586,7 +608,7 @@ func (r *queryResolver) Respond(ctx context.Context, id string) (*entities.Respo
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	respondID, err := strconv.Atoi(id)
@@ -603,7 +625,7 @@ func (r *queryResolver) TicketResponds(ctx context.Context, ticketID string) ([]
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	intTicketID, err := strconv.Atoi(ticketID)
@@ -630,7 +652,7 @@ func (r *queryResolver) MyResponds(ctx context.Context) ([]*entities.Respond, er
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	responds, err := r.useCases.GetMyResponds(ctx, accessToken.Value)
@@ -652,7 +674,7 @@ func (r *queryResolver) MyEmailCommunications(ctx context.Context) ([]*entities.
 
 	accessToken, err := contextlib.GetValue[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
-		return nil, cookies.NotFoundError{Message: accessTokenCookieName}
+		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
 	emailCommunications, err := r.useCases.GetMyEmailCommunications(ctx, accessToken.Value)
