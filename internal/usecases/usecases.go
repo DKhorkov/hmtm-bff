@@ -116,7 +116,7 @@ func (useCases *UseCases) AddToy(ctx context.Context, rawToyData entities.RawAdd
 		return 0, err
 	}
 
-	uploadedFiles, err := useCases.UploadFiles(ctx, rawToyData.Attachments)
+	uploadedFiles, err := useCases.UploadFiles(ctx, user.ID, rawToyData.Attachments)
 	if err != nil {
 		return 0, err
 	}
@@ -209,30 +209,25 @@ func (useCases *UseCases) GetTagByID(ctx context.Context, id uint32) (*entities.
 	return useCases.toysService.GetTagByID(ctx, id)
 }
 
-func (useCases *UseCases) UploadFile(ctx context.Context, file *graphql.Upload) (string, error) {
-	fileExtension := path.Ext(file.Filename)
-	if !validateFileExtension(fileExtension, useCases.validationConfig.FileAllowedExtensions) {
-		return "", &customerrors.InvalidFileExtensionError{Message: fileExtension}
+func (useCases *UseCases) UploadFile(ctx context.Context, userID uint64, file *graphql.Upload) (string, error) {
+	filename, err := useCases.createFilename(userID, file)
+	if err != nil {
+		return "", err
 	}
 
-	if !validateFileSize(file.Size, useCases.validationConfig.FileMaxSize) {
-		return "", &customerrors.InvalidFileSizeError{Message: strconv.FormatInt(file.Size, 10)}
-	}
-
-	key := security.RawEncode([]byte(file.Filename)) + fileExtension
 	binaryFile, err := io.ReadAll(file.File)
 	if err != nil {
 		return "", err
 	}
 
-	return useCases.fileStorageService.Upload(ctx, key, binaryFile)
+	return useCases.fileStorageService.Upload(ctx, filename, binaryFile)
 }
 
-func (useCases *UseCases) UploadFiles(ctx context.Context, files []*graphql.Upload) ([]string, error) {
+func (useCases *UseCases) UploadFiles(ctx context.Context, userID uint64, files []*graphql.Upload) ([]string, error) {
 	uploadedFiles := make([]string, 0, len(files))
 	uploadingErrors := make([]error, 0, len(files))
 	for _, file := range files {
-		filename, err := useCases.UploadFile(ctx, file)
+		filename, err := useCases.UploadFile(ctx, userID, file)
 		if err != nil {
 			uploadingErrors = append(uploadingErrors, err)
 		} else {
@@ -278,7 +273,7 @@ func (useCases *UseCases) CreateTicket(
 		return 0, err
 	}
 
-	uploadedFiles, err := useCases.UploadFiles(ctx, rawTicketData.Attachments)
+	uploadedFiles, err := useCases.UploadFiles(ctx, user.ID, rawTicketData.Attachments)
 	if err != nil {
 		return 0, err
 	}
@@ -514,4 +509,66 @@ func (useCases *UseCases) GetMyEmailCommunications(
 	}
 
 	return useCases.notificationsService.GetUserEmailCommunications(ctx, user.ID)
+}
+
+func (useCases *UseCases) UpdateUserProfile(
+	ctx context.Context,
+	rawUserProfileData entities.RawUpdateUserProfileDTO,
+) error {
+	user, err := useCases.GetMe(ctx, rawUserProfileData.AccessToken)
+	if err != nil {
+		return err
+	}
+
+	// Check old avatar existence and necessary to upload or delete files:
+	var avatar string
+	if rawUserProfileData.Avatar != nil {
+		var newAvatarFilename string
+		newAvatarFilename, err = useCases.createFilename(user.ID, rawUserProfileData.Avatar)
+		if err != nil {
+			return err
+		}
+
+		var oldAvatarFilename string
+		if user.Avatar != nil && *user.Avatar != "" {
+			split := strings.Split(*user.Avatar, "/")
+			oldAvatarFilename = split[len(split)-1]
+
+			if newAvatarFilename != oldAvatarFilename {
+				if err = useCases.fileStorageService.Delete(ctx, oldAvatarFilename); err != nil {
+					return err
+				}
+			}
+		}
+
+		if newAvatarFilename != oldAvatarFilename {
+			if avatar, err = useCases.UploadFile(ctx, user.ID, rawUserProfileData.Avatar); err != nil {
+				return err
+			}
+		}
+	}
+
+	userProfileData := entities.UpdateUserProfileDTO{
+		AccessToken: rawUserProfileData.AccessToken,
+		DisplayName: rawUserProfileData.DisplayName,
+		Phone:       rawUserProfileData.Phone,
+		Telegram:    rawUserProfileData.Telegram,
+		Avatar:      &avatar,
+	}
+
+	return useCases.ssoService.UpdateUserProfile(ctx, userProfileData)
+}
+
+func (useCases *UseCases) createFilename(userID uint64, file *graphql.Upload) (string, error) {
+	fileExtension := path.Ext(file.Filename)
+	if !validateFileExtension(fileExtension, useCases.validationConfig.FileAllowedExtensions) {
+		return "", &customerrors.InvalidFileExtensionError{Message: fileExtension}
+	}
+
+	if !validateFileSize(file.Size, useCases.validationConfig.FileMaxSize) {
+		return "", &customerrors.InvalidFileSizeError{Message: strconv.FormatInt(file.Size, 10)}
+	}
+
+	filename := security.RawEncode([]byte(fmt.Sprintf("%d:%s", userID, file.Filename))) + fileExtension
+	return filename, nil
 }

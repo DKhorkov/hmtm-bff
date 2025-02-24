@@ -164,6 +164,23 @@ func (service *SsoService) SendVerifyEmailMessage(ctx context.Context, email str
 	return err
 }
 
+func (service *SsoService) UpdateUserProfile(ctx context.Context, userProfileData entities.UpdateUserProfileDTO) error {
+	err := service.ssoRepository.UpdateUserProfile(ctx, userProfileData)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf(
+				"Error occurred while trying to update profile for User with AccessToken=%s",
+				userProfileData.AccessToken,
+			),
+			err,
+		)
+	}
+
+	return err
+}
+
 func (service *SsoService) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	user, err := service.ssoRepository.GetMe(ctx, accessToken)
 	if err != nil {

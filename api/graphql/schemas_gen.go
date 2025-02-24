@@ -60,6 +60,13 @@ type SendVerifyEmailMessageInput struct {
 	Email string `json:"email"`
 }
 
+type UpdateUserProfileInput struct {
+	DisplayName *string         `json:"displayName,omitempty"`
+	Phone       *string         `json:"phone,omitempty"`
+	Telegram    *string         `json:"telegram,omitempty"`
+	Avatar      *graphql.Upload `json:"avatar,omitempty"`
+}
+
 type VerifyUserEmailInput struct {
 	VerifyEmailToken string `json:"verifyEmailToken"`
 }

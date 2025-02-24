@@ -1,6 +1,10 @@
 package entities
 
-import "time"
+import (
+	"time"
+
+	"github.com/99designs/gqlgen/graphql"
+)
 
 type LoginUserDTO struct {
 	Email    string `json:"email"`
@@ -31,4 +35,20 @@ type User struct {
 	Avatar            *string   `json:"avatar,omitempty"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
+}
+
+type RawUpdateUserProfileDTO struct {
+	AccessToken string          `json:"access_token"`
+	DisplayName *string         `json:"display_name,omitempty"`
+	Phone       *string         `json:"phone,omitempty"`
+	Telegram    *string         `json:"telegram,omitempty"`
+	Avatar      *graphql.Upload `json:"avatar,omitempty"`
+}
+
+type UpdateUserProfileDTO struct {
+	AccessToken string  `json:"access_token"`
+	DisplayName *string `json:"display_name,omitempty"`
+	Phone       *string `json:"phone,omitempty"`
+	Telegram    *string `json:"telegram,omitempty"`
+	Avatar      *string `json:"avatar,omitempty"`
 }

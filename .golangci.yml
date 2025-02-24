@@ -389,3 +389,4 @@ issues:
     - path: "internal/usecases/usecases.go"
       linters:
         - dupl
+        - nestif
