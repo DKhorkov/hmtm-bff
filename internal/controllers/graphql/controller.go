@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
@@ -26,7 +25,7 @@ func New(
 	corsConfig config.CORSConfig,
 	cookiesConfig config.CookiesConfig,
 	useCases interfaces.UseCases,
-	logger *slog.Logger,
+	logger logging.Logger,
 	traceProvider tracing.Provider,
 	tracingConfig config.TracingConfig,
 ) *Controller {
@@ -91,7 +90,7 @@ type Controller struct {
 	httpServer *http.Server
 	host       string
 	port       int
-	logger     *slog.Logger
+	logger     logging.Logger
 }
 
 // Run gRPC server.

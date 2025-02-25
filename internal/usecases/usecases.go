@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log/slog"
 	"path"
 	"strconv"
 	"strings"
@@ -28,7 +27,7 @@ func New(
 	ticketsService interfaces.TicketsService,
 	notificationsService interfaces.NotificationsService,
 	validationConfig config.ValidationConfig,
-	logger *slog.Logger,
+	logger logging.Logger,
 	traceProvider tracing.Provider,
 ) *UseCases {
 	return &UseCases{
@@ -50,7 +49,7 @@ type UseCases struct {
 	ticketsService       interfaces.TicketsService
 	notificationsService interfaces.NotificationsService
 	validationConfig     config.ValidationConfig
-	logger               *slog.Logger
+	logger               logging.Logger
 	traceProvider        tracing.Provider
 }
 

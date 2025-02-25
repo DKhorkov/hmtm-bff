@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
-	"log/slog"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -14,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 
+	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/pointers"
 
 	appconfig "github.com/DKhorkov/hmtm-bff/internal/config"
@@ -21,8 +20,8 @@ import (
 
 func NewS3FileStorageRepository(
 	s3config appconfig.S3Config,
-	logger *slog.Logger,
-) *S3FileStorageRepository {
+	logger logging.Logger,
+) (*S3FileStorageRepository, error) {
 	// Load the Shared AWS Configuration (~/.aws/config)
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),
@@ -38,7 +37,8 @@ func NewS3FileStorageRepository(
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		logging.LogError(logger, "Failed to load AWS configuration: %s", err)
+		return nil, err
 	}
 
 	// Create an Amazon S3 service client
@@ -48,12 +48,12 @@ func NewS3FileStorageRepository(
 		client:   client,
 		logger:   logger,
 		s3config: s3config,
-	}
+	}, nil
 }
 
 type S3FileStorageRepository struct {
 	client   *s3.Client
-	logger   *slog.Logger
+	logger   logging.Logger
 	s3config appconfig.S3Config
 }
 
@@ -106,7 +106,7 @@ func (repo *S3FileStorageRepository) Delete(ctx context.Context, key string) err
 func (repo *S3FileStorageRepository) DeleteMany(ctx context.Context, keys []string) []error {
 	objectsToDelete := make([]types.ObjectIdentifier, 0, len(keys))
 	for _, key := range keys {
-		objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: pointers.Pointer(key)})
+		objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: pointers.New(key)})
 	}
 
 	delOut, err := repo.client.DeleteObjects(

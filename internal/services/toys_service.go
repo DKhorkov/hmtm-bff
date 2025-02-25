@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/DKhorkov/libs/logging"
 
@@ -11,7 +10,7 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewToysService(toysRepository interfaces.ToysRepository, logger *slog.Logger) *ToysService {
+func NewToysService(toysRepository interfaces.ToysRepository, logger logging.Logger) *ToysService {
 	return &ToysService{
 		toysRepository: toysRepository,
 		logger:         logger,
@@ -20,7 +19,7 @@ func NewToysService(toysRepository interfaces.ToysRepository, logger *slog.Logge
 
 type ToysService struct {
 	toysRepository interfaces.ToysRepository
-	logger         *slog.Logger
+	logger         logging.Logger
 }
 
 func (service *ToysService) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {

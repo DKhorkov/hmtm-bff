@@ -1,7 +1,7 @@
 package graphqlcontroller
 
 import (
-	"log/slog"
+	"github.com/DKhorkov/libs/logging"
 
 	"github.com/DKhorkov/hmtm-bff/internal/config"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
@@ -22,13 +22,13 @@ https://stackoverflow.com/questions/62348857/unit-testing-graphql-in-golang
 */
 type Resolver struct {
 	useCases      interfaces.UseCases
-	logger        *slog.Logger
+	logger        logging.Logger
 	cookiesConfig config.CookiesConfig
 }
 
 func NewResolver(
 	useCases interfaces.UseCases,
-	logger *slog.Logger,
+	logger logging.Logger,
 	cookiesConfig config.CookiesConfig,
 ) *Resolver {
 	return &Resolver{
