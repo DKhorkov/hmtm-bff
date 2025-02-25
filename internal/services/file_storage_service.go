@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/DKhorkov/libs/logging"
 
@@ -13,7 +12,7 @@ import (
 
 func NewFileStorageService(
 	fileStorageRepository interfaces.FileStorageRepository,
-	logger *slog.Logger,
+	logger logging.Logger,
 ) *FileStorageService {
 	return &FileStorageService{
 		fileStorageRepository: fileStorageRepository,
@@ -23,7 +22,7 @@ func NewFileStorageService(
 
 type FileStorageService struct {
 	fileStorageRepository interfaces.FileStorageRepository
-	logger                *slog.Logger
+	logger                logging.Logger
 }
 
 func (service *FileStorageService) Upload(ctx context.Context, key string, data []byte) (string, error) {

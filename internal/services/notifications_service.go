@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/DKhorkov/libs/logging"
 
@@ -13,7 +12,7 @@ import (
 
 func NewNotificationsService(
 	notificationsRepository interfaces.NotificationsRepository,
-	logger *slog.Logger,
+	logger logging.Logger,
 ) *NotificationsService {
 	return &NotificationsService{
 		notificationsRepository: notificationsRepository,
@@ -23,7 +22,7 @@ func NewNotificationsService(
 
 type NotificationsService struct {
 	notificationsRepository interfaces.NotificationsRepository
-	logger                  *slog.Logger
+	logger                  logging.Logger
 }
 
 func (service *NotificationsService) GetUserEmailCommunications(

@@ -21,7 +21,7 @@ import (
 
 func main() {
 	settings := config.New()
-	logger := logging.GetInstance(
+	logger := logging.New(
 		settings.Logging.Level,
 		settings.Logging.LogFilePath,
 	)
@@ -102,7 +102,11 @@ func main() {
 	toysRepository := repositories.NewToysRepository(toysClient)
 	toysService := services.NewToysService(toysRepository, logger)
 
-	fileStorageRepository := repositories.NewS3FileStorageRepository(settings.S3, logger)
+	fileStorageRepository, err := repositories.NewS3FileStorageRepository(settings.S3, logger)
+	if err != nil {
+		panic(err)
+	}
+
 	fileStorageService := services.NewFileStorageService(fileStorageRepository, logger)
 
 	ticketsRepository := repositories.NewTicketsRepository(ticketsClient)
