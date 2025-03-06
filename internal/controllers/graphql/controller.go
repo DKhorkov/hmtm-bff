@@ -64,6 +64,9 @@ func New(
 	// Create request ID for request for later logging:
 	httpHandler = middlewares.RequestIDMiddleware(httpHandler)
 
+	// Configuring logging. Should be used after middlewares.RequestIDMiddleware:
+	httpHandler = middlewares.GraphQLLoggingMiddleware(httpHandler, logger)
+
 	// Protecting server from too long requests:
 	httpHandler = http.TimeoutHandler(
 		httpHandler,
