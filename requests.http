@@ -1,0 +1,50 @@
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "mutation RegisterUser($input: RegisterUserInput!) {registerUser(input: $input)}",
+  "variables": {
+    "input": {
+      "email": "alexqwerty98@yandex.ru",
+      "password": "Qwer1234@",
+      "displayName": "DKhorkov"
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "mutation LoginUser($input: LoginUserInput!) {loginUser(input: $input)}",
+  "variables": {
+    "input": {
+      "email": "alexqwerty35@yandex.ru",
+      "password": "Qwer1234@"
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: refreshToken=ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmxlSEFpT2pFM05ERTRPVGN4TURFc0luWmhiSFZsSWpvaVpYbEthR0pIWTJsUGFVcEpWWHBKTVU1cFNYTkpibEkxWTBOSk5rbHJjRmhXUTBvNUxtVjVTbXhsU0VGcFQycEZNMDVFUlhsUFZFMTVUVVJGYzBsdVdtaGlTRlpzU1dwdmVrMVlNQzVWY3pGSVNtdzVOVFp6TFd4b2FFbEphWGxSYTJ0clFUSkZXWGRyUkdkSFlUSlJaMWhOWVRkaVdGVnJJbjAuOTBKdGRiQjllaFVOSUxDMXB4bGEtaGltYVFaaUpXR2s0bWdHU1lNX1FxOA==
+
+{
+  "query": "mutation { refreshTokens }"
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDEyOTMxMTUsInZhbHVlIjozMX0.7YTO84thnGVDalv-w_24hksTneL0NnVBGiG5oUMOMWQ
+
+{
+  "query": "query { me { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } }"
+}
