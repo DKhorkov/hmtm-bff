@@ -31,6 +31,10 @@ type CreateTicketInput struct {
 	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
 
+type DeleteToyInput struct {
+	ID string `json:"id"`
+}
+
 type LoginUserInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -58,6 +62,17 @@ type RespondToTicketInput struct {
 
 type SendVerifyEmailMessageInput struct {
 	Email string `json:"email"`
+}
+
+type UpdateToyInput struct {
+	ID          string            `json:"id"`
+	CategoryID  string            `json:"categoryId"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Price       float64           `json:"price"`
+	Quantity    int               `json:"quantity"`
+	Tags        []string          `json:"tags,omitempty"`
+	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
 
 type UpdateUserProfileInput struct {

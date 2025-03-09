@@ -80,6 +80,9 @@ func (repo *S3FileStorageRepository) Upload(ctx context.Context, key string, fil
 	), nil
 }
 
+// Delete deletes file from S3.
+// Provided key should not be empty in purpose not to receive error!
+// https://stackoverflow.com/questions/54093951/aws-s3-userkeymustbespecified-error-when-deleting-multiple-objects
 func (repo *S3FileStorageRepository) Delete(ctx context.Context, key string) error {
 	input := &s3.DeleteObjectInput{
 		Bucket: aws.String(repo.s3config.Bucket),
@@ -103,6 +106,9 @@ func (repo *S3FileStorageRepository) Delete(ctx context.Context, key string) err
 	return nil
 }
 
+// DeleteMany deletes multiple files from S3.
+// No empty keys should be provided in purpose not to receive error!
+// https://stackoverflow.com/questions/54093951/aws-s3-userkeymustbespecified-error-when-deleting-multiple-objects
 func (repo *S3FileStorageRepository) DeleteMany(ctx context.Context, keys []string) []error {
 	objectsToDelete := make([]types.ObjectIdentifier, 0, len(keys))
 	for _, key := range keys {

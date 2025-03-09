@@ -36,6 +36,9 @@ type ToysRepository interface {
 	GetAllTags(ctx context.Context) ([]entities.Tag, error)
 	GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error)
 	CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error)
+	UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error
+	DeleteToy(ctx context.Context, id uint64) error
+	GetMasterByUser(ctx context.Context, userID uint64) (*entities.Master, error)
 }
 
 type FileStorageRepository interface {

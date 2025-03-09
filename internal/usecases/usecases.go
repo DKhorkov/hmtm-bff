@@ -238,7 +238,7 @@ func (useCases *UseCases) UploadFiles(ctx context.Context, userID uint64, files 
 	concatenatedErrBuilder.WriteString("Failed to upload files:\n")
 	for i, err := range uploadingErrors {
 		// i + 1 due to index starts from zero
-		concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %s\n", i+1, err.Error()))
+		concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
 	}
 
 	if len(uploadingErrors) > 0 {
@@ -428,7 +428,7 @@ func (useCases *UseCases) GetRespondByID(
 		return nil, err
 	}
 
-	// Check if Respond belongs to Ticket owner or to Master, which responded to Ticket.
+	// Check if Respond belongs to Ticket owner or to Master, which responded to Ticket:
 	if ticket.UserID != user.ID && master.UserID != user.ID {
 		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 		defer span.End()
@@ -465,7 +465,7 @@ func (useCases *UseCases) GetTicketResponds(
 		return nil, err
 	}
 
-	// Check if Ticket belongs to current User.
+	// Check if Ticket belongs to current User:
 	if ticket.UserID != user.ID {
 		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 		defer span.End()
@@ -570,4 +570,202 @@ func (useCases *UseCases) createFilename(userID uint64, file *graphql.Upload) (s
 
 	filename := security.RawEncode([]byte(fmt.Sprintf("%d:%s", userID, file.Filename))) + fileExtension
 	return filename, nil
+}
+
+func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.RawUpdateToyDTO) error {
+	user, err := useCases.GetMe(ctx, rawToyData.AccessToken)
+	if err != nil {
+		return err
+	}
+
+	master, err := useCases.toysService.GetMasterByUser(ctx, user.ID)
+	if err != nil {
+		return err
+	}
+
+	toy, err := useCases.GetToyByID(ctx, rawToyData.ID)
+	if err != nil {
+		return err
+	}
+
+	// Check if Toy belongs to User:
+	if toy.MasterID != master.ID {
+		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+		defer span.End()
+
+		errorMessage := fmt.Sprintf(
+			"User with ID=%d is not owner of Toy with ID=%d",
+			user.ID,
+			rawToyData.ID,
+		)
+
+		span.SetStatus(tracing.StatusError, errorMessage)
+
+		return &customerrors.PermissionDeniedError{
+			Message: errorMessage,
+		}
+	}
+
+	tagsData := make([]entities.CreateTagDTO, len(rawToyData.Tags))
+	for i, tag := range rawToyData.Tags {
+		tagsData[i] = entities.CreateTagDTO{
+			Name: tag,
+		}
+	}
+
+	tagIDs, err := useCases.toysService.CreateTags(ctx, tagsData)
+	if err != nil {
+		return err
+	}
+
+	// Old Toy Attachments set:
+	oldAttachmentsSet := make(map[string]struct{}, len(toy.Attachments))
+	for _, attachment := range toy.Attachments {
+		split := strings.Split(attachment.Link, "/")
+		oldAttachmentFilename := split[len(split)-1]
+		oldAttachmentsSet[oldAttachmentFilename] = struct{}{}
+	}
+
+	// New Toy Attachments set:
+	newAttachmentsSet := make(map[string]struct{}, len(rawToyData.Attachments))
+	for _, attachment := range rawToyData.Attachments {
+		filename, err := useCases.createFilename(user.ID, attachment)
+		if err != nil {
+			return err
+		}
+
+		newAttachmentsSet[filename] = struct{}{}
+	}
+
+	// Add new Attachments if it is not already exists:
+	attachmentsToAdd := make([]*graphql.Upload, 0)
+	for _, attachment := range rawToyData.Attachments {
+		filename, err := useCases.createFilename(user.ID, attachment)
+		if err != nil {
+			return err
+		}
+
+		if _, ok := oldAttachmentsSet[filename]; !ok {
+			attachmentsToAdd = append(attachmentsToAdd, attachment)
+		}
+	}
+
+	// Still used Attachments:
+	stillUsedAttachments := make([]string, 0)
+	for _, attachment := range toy.Attachments {
+		split := strings.Split(attachment.Link, "/")
+		oldAttachmentFilename := split[len(split)-1]
+		if _, ok := newAttachmentsSet[oldAttachmentFilename]; ok {
+			stillUsedAttachments = append(stillUsedAttachments, attachment.Link)
+		}
+	}
+
+	// Delete old Attachments if it is not used by Toy now:
+	attachmentsToDelete := make([]string, 0)
+	for _, attachment := range toy.Attachments {
+		split := strings.Split(attachment.Link, "/")
+		oldAttachmentFilename := split[len(split)-1]
+		if _, ok := newAttachmentsSet[oldAttachmentFilename]; !ok {
+			attachmentsToDelete = append(attachmentsToDelete, oldAttachmentFilename)
+		}
+	}
+
+	deleteAttachmentErrors := useCases.fileStorageService.DeleteMany(ctx, attachmentsToDelete)
+	if len(deleteAttachmentErrors) > 0 {
+		concatenatedErrBuilder := strings.Builder{}
+		concatenatedErrBuilder.WriteString("Failed to delete files:\n")
+		for i, err := range deleteAttachmentErrors {
+			// i + 1 due to index starts from zero
+			concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
+		}
+
+		// Logging errors for further investigate:
+		logging.LogErrorContext(
+			ctx,
+			useCases.logger,
+			concatenatedErrBuilder.String(),
+			&customerrors.DeleteFileError{Message: concatenatedErrBuilder.String()},
+		)
+	}
+
+	uploadedFiles, err := useCases.UploadFiles(ctx, user.ID, attachmentsToAdd)
+	if err != nil {
+		return err
+	}
+
+	updatedAttachments := append(stillUsedAttachments, uploadedFiles...)
+	toyData := entities.UpdateToyDTO{
+		ID:          rawToyData.ID,
+		CategoryID:  rawToyData.CategoryID,
+		Name:        rawToyData.Name,
+		Description: rawToyData.Description,
+		Price:       rawToyData.Price,
+		Quantity:    rawToyData.Quantity,
+		TagIDs:      tagIDs,
+		Attachments: updatedAttachments,
+	}
+
+	return useCases.toysService.UpdateToy(ctx, toyData)
+}
+
+func (useCases *UseCases) DeleteToy(ctx context.Context, accessToken string, id uint64) error {
+	user, err := useCases.GetMe(ctx, accessToken)
+	if err != nil {
+		return err
+	}
+
+	master, err := useCases.toysService.GetMasterByUser(ctx, user.ID)
+	if err != nil {
+		return err
+	}
+
+	toy, err := useCases.GetToyByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	// Check if Toy belongs to User:
+	if toy.MasterID != master.ID {
+		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+		defer span.End()
+
+		errorMessage := fmt.Sprintf(
+			"User with ID=%d is not owner of Toy with ID=%d",
+			user.ID,
+			toy.ID,
+		)
+
+		span.SetStatus(tracing.StatusError, errorMessage)
+
+		return &customerrors.PermissionDeniedError{
+			Message: errorMessage,
+		}
+	}
+
+	attachmentsToDelete := make([]string, 0, len(toy.Attachments))
+	for _, attachment := range toy.Attachments {
+		split := strings.Split(attachment.Link, "/")
+		oldAttachmentFilename := split[len(split)-1]
+		attachmentsToDelete = append(attachmentsToDelete, oldAttachmentFilename)
+	}
+
+	deleteAttachmentErrors := useCases.fileStorageService.DeleteMany(ctx, attachmentsToDelete)
+	if len(deleteAttachmentErrors) > 0 {
+		concatenatedErrBuilder := strings.Builder{}
+		concatenatedErrBuilder.WriteString("Failed to delete files:\n")
+		for i, err := range deleteAttachmentErrors {
+			// i + 1 due to index starts from zero
+			concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
+		}
+
+		// Logging errors for further investigate:
+		logging.LogErrorContext(
+			ctx,
+			useCases.logger,
+			concatenatedErrBuilder.String(),
+			&customerrors.DeleteFileError{Message: concatenatedErrBuilder.String()},
+		)
+	}
+
+	return useCases.toysService.DeleteToy(ctx, toy.ID)
 }

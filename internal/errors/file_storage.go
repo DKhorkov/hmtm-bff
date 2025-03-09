@@ -55,3 +55,21 @@ func (e InvalidFileSizeError) Error() string {
 func (e InvalidFileSizeError) Unwrap() error {
 	return e.BaseErr
 }
+
+type DeleteFileError struct {
+	Message string
+	BaseErr error
+}
+
+func (e DeleteFileError) Error() string {
+	template := "failed to delete file with key=%s"
+	if e.BaseErr != nil {
+		return fmt.Sprintf(template+". Base error: %v", e.Message, e.BaseErr)
+	}
+
+	return fmt.Sprintf(template, e.Message)
+}
+
+func (e DeleteFileError) Unwrap() error {
+	return e.BaseErr
+}

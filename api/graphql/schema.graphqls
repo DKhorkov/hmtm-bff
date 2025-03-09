@@ -152,6 +152,21 @@ input AddToyInput {
     attachments: [Upload!]
 }
 
+input UpdateToyInput {
+    id: ID!
+    categoryId: ID!
+    name: String!
+    description: String!
+    price: Float!
+    quantity: Int!
+    tags: [String!]
+    attachments: [Upload!]
+}
+
+input DeleteToyInput {
+    id: ID!
+}
+
 input CreateTicketInput {
     categoryId: ID!
     name: String!
@@ -201,6 +216,8 @@ type Mutation {
     # Toys mutations:
     registerMaster(input: RegisterMasterInput!): ID!
     addToy(input: AddToyInput!): ID!
+    updateToy(input: UpdateToyInput!): Boolean!
+    deleteToy(input: DeleteToyInput!): Boolean!
 
     # Tickets mutations:
     createTicket(input: CreateTicketInput!): ID!

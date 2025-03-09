@@ -81,3 +81,26 @@ type Toy struct {
 	Tags        []Tag           `json:"tags,omitempty"`
 	Attachments []ToyAttachment `json:"attachments,omitempty"`
 }
+
+type RawUpdateToyDTO struct {
+	AccessToken string            `json:"access_token"`
+	ID          uint64            `json:"id"`
+	CategoryID  uint32            `json:"category_id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Price       float32           `json:"price"`
+	Quantity    uint32            `json:"quantity"`
+	Tags        []string          `json:"tags,omitempty"`
+	Attachments []*graphql.Upload `json:"attachments,omitempty"`
+}
+
+type UpdateToyDTO struct {
+	ID          uint64   `json:"id"`
+	CategoryID  uint32   `json:"category_id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Price       float32  `json:"price"`
+	Quantity    uint32   `json:"quantity"`
+	TagIDs      []uint32 `json:"tag_ids,omitempty"`
+	Attachments []string `json:"attachments,omitempty"`
+}

@@ -390,3 +390,7 @@ issues:
       linters:
         - dupl
         - nestif
+        - gocognit
+        - govet
+        - funlen
+        - gocritic

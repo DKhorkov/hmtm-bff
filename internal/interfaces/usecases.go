@@ -41,6 +41,8 @@ type UseCases interface {
 	GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error)
 	GetAllTags(ctx context.Context) ([]entities.Tag, error)
 	GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error)
+	UpdateToy(ctx context.Context, rawToyData entities.RawUpdateToyDTO) error
+	DeleteToy(ctx context.Context, accessToken string, id uint64) error
 
 	// Tickets cases:
 	CreateTicket(ctx context.Context, rawTicketData entities.RawCreateTicketDTO) (ticketID uint64, err error)
