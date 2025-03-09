@@ -48,3 +48,61 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDEyOTMxMTU
 {
   "query": "query { me { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } }"
 }
+
+###
+
+POST http://localhost:8080/query
+Content-Type: multipart/form-data; boundary=boundary
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDE1NDI2NTQsInZhbHVlIjozMX0.Lj88PjFR3SQUVIMkJVnrH_tZWLgUVzr_rGlFHL2NY5k
+
+--boundary
+Content-Disposition: form-data; name="operations"
+
+{
+  "query": "mutation UpdateToy($input: UpdateToyInput!) { updateToy(input: $input) }",
+  "variables": {
+    "input": {
+      "id": "2",
+      "categoryId": "1",
+      "name": "Super Toy",
+      "description": "A fantastic toy for kids",
+      "price": 29.99,
+      "quantity": 100,
+      "tags": ["educational", "fun"],
+      "attachments": [null, null]
+    }
+  }
+}
+--boundary
+Content-Disposition: form-data; name="map"
+
+{
+  "0": ["variables.input.attachments.0"],
+  "1": ["variables.input.attachments.1"]
+}
+--boundary
+Content-Disposition: form-data; name="0"; filename="image1.jpg"
+Content-Type: image/jpeg
+
+< /home/dkhorkov/Downloads/t1.png
+--boundary
+Content-Disposition: form-data; name="1"; filename="image2.jpg"
+Content-Type: image/jpeg
+
+< /home/dkhorkov/Downloads/m3.png
+--boundary--
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDE1NDM1NjYsInZhbHVlIjozMX0.GZIubVZ50wVNEeN-CGIwEm25E14IzNtaTIAJsmPYifI
+
+{
+  "query": "mutation DeleteToy($input: DeleteToyInput!) { deleteToy(input: $input) }",
+  "variables": {
+    "input": {
+      "id": "2"
+    }
+  }
+}

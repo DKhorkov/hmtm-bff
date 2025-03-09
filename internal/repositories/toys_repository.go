@@ -310,3 +310,53 @@ func (repo *ToysRepository) CreateTags(ctx context.Context, tagsData []entities.
 
 	return tagIDs, nil
 }
+
+func (repo *ToysRepository) UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error {
+	_, err := repo.client.UpdateToy(
+		ctx,
+		&toys.UpdateToyIn{
+			ID:          toyData.ID,
+			Name:        toyData.Name,
+			Description: toyData.Description,
+			CategoryID:  toyData.CategoryID,
+			Price:       toyData.Price,
+			Quantity:    toyData.Quantity,
+			TagIDs:      toyData.TagIDs,
+			Attachments: toyData.Attachments,
+		},
+	)
+
+	return err
+}
+
+func (repo *ToysRepository) DeleteToy(ctx context.Context, id uint64) error {
+	_, err := repo.client.DeleteToy(
+		ctx,
+		&toys.DeleteToyIn{
+			ID: id,
+		},
+	)
+
+	return err
+}
+
+func (repo *ToysRepository) GetMasterByUser(ctx context.Context, userID uint64) (*entities.Master, error) {
+	response, err := repo.client.GetMasterByUser(
+		ctx,
+		&toys.GetMasterByUserIn{
+			UserID: userID,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &entities.Master{
+		ID:        response.GetID(),
+		UserID:    response.GetUserID(),
+		Info:      response.GetInfo(),
+		CreatedAt: response.GetCreatedAt().AsTime(),
+		UpdatedAt: response.GetUpdatedAt().AsTime(),
+	}, nil
+}

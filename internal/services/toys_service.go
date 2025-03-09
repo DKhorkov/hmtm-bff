@@ -171,3 +171,45 @@ func (service *ToysService) CreateTags(ctx context.Context, tagsData []entities.
 
 	return tagIDs, err
 }
+
+func (service *ToysService) UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error {
+	err := service.toysRepository.UpdateToy(ctx, toyData)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to update Toy with ID=%d", toyData.ID),
+			err,
+		)
+	}
+
+	return err
+}
+
+func (service *ToysService) DeleteToy(ctx context.Context, id uint64) error {
+	err := service.toysRepository.DeleteToy(ctx, id)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to delete Toy with ID=%d", id),
+			err,
+		)
+	}
+
+	return err
+}
+
+func (service *ToysService) GetMasterByUser(ctx context.Context, userID uint64) (*entities.Master, error) {
+	master, err := service.toysRepository.GetMasterByUser(ctx, userID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to get Master with userID=%d", userID),
+			err,
+		)
+	}
+
+	return master, err
+}

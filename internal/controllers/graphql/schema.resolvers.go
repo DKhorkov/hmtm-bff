@@ -10,14 +10,13 @@ import (
 	"net/http"
 	"strconv"
 
+	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
-
-	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 )
 
 // User is the resolver for the user field.
@@ -252,6 +251,61 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 
 	toyID, err := r.useCases.AddToy(ctx, toyData)
 	return strconv.FormatUint(toyID, 10), err
+}
+
+// UpdateToy is the resolver for the updateToy field.
+func (r *mutationResolver) UpdateToy(ctx context.Context, input graphqlapi.UpdateToyInput) (bool, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	toyID, err := strconv.Atoi(input.ID)
+	if err != nil {
+		return false, err
+	}
+
+	categoryID, err := strconv.Atoi(input.CategoryID)
+	if err != nil {
+		return false, err
+	}
+
+	toyData := entities.RawUpdateToyDTO{
+		AccessToken: accessToken.Value,
+		ID:          uint64(toyID),
+		Name:        input.Name,
+		CategoryID:  uint32(categoryID),
+		Description: input.Description,
+		Price:       float32(input.Price),
+		Quantity:    uint32(input.Quantity),
+		Tags:        input.Tags,
+		Attachments: input.Attachments,
+	}
+
+	if err = r.useCases.UpdateToy(ctx, toyData); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// DeleteToy is the resolver for the deleteToy field.
+func (r *mutationResolver) DeleteToy(ctx context.Context, input graphqlapi.DeleteToyInput) (bool, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	toyID, err := strconv.Atoi(input.ID)
+	if err != nil {
+		return false, err
+	}
+
+	if err = r.useCases.DeleteToy(ctx, accessToken.Value, uint64(toyID)); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // CreateTicket is the resolver for the createTicket field.
