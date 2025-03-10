@@ -56,7 +56,7 @@ func New(
 	).Handler(mux)
 
 	// Configures tracing:
-	httpHandler = middlewares.TracingMiddleware(httpHandler, traceProvider, tracingConfig.Spans.Root)
+	httpHandler = middlewares.TracingMiddleware(httpHandler, logger, traceProvider, tracingConfig.Spans.Root)
 
 	// Read cookies for auth purposes:
 	httpHandler = middlewares.CookiesMiddleware(httpHandler, []string{"accessToken", "refreshToken"})

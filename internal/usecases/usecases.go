@@ -252,10 +252,6 @@ func (useCases *UseCases) UploadFiles(ctx context.Context, userID uint64, files 
 	}
 
 	if len(uploadedFiles) == 0 && len(uploadingErrors) > 0 {
-		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
-		defer span.End()
-
-		span.SetStatus(tracing.StatusError, concatenatedErrBuilder.String())
 		return nil, &customerrors.UploadFileError{Message: concatenatedErrBuilder.String()}
 	}
 
@@ -430,20 +426,13 @@ func (useCases *UseCases) GetRespondByID(
 
 	// Check if Respond belongs to Ticket owner or to Master, which responded to Ticket:
 	if ticket.UserID != user.ID && master.UserID != user.ID {
-		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
-		defer span.End()
-
-		errorMessage := fmt.Sprintf(
-			"User with ID=%d is not rather owner of Respond with ID=%d, or owner of Ticket with ID=%d",
-			user.ID,
-			id,
-			ticket.ID,
-		)
-
-		span.SetStatus(tracing.StatusError, errorMessage)
-
 		return nil, &customerrors.PermissionDeniedError{
-			Message: errorMessage,
+			Message: fmt.Sprintf(
+				"User with ID=%d is not rather owner of Respond with ID=%d, or owner of Ticket with ID=%d",
+				user.ID,
+				id,
+				ticket.ID,
+			),
 		}
 	}
 
@@ -467,19 +456,12 @@ func (useCases *UseCases) GetTicketResponds(
 
 	// Check if Ticket belongs to current User:
 	if ticket.UserID != user.ID {
-		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
-		defer span.End()
-
-		errorMessage := fmt.Sprintf(
-			"Ticket with ID=%d does not belong to current User with ID=%d",
-			ticketID,
-			user.ID,
-		)
-
-		span.SetStatus(tracing.StatusError, errorMessage)
-
 		return nil, &customerrors.PermissionDeniedError{
-			Message: errorMessage,
+			Message: fmt.Sprintf(
+				"Ticket with ID=%d does not belong to current User with ID=%d",
+				ticketID,
+				user.ID,
+			),
 		}
 	}
 
@@ -590,19 +572,12 @@ func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.Raw
 
 	// Check if Toy belongs to User:
 	if toy.MasterID != master.ID {
-		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
-		defer span.End()
-
-		errorMessage := fmt.Sprintf(
-			"User with ID=%d is not owner of Toy with ID=%d",
-			user.ID,
-			rawToyData.ID,
-		)
-
-		span.SetStatus(tracing.StatusError, errorMessage)
-
 		return &customerrors.PermissionDeniedError{
-			Message: errorMessage,
+			Message: fmt.Sprintf(
+				"User with ID=%d is not owner of Toy with ID=%d",
+				user.ID,
+				rawToyData.ID,
+			),
 		}
 	}
 
@@ -726,19 +701,12 @@ func (useCases *UseCases) DeleteToy(ctx context.Context, accessToken string, id 
 
 	// Check if Toy belongs to User:
 	if toy.MasterID != master.ID {
-		_, span := useCases.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
-		defer span.End()
-
-		errorMessage := fmt.Sprintf(
-			"User with ID=%d is not owner of Toy with ID=%d",
-			user.ID,
-			toy.ID,
-		)
-
-		span.SetStatus(tracing.StatusError, errorMessage)
-
 		return &customerrors.PermissionDeniedError{
-			Message: errorMessage,
+			Message: fmt.Sprintf(
+				"User with ID=%d is not owner of Toy with ID=%d",
+				user.ID,
+				toy.ID,
+			),
 		}
 	}
 
