@@ -10,18 +10,24 @@ type Respond struct {
 	ID        uint64    `json:"id"`
 	TicketID  uint64    `json:"ticket_id"`
 	MasterID  uint64    `json:"master_id"`
+	Price     float32   `json:"price"`
+	Comment   *string   `json:"comment,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type RespondToTicketDTO struct {
-	TicketID uint64 `json:"ticket_id"`
-	UserID   uint64 `json:"user_id"`
+	TicketID uint64  `json:"ticket_id"`
+	UserID   uint64  `json:"user_id"`
+	Price    float32 `json:"price"`
+	Comment  *string `json:"comment,omitempty"`
 }
 
 type RawRespondToTicketDTO struct {
-	TicketID    uint64 `json:"ticket_id"`
-	AccessToken string `json:"access_token"`
+	TicketID    uint64  `json:"ticket_id"`
+	AccessToken string  `json:"access_token"`
+	Price       float32 `json:"price"`
+	Comment     *string `json:"comment,omitempty"`
 }
 
 type TicketAttachment struct {
@@ -38,7 +44,7 @@ type RawTicket struct {
 	CategoryID  uint32             `json:"category_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Price       float32            `json:"price"`
+	Price       *float32           `json:"price,omitempty"`
 	Quantity    uint32             `json:"quantity"`
 	CreatedAt   time.Time          `json:"created_at"`
 	UpdatedAt   time.Time          `json:"updated_at"`
@@ -52,7 +58,7 @@ type Ticket struct {
 	CategoryID  uint32             `json:"category_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Price       float32            `json:"price"`
+	Price       *float32           `json:"price,omitempty"`
 	Quantity    uint32             `json:"quantity"`
 	CreatedAt   time.Time          `json:"created_at"`
 	UpdatedAt   time.Time          `json:"updated_at"`
@@ -65,7 +71,7 @@ type CreateTicketDTO struct {
 	CategoryID  uint32   `json:"category_id"`
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
-	Price       float32  `json:"price"`
+	Price       *float32 `json:"price,omitempty"`
 	Quantity    uint32   `json:"quantity"`
 	TagIDs      []uint32 `json:"tag_ids,omitempty"`
 	Attachments []string `json:"attachments,omitempty"`
@@ -76,7 +82,7 @@ type RawCreateTicketDTO struct {
 	CategoryID  uint32            `json:"category_id"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Price       float32           `json:"price"`
+	Price       *float32          `json:"price,omitempty"`
 	Quantity    uint32            `json:"quantity"`
 	Tags        []string          `json:"tags,omitempty"`
 	Attachments []*graphql.Upload `json:"attachments,omitempty"`

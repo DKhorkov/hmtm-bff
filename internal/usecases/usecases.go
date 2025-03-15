@@ -394,6 +394,8 @@ func (useCases *UseCases) RespondToTicket(
 	respondData := entities.RespondToTicketDTO{
 		UserID:   user.ID,
 		TicketID: rawRespondData.TicketID,
+		Price:    rawRespondData.Price,
+		Comment:  rawRespondData.Comment,
 	}
 
 	return useCases.ticketsService.RespondToTicket(ctx, respondData)

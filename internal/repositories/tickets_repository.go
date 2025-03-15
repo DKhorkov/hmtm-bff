@@ -106,6 +106,8 @@ func (repo *TicketsRepository) RespondToTicket(
 		&tickets.RespondToTicketIn{
 			UserID:   respondData.UserID,
 			TicketID: respondData.TicketID,
+			Price:    respondData.Price,
+			Comment:  respondData.Comment,
 		},
 	)
 
@@ -176,6 +178,8 @@ func (repo *TicketsRepository) processRespondResponse(respondResponse *tickets.G
 		ID:        respondResponse.GetID(),
 		MasterID:  respondResponse.GetMasterID(),
 		TicketID:  respondResponse.GetTicketID(),
+		Price:     respondResponse.GetPrice(),
+		Comment:   respondResponse.Comment,
 		CreatedAt: respondResponse.GetCreatedAt().AsTime(),
 		UpdatedAt: respondResponse.GetUpdatedAt().AsTime(),
 	}
@@ -199,7 +203,7 @@ func (repo *TicketsRepository) processTicketResponse(ticketResponse *tickets.Get
 		CategoryID:  ticketResponse.GetCategoryID(),
 		Name:        ticketResponse.GetName(),
 		Description: ticketResponse.GetDescription(),
-		Price:       ticketResponse.GetPrice(),
+		Price:       ticketResponse.Price,
 		Quantity:    ticketResponse.GetQuantity(),
 		CreatedAt:   ticketResponse.GetCreatedAt().AsTime(),
 		UpdatedAt:   ticketResponse.GetUpdatedAt().AsTime(),

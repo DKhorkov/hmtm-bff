@@ -380,6 +380,9 @@ issues:
     - path: "internal/repositories/sso_repository.go"
       linters:
         - protogetter # to be able using optional fields like *string
+    - path: "internal/repositories/tickets_repository.go"
+      linters:
+        - protogetter # to be able using optional fields like *string
     - path: "internal/usecases/validators_test.go"
       linters:
         - testpackage

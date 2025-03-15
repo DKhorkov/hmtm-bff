@@ -25,7 +25,7 @@ type CreateTicketInput struct {
 	CategoryID  string            `json:"categoryId"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Price       float64           `json:"price"`
+	Price       *float64          `json:"price,omitempty"`
 	Quantity    int               `json:"quantity"`
 	Tags        []string          `json:"tags,omitempty"`
 	Attachments []*graphql.Upload `json:"attachments,omitempty"`
@@ -57,7 +57,9 @@ type RegisterUserInput struct {
 }
 
 type RespondToTicketInput struct {
-	TicketID string `json:"ticketId"`
+	TicketID string  `json:"ticketId"`
+	Price    float64 `json:"price"`
+	Comment  *string `json:"comment,omitempty"`
 }
 
 type SendVerifyEmailMessageInput struct {
