@@ -17,6 +17,7 @@ import (
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
+	"github.com/DKhorkov/libs/pointers"
 )
 
 // User is the resolver for the user field.
@@ -320,12 +321,17 @@ func (r *mutationResolver) CreateTicket(ctx context.Context, input graphqlapi.Cr
 		return "", err
 	}
 
+	var price *float32
+	if input.Price != nil {
+		price = pointers.New[float32](float32(*input.Price))
+	}
+
 	ticketData := entities.RawCreateTicketDTO{
 		AccessToken: accessToken.Value,
 		CategoryID:  uint32(categoryID),
 		Name:        input.Name,
 		Description: input.Description,
-		Price:       float32(input.Price),
+		Price:       price,
 		Quantity:    uint32(input.Quantity),
 		Tags:        input.Tags,
 		Attachments: input.Attachments,
@@ -350,6 +356,8 @@ func (r *mutationResolver) RespondToTicket(ctx context.Context, input graphqlapi
 	respondData := entities.RawRespondToTicketDTO{
 		AccessToken: accessToken.Value,
 		TicketID:    uint64(ticketID),
+		Price:       float32(input.Price),
+		Comment:     input.Comment,
 	}
 
 	respondID, err := r.useCases.RespondToTicket(ctx, respondData)
@@ -706,6 +714,11 @@ func (r *respondResolver) Master(ctx context.Context, obj *entities.Respond) (*e
 	return master, err
 }
 
+// Price is the resolver for the price field.
+func (r *respondResolver) Price(ctx context.Context, obj *entities.Respond) (float64, error) {
+	return float64(obj.Price), nil
+}
+
 // User is the resolver for the user field.
 func (r *ticketResolver) User(ctx context.Context, obj *entities.Ticket) (*entities.User, error) {
 	user, err := r.useCases.GetUserByID(ctx, obj.UserID)
@@ -737,8 +750,13 @@ func (r *ticketResolver) Category(ctx context.Context, obj *entities.Ticket) (*e
 }
 
 // Price is the resolver for the price field.
-func (r *ticketResolver) Price(ctx context.Context, obj *entities.Ticket) (float64, error) {
-	return float64(obj.Price), nil
+func (r *ticketResolver) Price(ctx context.Context, obj *entities.Ticket) (*float64, error) {
+	var price *float64
+	if obj.Price != nil {
+		price = pointers.New[float64](float64(*obj.Price))
+	}
+
+	return price, nil
 }
 
 // Quantity is the resolver for the quantity field.

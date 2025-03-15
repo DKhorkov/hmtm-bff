@@ -116,9 +116,11 @@ type ComplexityRoot struct {
 	}
 
 	Respond struct {
+		Comment   func(childComplexity int) int
 		CreatedAt func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Master    func(childComplexity int) int
+		Price     func(childComplexity int) int
 		Ticket    func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 	}
@@ -236,12 +238,13 @@ type QueryResolver interface {
 type RespondResolver interface {
 	Ticket(ctx context.Context, obj *entities.Respond) (*entities.Ticket, error)
 	Master(ctx context.Context, obj *entities.Respond) (*entities.Master, error)
+	Price(ctx context.Context, obj *entities.Respond) (float64, error)
 }
 type TicketResolver interface {
 	User(ctx context.Context, obj *entities.Ticket) (*entities.User, error)
 	Category(ctx context.Context, obj *entities.Ticket) (*entities.Category, error)
 
-	Price(ctx context.Context, obj *entities.Ticket) (float64, error)
+	Price(ctx context.Context, obj *entities.Ticket) (*float64, error)
 	Quantity(ctx context.Context, obj *entities.Ticket) (int, error)
 }
 type ToyResolver interface {
@@ -710,6 +713,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Users(childComplexity), true
 
+	case "Respond.comment":
+		if e.complexity.Respond.Comment == nil {
+			break
+		}
+
+		return e.complexity.Respond.Comment(childComplexity), true
+
 	case "Respond.createdAt":
 		if e.complexity.Respond.CreatedAt == nil {
 			break
@@ -730,6 +740,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Respond.Master(childComplexity), true
+
+	case "Respond.price":
+		if e.complexity.Respond.Price == nil {
+			break
+		}
+
+		return e.complexity.Respond.Price(childComplexity), true
 
 	case "Respond.ticket":
 		if e.complexity.Respond.Ticket == nil {
@@ -4491,6 +4508,10 @@ func (ec *executionContext) fieldContext_Query_respond(ctx context.Context, fiel
 				return ec.fieldContext_Respond_ticket(ctx, field)
 			case "master":
 				return ec.fieldContext_Respond_master(ctx, field)
+			case "price":
+				return ec.fieldContext_Respond_price(ctx, field)
+			case "comment":
+				return ec.fieldContext_Respond_comment(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Respond_createdAt(ctx, field)
 			case "updatedAt":
@@ -4555,6 +4576,10 @@ func (ec *executionContext) fieldContext_Query_ticketResponds(ctx context.Contex
 				return ec.fieldContext_Respond_ticket(ctx, field)
 			case "master":
 				return ec.fieldContext_Respond_master(ctx, field)
+			case "price":
+				return ec.fieldContext_Respond_price(ctx, field)
+			case "comment":
+				return ec.fieldContext_Respond_comment(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Respond_createdAt(ctx, field)
 			case "updatedAt":
@@ -4619,6 +4644,10 @@ func (ec *executionContext) fieldContext_Query_myResponds(_ context.Context, fie
 				return ec.fieldContext_Respond_ticket(ctx, field)
 			case "master":
 				return ec.fieldContext_Respond_master(ctx, field)
+			case "price":
+				return ec.fieldContext_Respond_price(ctx, field)
+			case "comment":
+				return ec.fieldContext_Respond_comment(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Respond_createdAt(ctx, field)
 			case "updatedAt":
@@ -4973,6 +5002,91 @@ func (ec *executionContext) fieldContext_Respond_master(_ context.Context, field
 				return ec.fieldContext_Master_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Master", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Respond_price(ctx context.Context, field graphql.CollectedField, obj *entities.Respond) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Respond_price(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Respond().Price(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Respond_price(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Respond",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Respond_comment(ctx context.Context, field graphql.CollectedField, obj *entities.Respond) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Respond_comment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Comment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Respond_comment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Respond",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5425,14 +5539,11 @@ func (ec *executionContext) _Ticket_price(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(float64)
+	res := resTmp.(*float64)
 	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Ticket_price(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9022,7 +9133,7 @@ func (ec *executionContext) unmarshalInputCreateTicketInput(ctx context.Context,
 			it.Description = data
 		case "price":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
-			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9190,7 +9301,7 @@ func (ec *executionContext) unmarshalInputRespondToTicketInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"ticketId"}
+	fieldsInOrder := [...]string{"ticketId", "price", "comment"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -9204,6 +9315,20 @@ func (ec *executionContext) unmarshalInputRespondToTicketInput(ctx context.Conte
 				return it, err
 			}
 			it.TicketID = data
+		case "price":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Price = data
+		case "comment":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("comment"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Comment = data
 		}
 	}
 
@@ -10323,6 +10448,44 @@ func (ec *executionContext) _Respond(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "price":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Respond_price(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "comment":
+			out.Values[i] = ec._Respond_comment(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Respond_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -10501,16 +10664,13 @@ func (ec *executionContext) _Ticket(ctx context.Context, sel ast.SelectionSet, o
 		case "price":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Ticket_price(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -12026,6 +12186,22 @@ func (ec *executionContext) marshalOEmail2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtm�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalFloatContext(*v)
+	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) marshalOMaster2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMasterᚄ(ctx context.Context, sel ast.SelectionSet, v []*entities.Master) graphql.Marshaler {

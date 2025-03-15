@@ -73,7 +73,7 @@ type Ticket {
     category: Category!
     name: String!
     description: String!
-    price: Float!
+    price: Float
     quantity: Int!
     createdAt: Time!
     updatedAt: Time!
@@ -85,6 +85,8 @@ type Respond {
     id: ID!
     ticket: Ticket!
     master: Master!
+    price: Float!
+    comment: String
     createdAt: Time!
     updatedAt: Time!
 }
@@ -171,7 +173,7 @@ input CreateTicketInput {
     categoryId: ID!
     name: String!
     description: String!
-    price: Float!
+    price: Float
     quantity: Int!
     tags: [String!]
     attachments: [Upload!]
@@ -179,6 +181,8 @@ input CreateTicketInput {
 
 input RespondToTicketInput {
     ticketId: ID!
+    price: Float!
+    comment: String
 }
 
 input VerifyUserEmailInput {

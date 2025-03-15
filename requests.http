@@ -16,6 +16,20 @@ Content-Type: application/json
 
 ###
 
+POST https://your-graphql-api.com/graphql
+Content-Type: application/json
+
+{
+  "query": "mutation VerifyUserEmail($input: VerifyUserEmailInput!) { verifyUserEmail(input: $input) }",
+  "variables": {
+    "input": {
+      "verifyEmailToken": "your-verify-email-token"
+    }
+  }
+}
+
+###
+
 POST http://localhost:8080/query
 Content-Type: application/json
 
@@ -103,6 +117,42 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDE1NDM1NjY
   "variables": {
     "input": {
       "id": "2"
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query { tickets { id user { id displayName email } category { id name } name description price quantity createdAt updatedAt tags { id name } attachments { id ticketID link createdAt updatedAt } } }"
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDIwNTQ3NjYsInZhbHVlIjozMX0.Lh0bAZu6M8iHpRhdh9QFE17f_DHauHnBYFV7OJaYSko
+
+{
+  "query": "query { myResponds { id ticket { id user { id displayName email } category { id name } name description price quantity createdAt updatedAt tags { id name } attachments { id ticketID link createdAt updatedAt } } master { id user { id displayName email } info createdAt updatedAt } price comment createdAt updatedAt } }"
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDIwNTQ3NjYsInZhbHVlIjozMX0.Lh0bAZu6M8iHpRhdh9QFE17f_DHauHnBYFV7OJaYSko
+
+{
+  "query": "mutation RespondToTicket($input: RespondToTicketInput!) { respondToTicket(input: $input) }",
+  "variables": {
+    "input": {
+      "ticketId": "1",
+      "price": 50.99,
+      "comment": "I can help with this task!"
     }
   }
 }
