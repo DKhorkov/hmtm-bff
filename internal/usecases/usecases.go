@@ -567,7 +567,7 @@ func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.Raw
 		return err
 	}
 
-	toy, err := useCases.GetToyByID(ctx, rawToyData.ID)
+	toy, err := useCases.toysService.GetToyByID(ctx, rawToyData.ID)
 	if err != nil {
 		return err
 	}
@@ -696,7 +696,7 @@ func (useCases *UseCases) DeleteToy(ctx context.Context, accessToken string, id 
 		return err
 	}
 
-	toy, err := useCases.GetToyByID(ctx, id)
+	toy, err := useCases.toysService.GetToyByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -738,4 +738,100 @@ func (useCases *UseCases) DeleteToy(ctx context.Context, accessToken string, id 
 	}
 
 	return useCases.toysService.DeleteToy(ctx, toy.ID)
+}
+
+func (useCases *UseCases) UpdateRespond(ctx context.Context, rawRespondData entities.RawUpdateRespondDTO) error {
+	user, err := useCases.GetMe(ctx, rawRespondData.AccessToken)
+	if err != nil {
+		return err
+	}
+
+	master, err := useCases.toysService.GetMasterByUser(ctx, user.ID)
+	if err != nil {
+		return err
+	}
+
+	respond, err := useCases.ticketsService.GetRespondByID(ctx, rawRespondData.ID)
+	if err != nil {
+		return err
+	}
+
+	// Check if Respond belongs to User:
+	if respond.MasterID != master.ID {
+		return &customerrors.PermissionDeniedError{
+			Message: fmt.Sprintf(
+				"User with ID=%d is not owner of Respond with ID=%d",
+				user.ID,
+				respond.ID,
+			),
+		}
+	}
+
+	respondData := entities.UpdateRespondDTO{
+		ID:      rawRespondData.ID,
+		Price:   rawRespondData.Price,
+		Comment: rawRespondData.Comment,
+	}
+
+	return useCases.ticketsService.UpdateRespond(ctx, respondData)
+}
+
+func (useCases *UseCases) DeleteRespond(ctx context.Context, accessToken string, id uint64) error {
+	user, err := useCases.GetMe(ctx, accessToken)
+	if err != nil {
+		return err
+	}
+
+	master, err := useCases.toysService.GetMasterByUser(ctx, user.ID)
+	if err != nil {
+		return err
+	}
+
+	respond, err := useCases.ticketsService.GetRespondByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	// Check if Respond belongs to User:
+	if respond.MasterID != master.ID {
+		return &customerrors.PermissionDeniedError{
+			Message: fmt.Sprintf(
+				"User with ID=%d is not owner of Respond with ID=%d",
+				user.ID,
+				respond.ID,
+			),
+		}
+	}
+
+	return useCases.ticketsService.DeleteRespond(ctx, respond.ID)
+}
+
+func (useCases *UseCases) UpdateMaster(ctx context.Context, rawMasterData entities.RawUpdateMasterDTO) error {
+	user, err := useCases.GetMe(ctx, rawMasterData.AccessToken)
+	if err != nil {
+		return err
+	}
+
+	master, err := useCases.toysService.GetMasterByID(ctx, rawMasterData.ID)
+	if err != nil {
+		return err
+	}
+
+	// Check if Master belongs to User:
+	if master.UserID != user.ID {
+		return &customerrors.PermissionDeniedError{
+			Message: fmt.Sprintf(
+				"User with ID=%d is not owner of Master with ID=%d",
+				user.ID,
+				master.ID,
+			),
+		}
+	}
+
+	masterData := entities.UpdateMasterDTO{
+		ID:   rawMasterData.ID,
+		Info: rawMasterData.Info,
+	}
+
+	return useCases.toysService.UpdateMaster(ctx, masterData)
 }

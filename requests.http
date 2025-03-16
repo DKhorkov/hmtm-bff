@@ -156,3 +156,83 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDIwNTQ3NjY
     }
   }
 }
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDIxMTUzNjUsInZhbHVlIjozMX0.J1sCJmskFP7K6iMRXA6MORHrNRqTgmfHRr6rfliHOqo
+
+{
+"query": "query { myResponds { id ticket { id user { id displayName email } category { id name } name description price quantity createdAt updatedAt tags { id name } attachments { id ticketID link createdAt updatedAt } } master { id user { id displayName email } info createdAt updatedAt } price comment createdAt updatedAt } }"
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDIxMTUzNjUsInZhbHVlIjozMX0.J1sCJmskFP7K6iMRXA6MORHrNRqTgmfHRr6rfliHOqo
+
+{
+  "query": "mutation UpdateRespond($input: UpdateRespondInput!) { updateRespond(input: $input) }",
+  "variables": {
+    "input": {
+      "id": "4",
+      "price": 30.99,
+      "comment": "Updated price and comment"
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDIxMTUzNjUsInZhbHVlIjozMX0.J1sCJmskFP7K6iMRXA6MORHrNRqTgmfHRr6rfliHOqo
+
+{
+  "query": "mutation DeleteRespond($input: DeleteRespondInput!) { deleteRespond(input: $input) }",
+  "variables": {
+    "input": {
+      "id": "1"
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query { masters { id user { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } info createdAt updatedAt } }"
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+
+{
+  "query": "query Master($id: ID!) { master(id: $id) { id user { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } info createdAt updatedAt } }",
+  "variables": {
+    "id": "1"
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDIxMzkxMjIsInZhbHVlIjozMX0.CQLc6W6rv4yCfVUg3gSqC-jJCta0z0-nZOOB8KWW7yI
+
+{
+  "query": "mutation UpdateMaster($input: UpdateMasterInput!) { updateMaster(input: $input) }",
+  "variables": {
+    "input": {
+      "id": "1",
+      "info": "Updated master information"
+    }
+  }
+}

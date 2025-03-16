@@ -135,3 +135,31 @@ func (service *TicketsService) GetUserResponds(ctx context.Context, userID uint6
 
 	return responds, err
 }
+
+func (service *TicketsService) UpdateRespond(ctx context.Context, respondData entities.UpdateRespondDTO) error {
+	err := service.ticketsRepository.UpdateRespond(ctx, respondData)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to update Respond with ID=%d", respondData.ID),
+			err,
+		)
+	}
+
+	return err
+}
+
+func (service *TicketsService) DeleteRespond(ctx context.Context, id uint64) error {
+	err := service.ticketsRepository.DeleteRespond(ctx, id)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to delete Respond with ID=%d", id),
+			err,
+		)
+	}
+
+	return err
+}

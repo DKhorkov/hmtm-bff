@@ -227,6 +227,31 @@ func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.
 	return strconv.FormatUint(masterID, 10), err
 }
 
+// UpdateMaster is the resolver for the updateMaster field.
+func (r *mutationResolver) UpdateMaster(ctx context.Context, input graphqlapi.UpdateMasterInput) (bool, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	masterID, err := strconv.Atoi(input.ID)
+	if err != nil {
+		return false, err
+	}
+
+	masterData := entities.RawUpdateMasterDTO{
+		AccessToken: accessToken.Value,
+		ID:          uint64(masterID),
+		Info:        input.Info,
+	}
+
+	if err = r.useCases.UpdateMaster(ctx, masterData); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // AddToy is the resolver for the addToy field.
 func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyInput) (string, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
@@ -362,6 +387,56 @@ func (r *mutationResolver) RespondToTicket(ctx context.Context, input graphqlapi
 
 	respondID, err := r.useCases.RespondToTicket(ctx, respondData)
 	return strconv.FormatUint(respondID, 10), err
+}
+
+// UpdateRespond is the resolver for the updateRespond field.
+func (r *mutationResolver) UpdateRespond(ctx context.Context, input graphqlapi.UpdateRespondInput) (bool, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	respondID, err := strconv.Atoi(input.ID)
+	if err != nil {
+		return false, err
+	}
+
+	var price *float32
+	if input.Price != nil {
+		price = pointers.New[float32](float32(*input.Price))
+	}
+
+	respondData := entities.RawUpdateRespondDTO{
+		AccessToken: accessToken.Value,
+		ID:          uint64(respondID),
+		Price:       price,
+		Comment:     input.Comment,
+	}
+
+	if err = r.useCases.UpdateRespond(ctx, respondData); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// DeleteRespond is the resolver for the deleteRespond field.
+func (r *mutationResolver) DeleteRespond(ctx context.Context, input graphqlapi.DeleteRespondInput) (bool, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	respondID, err := strconv.Atoi(input.ID)
+	if err != nil {
+		return false, err
+	}
+
+	if err = r.useCases.DeleteRespond(ctx, accessToken.Value, uint64(respondID)); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // Users is the resolver for the users field.

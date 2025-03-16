@@ -54,7 +54,7 @@ type Toy {
 type Master {
     id: ID!
     user: User!
-    info: String!
+    info: String
     createdAt: Time!
     updatedAt: Time!
 }
@@ -141,7 +141,12 @@ input RegisterUserInput {
 }
 
 input RegisterMasterInput {
-    info: String!
+    info: String
+}
+
+input UpdateMasterInput {
+    id: ID!
+    info: String
 }
 
 input AddToyInput {
@@ -185,6 +190,16 @@ input RespondToTicketInput {
     comment: String
 }
 
+input UpdateRespondInput {
+    id: ID!
+    price: Float
+    comment: String
+}
+
+input DeleteRespondInput {
+    id: ID!
+}
+
 input VerifyUserEmailInput {
     verifyEmailToken: String!
 }
@@ -219,6 +234,7 @@ type Mutation {
 
     # Toys mutations:
     registerMaster(input: RegisterMasterInput!): ID!
+    updateMaster(input: UpdateMasterInput!): Boolean!
     addToy(input: AddToyInput!): ID!
     updateToy(input: UpdateToyInput!): Boolean!
     deleteToy(input: DeleteToyInput!): Boolean!
@@ -226,4 +242,6 @@ type Mutation {
     # Tickets mutations:
     createTicket(input: CreateTicketInput!): ID!
     respondToTicket(input: RespondToTicketInput!): ID!
+    updateRespond(input: UpdateRespondInput!): Boolean!
+    deleteRespond(input: DeleteRespondInput!): Boolean!
 }

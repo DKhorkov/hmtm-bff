@@ -77,6 +77,7 @@ type ComplexityRoot struct {
 		AddToy                 func(childComplexity int, input AddToyInput) int
 		ChangePassword         func(childComplexity int, input ChangePasswordInput) int
 		CreateTicket           func(childComplexity int, input CreateTicketInput) int
+		DeleteRespond          func(childComplexity int, input DeleteRespondInput) int
 		DeleteToy              func(childComplexity int, input DeleteToyInput) int
 		ForgetPassword         func(childComplexity int) int
 		LoginUser              func(childComplexity int, input LoginUserInput) int
@@ -86,6 +87,8 @@ type ComplexityRoot struct {
 		RegisterUser           func(childComplexity int, input RegisterUserInput) int
 		RespondToTicket        func(childComplexity int, input RespondToTicketInput) int
 		SendVerifyEmailMessage func(childComplexity int, input SendVerifyEmailMessageInput) int
+		UpdateMaster           func(childComplexity int, input UpdateMasterInput) int
+		UpdateRespond          func(childComplexity int, input UpdateRespondInput) int
 		UpdateToy              func(childComplexity int, input UpdateToyInput) int
 		UpdateUserProfile      func(childComplexity int, input UpdateUserProfileInput) int
 		VerifyUserEmail        func(childComplexity int, input VerifyUserEmailInput) int
@@ -206,11 +209,14 @@ type MutationResolver interface {
 	ChangePassword(ctx context.Context, input ChangePasswordInput) (bool, error)
 	UpdateUserProfile(ctx context.Context, input UpdateUserProfileInput) (bool, error)
 	RegisterMaster(ctx context.Context, input RegisterMasterInput) (string, error)
+	UpdateMaster(ctx context.Context, input UpdateMasterInput) (bool, error)
 	AddToy(ctx context.Context, input AddToyInput) (string, error)
 	UpdateToy(ctx context.Context, input UpdateToyInput) (bool, error)
 	DeleteToy(ctx context.Context, input DeleteToyInput) (bool, error)
 	CreateTicket(ctx context.Context, input CreateTicketInput) (string, error)
 	RespondToTicket(ctx context.Context, input RespondToTicketInput) (string, error)
+	UpdateRespond(ctx context.Context, input UpdateRespondInput) (bool, error)
+	DeleteRespond(ctx context.Context, input DeleteRespondInput) (bool, error)
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*entities.User, error)
@@ -387,6 +393,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateTicket(childComplexity, args["input"].(CreateTicketInput)), true
 
+	case "Mutation.deleteRespond":
+		if e.complexity.Mutation.DeleteRespond == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteRespond_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteRespond(childComplexity, args["input"].(DeleteRespondInput)), true
+
 	case "Mutation.deleteToy":
 		if e.complexity.Mutation.DeleteToy == nil {
 			break
@@ -479,6 +497,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SendVerifyEmailMessage(childComplexity, args["input"].(SendVerifyEmailMessageInput)), true
+
+	case "Mutation.updateMaster":
+		if e.complexity.Mutation.UpdateMaster == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateMaster_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateMaster(childComplexity, args["input"].(UpdateMasterInput)), true
+
+	case "Mutation.updateRespond":
+		if e.complexity.Mutation.UpdateRespond == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateRespond_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateRespond(childComplexity, args["input"].(UpdateRespondInput)), true
 
 	case "Mutation.updateToy":
 		if e.complexity.Mutation.UpdateToy == nil {
@@ -1088,12 +1130,15 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAddToyInput,
 		ec.unmarshalInputChangePasswordInput,
 		ec.unmarshalInputCreateTicketInput,
+		ec.unmarshalInputDeleteRespondInput,
 		ec.unmarshalInputDeleteToyInput,
 		ec.unmarshalInputLoginUserInput,
 		ec.unmarshalInputRegisterMasterInput,
 		ec.unmarshalInputRegisterUserInput,
 		ec.unmarshalInputRespondToTicketInput,
 		ec.unmarshalInputSendVerifyEmailMessageInput,
+		ec.unmarshalInputUpdateMasterInput,
+		ec.unmarshalInputUpdateRespondInput,
 		ec.unmarshalInputUpdateToyInput,
 		ec.unmarshalInputUpdateUserProfileInput,
 		ec.unmarshalInputVerifyUserEmailInput,
@@ -1309,6 +1354,38 @@ func (ec *executionContext) field_Mutation_createTicket_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteRespond_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_deleteRespond_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteRespond_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (DeleteRespondInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal DeleteRespondInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNDeleteRespondInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐDeleteRespondInput(ctx, tmp)
+	}
+
+	var zeroVal DeleteRespondInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_deleteToy_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1498,6 +1575,70 @@ func (ec *executionContext) field_Mutation_sendVerifyEmailMessage_argsInput(
 	}
 
 	var zeroVal SendVerifyEmailMessageInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateMaster_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_updateMaster_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateMaster_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (UpdateMasterInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal UpdateMasterInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateMasterInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐUpdateMasterInput(ctx, tmp)
+	}
+
+	var zeroVal UpdateMasterInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateRespond_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_updateRespond_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateRespond_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (UpdateRespondInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal UpdateRespondInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateRespondInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐUpdateRespondInput(ctx, tmp)
+	}
+
+	var zeroVal UpdateRespondInput
 	return zeroVal, nil
 }
 
@@ -2442,14 +2583,11 @@ func (ec *executionContext) _Master_info(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Master_info(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3070,6 +3208,61 @@ func (ec *executionContext) fieldContext_Mutation_registerMaster(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_updateMaster(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateMaster(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateMaster(rctx, fc.Args["input"].(UpdateMasterInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateMaster(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateMaster_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_addToy(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_addToy(ctx, field)
 	if err != nil {
@@ -3339,6 +3532,116 @@ func (ec *executionContext) fieldContext_Mutation_respondToTicket(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_respondToTicket_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateRespond(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateRespond(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateRespond(rctx, fc.Args["input"].(UpdateRespondInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateRespond(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateRespond_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteRespond(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteRespond(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteRespond(rctx, fc.Args["input"].(DeleteRespondInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteRespond(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteRespond_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -9165,6 +9468,33 @@ func (ec *executionContext) unmarshalInputCreateTicketInput(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteRespondInput(ctx context.Context, obj interface{}) (DeleteRespondInput, error) {
+	var it DeleteRespondInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputDeleteToyInput(ctx context.Context, obj interface{}) (DeleteToyInput, error) {
 	var it DeleteToyInput
 	asMap := map[string]interface{}{}
@@ -9242,7 +9572,7 @@ func (ec *executionContext) unmarshalInputRegisterMasterInput(ctx context.Contex
 		switch k {
 		case "info":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("info"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9356,6 +9686,81 @@ func (ec *executionContext) unmarshalInputSendVerifyEmailMessageInput(ctx contex
 				return it, err
 			}
 			it.Email = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateMasterInput(ctx context.Context, obj interface{}) (UpdateMasterInput, error) {
+	var it UpdateMasterInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "info"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "info":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("info"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Info = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateRespondInput(ctx context.Context, obj interface{}) (UpdateRespondInput, error) {
+	var it UpdateRespondInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "price", "comment"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "price":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Price = data
+		case "comment":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("comment"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Comment = data
 		}
 	}
 
@@ -9704,9 +10109,6 @@ func (ec *executionContext) _Master(ctx context.Context, sel ast.SelectionSet, o
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "info":
 			out.Values[i] = ec._Master_info(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "createdAt":
 			out.Values[i] = ec._Master_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -9829,6 +10231,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateMaster":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateMaster(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "addToy":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_addToy(ctx, field)
@@ -9860,6 +10269,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "respondToTicket":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_respondToTicket(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateRespond":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateRespond(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteRespond":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteRespond(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -11542,6 +11965,11 @@ func (ec *executionContext) unmarshalNCreateTicketInput2githubᚗcomᚋDKhorkov�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNDeleteRespondInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐDeleteRespondInput(ctx context.Context, v interface{}) (DeleteRespondInput, error) {
+	res, err := ec.unmarshalInputDeleteRespondInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNDeleteToyInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐDeleteToyInput(ctx context.Context, v interface{}) (DeleteToyInput, error) {
 	res, err := ec.unmarshalInputDeleteToyInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -11763,6 +12191,16 @@ func (ec *executionContext) marshalNToy2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbff�
 
 func (ec *executionContext) marshalNToyAttachment2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToyAttachment(ctx context.Context, sel ast.SelectionSet, v entities.ToyAttachment) graphql.Marshaler {
 	return ec._ToyAttachment(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNUpdateMasterInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐUpdateMasterInput(ctx context.Context, v interface{}) (UpdateMasterInput, error) {
+	res, err := ec.unmarshalInputUpdateMasterInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateRespondInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐUpdateRespondInput(ctx context.Context, v interface{}) (UpdateRespondInput, error) {
+	res, err := ec.unmarshalInputUpdateRespondInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNUpdateToyInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐUpdateToyInput(ctx context.Context, v interface{}) (UpdateToyInput, error) {

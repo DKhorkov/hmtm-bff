@@ -39,6 +39,7 @@ type ToysRepository interface {
 	UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error
 	DeleteToy(ctx context.Context, id uint64) error
 	GetMasterByUser(ctx context.Context, userID uint64) (*entities.Master, error)
+	UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error
 }
 
 type FileStorageRepository interface {
@@ -56,6 +57,8 @@ type TicketsRepository interface {
 	GetRespondByID(ctx context.Context, id uint64) (*entities.Respond, error)
 	GetTicketResponds(ctx context.Context, ticketID uint64) ([]entities.Respond, error)
 	GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error)
+	UpdateRespond(ctx context.Context, respondData entities.UpdateRespondDTO) error
+	DeleteRespond(ctx context.Context, id uint64) error
 }
 
 type NotificationsRepository interface {
