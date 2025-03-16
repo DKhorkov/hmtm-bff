@@ -213,3 +213,17 @@ func (service *ToysService) GetMasterByUser(ctx context.Context, userID uint64) 
 
 	return master, err
 }
+
+func (service *ToysService) UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error {
+	err := service.toysRepository.UpdateMaster(ctx, masterData)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to update Mastrer with ID=%d", masterData.ID),
+			err,
+		)
+	}
+
+	return err
+}

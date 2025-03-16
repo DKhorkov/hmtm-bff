@@ -43,6 +43,7 @@ type UseCases interface {
 	GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error)
 	UpdateToy(ctx context.Context, rawToyData entities.RawUpdateToyDTO) error
 	DeleteToy(ctx context.Context, accessToken string, id uint64) error
+	UpdateMaster(ctx context.Context, rawMasterData entities.RawUpdateMasterDTO) error
 
 	// Tickets cases:
 	CreateTicket(ctx context.Context, rawTicketData entities.RawCreateTicketDTO) (ticketID uint64, err error)
@@ -54,6 +55,8 @@ type UseCases interface {
 	GetRespondByID(ctx context.Context, id uint64, accessToken string) (*entities.Respond, error)
 	GetTicketResponds(ctx context.Context, ticketID uint64, accessToken string) ([]entities.Respond, error)
 	GetMyResponds(ctx context.Context, accessToken string) ([]entities.Respond, error)
+	UpdateRespond(ctx context.Context, rawRespondData entities.RawUpdateRespondDTO) error
+	DeleteRespond(ctx context.Context, accessToken string, id uint64) error
 
 	// Notifications cases:
 	GetMyEmailCommunications(ctx context.Context, accessToken string) ([]entities.Email, error)

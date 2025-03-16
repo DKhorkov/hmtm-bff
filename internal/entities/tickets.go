@@ -24,10 +24,23 @@ type RespondToTicketDTO struct {
 }
 
 type RawRespondToTicketDTO struct {
-	TicketID    uint64  `json:"ticket_id"`
 	AccessToken string  `json:"access_token"`
+	TicketID    uint64  `json:"ticket_id"`
 	Price       float32 `json:"price"`
 	Comment     *string `json:"comment,omitempty"`
+}
+
+type RawUpdateRespondDTO struct {
+	AccessToken string   `json:"access_token"`
+	ID          uint64   `json:"id"`
+	Price       *float32 `json:"price,omitempty"`
+	Comment     *string  `json:"comment,omitempty"`
+}
+
+type UpdateRespondDTO struct {
+	ID      uint64   `json:"id"`
+	Price   *float32 `json:"price,omitempty"`
+	Comment *string  `json:"comment,omitempty"`
 }
 
 type TicketAttachment struct {

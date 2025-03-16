@@ -126,13 +126,7 @@ func (repo *ToysRepository) GetAllMasters(ctx context.Context) ([]entities.Maste
 
 	masters := make([]entities.Master, len(response.GetMasters()))
 	for i, masterResponse := range response.GetMasters() {
-		masters[i] = entities.Master{
-			ID:        masterResponse.GetID(),
-			UserID:    masterResponse.GetUserID(),
-			Info:      masterResponse.GetInfo(),
-			CreatedAt: masterResponse.GetCreatedAt().AsTime(),
-			UpdatedAt: masterResponse.GetUpdatedAt().AsTime(),
-		}
+		masters[i] = *repo.processMasterResponse(masterResponse)
 	}
 
 	return masters, nil
@@ -150,13 +144,7 @@ func (repo *ToysRepository) GetMasterByID(ctx context.Context, id uint64) (*enti
 		return nil, err
 	}
 
-	return &entities.Master{
-		ID:        response.GetID(),
-		UserID:    response.GetUserID(),
-		Info:      response.GetInfo(),
-		CreatedAt: response.GetCreatedAt().AsTime(),
-		UpdatedAt: response.GetUpdatedAt().AsTime(),
-	}, nil
+	return repo.processMasterResponse(response), nil
 }
 
 func (repo *ToysRepository) RegisterMaster(
@@ -248,6 +236,16 @@ func (repo *ToysRepository) processTagResponse(tagResponse *toys.GetTagOut) *ent
 	return &entities.Tag{
 		ID:   tagResponse.GetID(),
 		Name: tagResponse.GetName(),
+	}
+}
+
+func (repo *ToysRepository) processMasterResponse(masterResponse *toys.GetMasterOut) *entities.Master {
+	return &entities.Master{
+		ID:        masterResponse.GetID(),
+		UserID:    masterResponse.GetUserID(),
+		Info:      masterResponse.Info,
+		CreatedAt: masterResponse.GetCreatedAt().AsTime(),
+		UpdatedAt: masterResponse.GetUpdatedAt().AsTime(),
 	}
 }
 
@@ -352,11 +350,17 @@ func (repo *ToysRepository) GetMasterByUser(ctx context.Context, userID uint64) 
 		return nil, err
 	}
 
-	return &entities.Master{
-		ID:        response.GetID(),
-		UserID:    response.GetUserID(),
-		Info:      response.GetInfo(),
-		CreatedAt: response.GetCreatedAt().AsTime(),
-		UpdatedAt: response.GetUpdatedAt().AsTime(),
-	}, nil
+	return repo.processMasterResponse(response), nil
+}
+
+func (repo *ToysRepository) UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error {
+	_, err := repo.client.UpdateMaster(
+		ctx,
+		&toys.UpdateMasterIn{
+			ID:   masterData.ID,
+			Info: masterData.Info,
+		},
+	)
+
+	return err
 }

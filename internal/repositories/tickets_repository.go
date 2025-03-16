@@ -211,3 +211,27 @@ func (repo *TicketsRepository) processTicketResponse(ticketResponse *tickets.Get
 		Attachments: attachments,
 	}
 }
+
+func (repo *TicketsRepository) UpdateRespond(ctx context.Context, respondData entities.UpdateRespondDTO) error {
+	_, err := repo.client.UpdateRespond(
+		ctx,
+		&tickets.UpdateRespondIn{
+			ID:      respondData.ID,
+			Price:   respondData.Price,
+			Comment: respondData.Comment,
+		},
+	)
+
+	return err
+}
+
+func (repo *TicketsRepository) DeleteRespond(ctx context.Context, id uint64) error {
+	_, err := repo.client.DeleteRespond(
+		ctx,
+		&tickets.DeleteRespondIn{
+			ID: id,
+		},
+	)
+
+	return err
+}

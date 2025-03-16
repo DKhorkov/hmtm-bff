@@ -341,9 +341,6 @@ issues:
       linters: [ godot ]
     - source: "//noinspection"
       linters: [ gocritic ]
-    - path: "internal/repositories/sso_repository.go"
-      linters:
-        - revive
     - path: "_test\\.go"
       linters:
         - bodyclose
@@ -379,8 +376,12 @@ issues:
         - nosprintfhostport
     - path: "internal/repositories/sso_repository.go"
       linters:
+        - revive
         - protogetter # to be able using optional fields like *string
     - path: "internal/repositories/tickets_repository.go"
+      linters:
+        - protogetter # to be able using optional fields like *string
+    - path: "internal/repositories/toys_repository.go"
       linters:
         - protogetter # to be able using optional fields like *string
     - path: "internal/usecases/validators_test.go"
