@@ -161,11 +161,11 @@ input AddToyInput {
 
 input UpdateToyInput {
     id: ID!
-    categoryId: ID!
-    name: String!
-    description: String!
-    price: Float!
-    quantity: Int!
+    categoryId: ID
+    name: String
+    description: String
+    price: Float
+    quantity: Int
     tags: [String!]
     attachments: [Upload!]
 }
