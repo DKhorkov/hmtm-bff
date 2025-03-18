@@ -7,7 +7,7 @@ require (
 	github.com/DKhorkov/hmtm-notifications v1.1.0
 	github.com/DKhorkov/hmtm-sso v1.4.1
 	github.com/DKhorkov/hmtm-tickets v1.1.0
-	github.com/DKhorkov/hmtm-toys v1.1.0
+	github.com/DKhorkov/hmtm-toys v1.2.0
 	github.com/DKhorkov/libs v1.7.0
 	github.com/aws/aws-sdk-go-v2 v1.32.6
 	github.com/aws/aws-sdk-go-v2/config v1.28.6

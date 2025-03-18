@@ -83,11 +83,11 @@ type UpdateRespondInput struct {
 
 type UpdateToyInput struct {
 	ID          string            `json:"id"`
-	CategoryID  string            `json:"categoryId"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Price       float64           `json:"price"`
-	Quantity    int               `json:"quantity"`
+	CategoryID  *string           `json:"categoryId,omitempty"`
+	Name        *string           `json:"name,omitempty"`
+	Description *string           `json:"description,omitempty"`
+	Price       *float64          `json:"price,omitempty"`
+	Quantity    *int              `json:"quantity,omitempty"`
 	Tags        []string          `json:"tags,omitempty"`
 	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }

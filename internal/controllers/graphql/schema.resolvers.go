@@ -291,19 +291,34 @@ func (r *mutationResolver) UpdateToy(ctx context.Context, input graphqlapi.Updat
 		return false, err
 	}
 
-	categoryID, err := strconv.Atoi(input.CategoryID)
-	if err != nil {
-		return false, err
+	var categoryID *uint32
+	if input.CategoryID != nil {
+		intCategoryID, err := strconv.Atoi(*input.CategoryID)
+		if err != nil {
+			return false, err
+		}
+
+		categoryID = pointers.New[uint32](uint32(intCategoryID))
+	}
+
+	var price *float32
+	if input.Price != nil {
+		price = pointers.New[float32](float32(*input.Price))
+	}
+
+	var quantity *uint32
+	if input.Quantity != nil {
+		quantity = pointers.New[uint32](uint32(*input.Quantity))
 	}
 
 	toyData := entities.RawUpdateToyDTO{
 		AccessToken: accessToken.Value,
 		ID:          uint64(toyID),
 		Name:        input.Name,
-		CategoryID:  uint32(categoryID),
+		CategoryID:  categoryID,
 		Description: input.Description,
-		Price:       float32(input.Price),
-		Quantity:    uint32(input.Quantity),
+		Price:       price,
+		Quantity:    quantity,
 		Tags:        input.Tags,
 		Attachments: input.Attachments,
 	}
