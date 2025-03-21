@@ -35,6 +35,10 @@ type DeleteRespondInput struct {
 	ID string `json:"id"`
 }
 
+type DeleteTicketInput struct {
+	ID string `json:"id"`
+}
+
 type DeleteToyInput struct {
 	ID string `json:"id"`
 }
@@ -79,6 +83,17 @@ type UpdateRespondInput struct {
 	ID      string   `json:"id"`
 	Price   *float64 `json:"price,omitempty"`
 	Comment *string  `json:"comment,omitempty"`
+}
+
+type UpdateTicketInput struct {
+	ID          string            `json:"id"`
+	CategoryID  *string           `json:"categoryId,omitempty"`
+	Name        *string           `json:"name,omitempty"`
+	Description *string           `json:"description,omitempty"`
+	Price       *float64          `json:"price,omitempty"`
+	Quantity    *int              `json:"quantity,omitempty"`
+	Tags        []string          `json:"tags,omitempty"`
+	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
 
 type UpdateToyInput struct {

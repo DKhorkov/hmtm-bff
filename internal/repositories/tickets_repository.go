@@ -235,3 +235,32 @@ func (repo *TicketsRepository) DeleteRespond(ctx context.Context, id uint64) err
 
 	return err
 }
+
+func (repo *TicketsRepository) UpdateTicket(ctx context.Context, ticketData entities.UpdateTicketDTO) error {
+	_, err := repo.client.UpdateTicket(
+		ctx,
+		&tickets.UpdateTicketIn{
+			ID:          ticketData.ID,
+			Name:        ticketData.Name,
+			Description: ticketData.Description,
+			CategoryID:  ticketData.CategoryID,
+			Price:       ticketData.Price,
+			Quantity:    ticketData.Quantity,
+			TagIDs:      ticketData.TagIDs,
+			Attachments: ticketData.Attachments,
+		},
+	)
+
+	return err
+}
+
+func (repo *TicketsRepository) DeleteTicket(ctx context.Context, id uint64) error {
+	_, err := repo.client.DeleteTicket(
+		ctx,
+		&tickets.DeleteTicketIn{
+			ID: id,
+		},
+	)
+
+	return err
+}

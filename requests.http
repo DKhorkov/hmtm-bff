@@ -236,3 +236,103 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDIxMzkxMjI
     }
   }
 }
+
+###
+
+POST http://localhost:8080/query
+Content-Type: multipart/form-data; boundary=boundary
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDI1NzE3NDUsInZhbHVlIjozMX0.oAjV5QQe97Fed5sdajTpu0NED30rSoSeC7gPChQZ1q8
+
+--boundary
+Content-Disposition: form-data; name="operations"
+
+{
+  "query": "mutation CreateTicket($input: CreateTicketInput!) { createTicket(input: $input) }",
+  "variables": {
+    "input": {
+      "categoryId": "1",
+      "name": "Super Toy",
+      "description": "A fantastic toy for kids",
+      "price": 29.99,
+      "quantity": 100,
+      "tags": ["educational", "fun"],
+      "attachments": [null, null]
+    }
+  }
+}
+--boundary
+Content-Disposition: form-data; name="map"
+
+{
+  "0": ["variables.input.attachments.0"],
+  "1": ["variables.input.attachments.1"]
+}
+--boundary
+Content-Disposition: form-data; name="0"; filename="image1.jpg"
+Content-Type: image/jpeg
+
+< /home/dkhorkov/Изображения/Снимки экрана/t1.png
+--boundary
+Content-Disposition: form-data; name="1"; filename="image2.jpg"
+Content-Type: image/jpeg
+
+< /home/dkhorkov/Изображения/Снимки экрана/t2.png
+--boundary--
+
+###
+
+POST http://localhost:8080/query
+Content-Type: multipart/form-data; boundary=boundary
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDI1NzI4OTAsInZhbHVlIjozMX0.fhW-rtppEszFu5M20xP-60pYSm_hJ79umNC_8HNb8bg
+
+--boundary
+Content-Disposition: form-data; name="operations"
+
+{
+  "query": "mutation UpdateTicket($input: UpdateTicketInput!) { updateTicket(input: $input) }",
+  "variables": {
+    "input": {
+      "id": "1",
+      "categoryId": "2",
+      "name": "Updated Toy Name",
+      "description": "Updated description for the toy",
+      "price": 39.99,
+      "quantity": 50,
+      "tags": ["educational", "fun", "new"],
+      "attachments": [null, null]
+    }
+  }
+}
+--boundary
+Content-Disposition: form-data; name="map"
+
+{
+  "0": ["variables.input.attachments.0"],
+  "1": ["variables.input.attachments.1"]
+}
+--boundary
+Content-Disposition: form-data; name="0"; filename="image1.jpg"
+Content-Type: image/jpeg
+
+< /home/dkhorkov/Изображения/Снимки экрана/t1.png
+--boundary
+Content-Disposition: form-data; name="1"; filename="t2.png"
+Content-Type: image/jpeg
+
+< /home/dkhorkov/Изображения/Снимки экрана/t2.png
+--boundary--
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDI1NzI4OTAsInZhbHVlIjozMX0.fhW-rtppEszFu5M20xP-60pYSm_hJ79umNC_8HNb8bg
+
+{
+  "query": "mutation DeleteTicket($input: DeleteTicketInput!) { deleteTicket(input: $input) }",
+  "variables": {
+    "input": {
+      "id": "10"
+    }
+  }
+}

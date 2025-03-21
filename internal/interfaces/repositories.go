@@ -59,6 +59,8 @@ type TicketsRepository interface {
 	GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error)
 	UpdateRespond(ctx context.Context, respondData entities.UpdateRespondDTO) error
 	DeleteRespond(ctx context.Context, id uint64) error
+	UpdateTicket(ctx context.Context, ticketData entities.UpdateTicketDTO) error
+	DeleteTicket(ctx context.Context, id uint64) error
 }
 
 type NotificationsRepository interface {

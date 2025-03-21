@@ -163,3 +163,31 @@ func (service *TicketsService) DeleteRespond(ctx context.Context, id uint64) err
 
 	return err
 }
+
+func (service *TicketsService) UpdateTicket(ctx context.Context, ticketData entities.UpdateTicketDTO) error {
+	err := service.ticketsRepository.UpdateTicket(ctx, ticketData)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to update Ticket with ID=%d", ticketData.ID),
+			err,
+		)
+	}
+
+	return err
+}
+
+func (service *TicketsService) DeleteTicket(ctx context.Context, id uint64) error {
+	err := service.ticketsRepository.DeleteTicket(ctx, id)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to delete Ticket with ID=%d", id),
+			err,
+		)
+	}
+
+	return err
+}

@@ -100,3 +100,26 @@ type RawCreateTicketDTO struct {
 	Tags        []string          `json:"tags,omitempty"`
 	Attachments []*graphql.Upload `json:"attachments,omitempty"`
 }
+
+type RawUpdateTicketDTO struct {
+	AccessToken string            `json:"access_token"`
+	ID          uint64            `json:"id"`
+	CategoryID  *uint32           `json:"category_id,omitempty"`
+	Name        *string           `json:"name,omitempty"`
+	Description *string           `json:"description,omitempty"`
+	Price       *float32          `json:"price,omitempty"`
+	Quantity    *uint32           `json:"quantity,omitempty"`
+	Tags        []string          `json:"tags,omitempty"`
+	Attachments []*graphql.Upload `json:"attachments,omitempty"`
+}
+
+type UpdateTicketDTO struct {
+	ID          uint64   `json:"id"`
+	CategoryID  *uint32  `json:"category_id,omitempty"`
+	Name        *string  `json:"name,omitempty"`
+	Description *string  `json:"description,omitempty"`
+	Price       *float32 `json:"price,omitempty"`
+	Quantity    *uint32  `json:"quantity,omitempty"`
+	TagIDs      []uint32 `json:"tag_ids,omitempty"`
+	Attachments []string `json:"attachments,omitempty"`
+}

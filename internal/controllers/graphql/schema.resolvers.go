@@ -454,6 +454,76 @@ func (r *mutationResolver) DeleteRespond(ctx context.Context, input graphqlapi.D
 	return true, nil
 }
 
+// UpdateTicket is the resolver for the updateTicket field.
+func (r *mutationResolver) UpdateTicket(ctx context.Context, input graphqlapi.UpdateTicketInput) (bool, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	ticketID, err := strconv.Atoi(input.ID)
+	if err != nil {
+		return false, err
+	}
+
+	var categoryID *uint32
+	if input.CategoryID != nil {
+		intCategoryID, err := strconv.Atoi(*input.CategoryID)
+		if err != nil {
+			return false, err
+		}
+
+		categoryID = pointers.New[uint32](uint32(intCategoryID))
+	}
+
+	var price *float32
+	if input.Price != nil {
+		price = pointers.New[float32](float32(*input.Price))
+	}
+
+	var quantity *uint32
+	if input.Quantity != nil {
+		quantity = pointers.New[uint32](uint32(*input.Quantity))
+	}
+
+	ticketData := entities.RawUpdateTicketDTO{
+		AccessToken: accessToken.Value,
+		ID:          uint64(ticketID),
+		Name:        input.Name,
+		CategoryID:  categoryID,
+		Description: input.Description,
+		Price:       price,
+		Quantity:    quantity,
+		Tags:        input.Tags,
+		Attachments: input.Attachments,
+	}
+
+	if err = r.useCases.UpdateTicket(ctx, ticketData); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// DeleteTicket is the resolver for the deleteTicket field.
+func (r *mutationResolver) DeleteTicket(ctx context.Context, input graphqlapi.DeleteTicketInput) (bool, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	ticketID, err := strconv.Atoi(input.ID)
+	if err != nil {
+		return false, err
+	}
+
+	if err = r.useCases.DeleteTicket(ctx, accessToken.Value, uint64(ticketID)); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*entities.User, error) {
 	users, err := r.useCases.GetAllUsers(ctx)

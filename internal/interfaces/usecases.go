@@ -57,6 +57,8 @@ type UseCases interface {
 	GetMyResponds(ctx context.Context, accessToken string) ([]entities.Respond, error)
 	UpdateRespond(ctx context.Context, rawRespondData entities.RawUpdateRespondDTO) error
 	DeleteRespond(ctx context.Context, accessToken string, id uint64) error
+	UpdateTicket(ctx context.Context, rawTicketData entities.RawUpdateTicketDTO) error
+	DeleteTicket(ctx context.Context, accessToken string, id uint64) error
 
 	// Notifications cases:
 	GetMyEmailCommunications(ctx context.Context, accessToken string) ([]entities.Email, error)

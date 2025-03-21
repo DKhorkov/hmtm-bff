@@ -647,27 +647,32 @@ func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.Raw
 		}
 	}
 
-	deleteAttachmentErrors := useCases.fileStorageService.DeleteMany(ctx, attachmentsToDelete)
-	if len(deleteAttachmentErrors) > 0 {
-		concatenatedErrBuilder := strings.Builder{}
-		concatenatedErrBuilder.WriteString("Failed to delete files:\n")
-		for i, err := range deleteAttachmentErrors {
-			// i + 1 due to index starts from zero
-			concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
-		}
+	if len(attachmentsToDelete) > 0 {
+		deleteAttachmentErrors := useCases.fileStorageService.DeleteMany(ctx, attachmentsToDelete)
+		if len(deleteAttachmentErrors) > 0 {
+			concatenatedErrBuilder := strings.Builder{}
+			concatenatedErrBuilder.WriteString("Failed to delete files:\n")
+			for i, err := range deleteAttachmentErrors {
+				// i + 1 due to index starts from zero
+				concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
+			}
 
-		// Logging errors for further investigate:
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			concatenatedErrBuilder.String(),
-			&customerrors.DeleteFileError{Message: concatenatedErrBuilder.String()},
-		)
+			// Logging errors for further investigate:
+			logging.LogErrorContext(
+				ctx,
+				useCases.logger,
+				concatenatedErrBuilder.String(),
+				&customerrors.DeleteFileError{Message: concatenatedErrBuilder.String()},
+			)
+		}
 	}
 
-	uploadedFiles, err := useCases.UploadFiles(ctx, user.ID, attachmentsToAdd)
-	if err != nil {
-		return err
+	var uploadedFiles []string
+	if len(attachmentsToAdd) > 0 {
+		uploadedFiles, err = useCases.UploadFiles(ctx, user.ID, attachmentsToAdd)
+		if err != nil {
+			return err
+		}
 	}
 
 	updatedAttachments := append(stillUsedAttachments, uploadedFiles...)
@@ -719,22 +724,24 @@ func (useCases *UseCases) DeleteToy(ctx context.Context, accessToken string, id 
 		attachmentsToDelete = append(attachmentsToDelete, oldAttachmentFilename)
 	}
 
-	deleteAttachmentErrors := useCases.fileStorageService.DeleteMany(ctx, attachmentsToDelete)
-	if len(deleteAttachmentErrors) > 0 {
-		concatenatedErrBuilder := strings.Builder{}
-		concatenatedErrBuilder.WriteString("Failed to delete files:\n")
-		for i, err := range deleteAttachmentErrors {
-			// i + 1 due to index starts from zero
-			concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
-		}
+	if len(attachmentsToDelete) > 0 {
+		deleteAttachmentErrors := useCases.fileStorageService.DeleteMany(ctx, attachmentsToDelete)
+		if len(deleteAttachmentErrors) > 0 {
+			concatenatedErrBuilder := strings.Builder{}
+			concatenatedErrBuilder.WriteString("Failed to delete files:\n")
+			for i, err := range deleteAttachmentErrors {
+				// i + 1 due to index starts from zero
+				concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
+			}
 
-		// Logging errors for further investigate:
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			concatenatedErrBuilder.String(),
-			&customerrors.DeleteFileError{Message: concatenatedErrBuilder.String()},
-		)
+			// Logging errors for further investigate:
+			logging.LogErrorContext(
+				ctx,
+				useCases.logger,
+				concatenatedErrBuilder.String(),
+				&customerrors.DeleteFileError{Message: concatenatedErrBuilder.String()},
+			)
+		}
 	}
 
 	return useCases.toysService.DeleteToy(ctx, toy.ID)
@@ -834,4 +841,185 @@ func (useCases *UseCases) UpdateMaster(ctx context.Context, rawMasterData entiti
 	}
 
 	return useCases.toysService.UpdateMaster(ctx, masterData)
+}
+
+func (useCases *UseCases) UpdateTicket(ctx context.Context, rawTicketData entities.RawUpdateTicketDTO) error {
+	user, err := useCases.GetMe(ctx, rawTicketData.AccessToken)
+	if err != nil {
+		return err
+	}
+
+	ticket, err := useCases.ticketsService.GetTicketByID(ctx, rawTicketData.ID)
+	if err != nil {
+		return err
+	}
+
+	// Check if Ticket belongs to User:
+	if ticket.UserID != user.ID {
+		return &customerrors.PermissionDeniedError{
+			Message: fmt.Sprintf(
+				"User with ID=%d is not owner of Ticket with ID=%d",
+				user.ID,
+				ticket.ID,
+			),
+		}
+	}
+
+	tagsData := make([]entities.CreateTagDTO, len(rawTicketData.Tags))
+	for i, tag := range rawTicketData.Tags {
+		tagsData[i] = entities.CreateTagDTO{
+			Name: tag,
+		}
+	}
+
+	tagIDs, err := useCases.toysService.CreateTags(ctx, tagsData)
+	if err != nil {
+		return err
+	}
+
+	// Old Ticket Attachments set:
+	oldAttachmentsSet := make(map[string]struct{}, len(ticket.Attachments))
+	for _, attachment := range ticket.Attachments {
+		split := strings.Split(attachment.Link, "/")
+		oldAttachmentFilename := split[len(split)-1]
+		oldAttachmentsSet[oldAttachmentFilename] = struct{}{}
+	}
+
+	// New Ticket Attachments set:
+	newAttachmentsSet := make(map[string]struct{}, len(rawTicketData.Attachments))
+	for _, attachment := range rawTicketData.Attachments {
+		filename, err := useCases.createFilename(user.ID, attachment)
+		if err != nil {
+			return err
+		}
+
+		newAttachmentsSet[filename] = struct{}{}
+	}
+
+	// Add new Attachments if it is not already exists:
+	attachmentsToAdd := make([]*graphql.Upload, 0)
+	for _, attachment := range rawTicketData.Attachments {
+		filename, err := useCases.createFilename(user.ID, attachment)
+		if err != nil {
+			return err
+		}
+
+		if _, ok := oldAttachmentsSet[filename]; !ok {
+			attachmentsToAdd = append(attachmentsToAdd, attachment)
+		}
+	}
+
+	// Still used Attachments:
+	stillUsedAttachments := make([]string, 0)
+	for _, attachment := range ticket.Attachments {
+		split := strings.Split(attachment.Link, "/")
+		oldAttachmentFilename := split[len(split)-1]
+		if _, ok := newAttachmentsSet[oldAttachmentFilename]; ok {
+			stillUsedAttachments = append(stillUsedAttachments, attachment.Link)
+		}
+	}
+
+	// Delete old Attachments if it is not used by Ticket now:
+	attachmentsToDelete := make([]string, 0)
+	for _, attachment := range ticket.Attachments {
+		split := strings.Split(attachment.Link, "/")
+		oldAttachmentFilename := split[len(split)-1]
+		if _, ok := newAttachmentsSet[oldAttachmentFilename]; !ok {
+			attachmentsToDelete = append(attachmentsToDelete, oldAttachmentFilename)
+		}
+	}
+
+	if len(attachmentsToDelete) > 0 {
+		deleteAttachmentErrors := useCases.fileStorageService.DeleteMany(ctx, attachmentsToDelete)
+		if len(deleteAttachmentErrors) > 0 {
+			concatenatedErrBuilder := strings.Builder{}
+			concatenatedErrBuilder.WriteString("Failed to delete files:\n")
+			for i, err := range deleteAttachmentErrors {
+				// i + 1 due to index starts from zero
+				concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
+			}
+
+			// Logging errors for further investigate:
+			logging.LogErrorContext(
+				ctx,
+				useCases.logger,
+				concatenatedErrBuilder.String(),
+				&customerrors.DeleteFileError{Message: concatenatedErrBuilder.String()},
+			)
+		}
+	}
+
+	var uploadedFiles []string
+	if len(attachmentsToAdd) > 0 {
+		uploadedFiles, err = useCases.UploadFiles(ctx, user.ID, attachmentsToAdd)
+		if err != nil {
+			return err
+		}
+	}
+
+	updatedAttachments := append(stillUsedAttachments, uploadedFiles...)
+	ticketData := entities.UpdateTicketDTO{
+		ID:          rawTicketData.ID,
+		CategoryID:  rawTicketData.CategoryID,
+		Name:        rawTicketData.Name,
+		Description: rawTicketData.Description,
+		Price:       rawTicketData.Price,
+		Quantity:    rawTicketData.Quantity,
+		TagIDs:      tagIDs,
+		Attachments: updatedAttachments,
+	}
+
+	return useCases.ticketsService.UpdateTicket(ctx, ticketData)
+}
+
+func (useCases *UseCases) DeleteTicket(ctx context.Context, accessToken string, id uint64) error {
+	user, err := useCases.GetMe(ctx, accessToken)
+	if err != nil {
+		return err
+	}
+
+	ticket, err := useCases.ticketsService.GetTicketByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	// Check if Ticket belongs to User:
+	if ticket.UserID != user.ID {
+		return &customerrors.PermissionDeniedError{
+			Message: fmt.Sprintf(
+				"User with ID=%d is not owner of Ticket with ID=%d",
+				user.ID,
+				ticket.ID,
+			),
+		}
+	}
+
+	attachmentsToDelete := make([]string, 0, len(ticket.Attachments))
+	for _, attachment := range ticket.Attachments {
+		split := strings.Split(attachment.Link, "/")
+		oldAttachmentFilename := split[len(split)-1]
+		attachmentsToDelete = append(attachmentsToDelete, oldAttachmentFilename)
+	}
+
+	if len(attachmentsToDelete) > 0 {
+		deleteAttachmentErrors := useCases.fileStorageService.DeleteMany(ctx, attachmentsToDelete)
+		if len(deleteAttachmentErrors) > 0 {
+			concatenatedErrBuilder := strings.Builder{}
+			concatenatedErrBuilder.WriteString("Failed to delete files:\n")
+			for i, err := range deleteAttachmentErrors {
+				// i + 1 due to index starts from zero
+				concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
+			}
+
+			// Logging errors for further investigate:
+			logging.LogErrorContext(
+				ctx,
+				useCases.logger,
+				concatenatedErrBuilder.String(),
+				&customerrors.DeleteFileError{Message: concatenatedErrBuilder.String()},
+			)
+		}
+	}
+
+	return useCases.ticketsService.DeleteTicket(ctx, ticket.ID)
 }

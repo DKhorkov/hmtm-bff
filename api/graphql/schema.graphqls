@@ -200,6 +200,21 @@ input DeleteRespondInput {
     id: ID!
 }
 
+input UpdateTicketInput {
+    id: ID!
+    categoryId: ID
+    name: String
+    description: String
+    price: Float
+    quantity: Int
+    tags: [String!]
+    attachments: [Upload!]
+}
+
+input DeleteTicketInput {
+    id: ID!
+}
+
 input VerifyUserEmailInput {
     verifyEmailToken: String!
 }
@@ -244,4 +259,6 @@ type Mutation {
     respondToTicket(input: RespondToTicketInput!): ID!
     updateRespond(input: UpdateRespondInput!): Boolean!
     deleteRespond(input: DeleteRespondInput!): Boolean!
+    updateTicket(input: UpdateTicketInput!): Boolean!
+    deleteTicket(input: DeleteTicketInput!): Boolean!
 }
