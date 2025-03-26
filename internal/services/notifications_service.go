@@ -29,12 +29,18 @@ func (service *NotificationsService) GetUserEmailCommunications(
 	ctx context.Context,
 	userID uint64,
 ) ([]entities.Email, error) {
-	emailCommunications, err := service.notificationsRepository.GetUserEmailCommunications(ctx, userID)
+	emailCommunications, err := service.notificationsRepository.GetUserEmailCommunications(
+		ctx,
+		userID,
+	)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to get Email Communications for User with ID=%d", userID),
+			fmt.Sprintf(
+				"Error occurred while trying to get Email Communications for User with ID=%d",
+				userID,
+			),
 			err,
 		)
 	}

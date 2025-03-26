@@ -3,9 +3,8 @@ package repositories
 import (
 	"context"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
@@ -19,7 +18,10 @@ type SsoRepository struct {
 	client interfaces.SsoClient
 }
 
-func (repo *SsoRepository) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
+func (repo *SsoRepository) RegisterUser(
+	ctx context.Context,
+	userData entities.RegisterUserDTO,
+) (uint64, error) {
 	response, err := repo.client.Register(
 		ctx,
 		&sso.RegisterIn{
@@ -28,7 +30,6 @@ func (repo *SsoRepository) RegisterUser(ctx context.Context, userData entities.R
 			Password:    userData.Password,
 		},
 	)
-
 	if err != nil {
 		return 0, err
 	}
@@ -43,7 +44,6 @@ func (repo *SsoRepository) GetUserByID(ctx context.Context, id uint64) (*entitie
 			ID: id,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -51,14 +51,16 @@ func (repo *SsoRepository) GetUserByID(ctx context.Context, id uint64) (*entitie
 	return repo.processUserResponse(response), nil
 }
 
-func (repo *SsoRepository) GetUserByEmail(ctx context.Context, email string) (*entities.User, error) {
+func (repo *SsoRepository) GetUserByEmail(
+	ctx context.Context,
+	email string,
+) (*entities.User, error) {
 	response, err := repo.client.GetUserByEmail(
 		ctx,
 		&sso.GetUserByEmailIn{
 			Email: email,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +73,6 @@ func (repo *SsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, er
 		ctx,
 		&emptypb.Empty{},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +96,6 @@ func (repo *SsoRepository) LoginUser(
 			Password: userData.Password,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,6 @@ func (repo *SsoRepository) GetMe(ctx context.Context, accessToken string) (*enti
 			AccessToken: accessToken,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -183,14 +182,16 @@ func (repo *SsoRepository) GetMe(ctx context.Context, accessToken string) (*enti
 	return repo.processUserResponse(response), nil
 }
 
-func (repo *SsoRepository) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
+func (repo *SsoRepository) RefreshTokens(
+	ctx context.Context,
+	refreshToken string,
+) (*entities.TokensDTO, error) {
 	response, err := repo.client.RefreshTokens(
 		ctx,
 		&sso.RefreshTokensIn{
 			RefreshToken: refreshToken,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +202,10 @@ func (repo *SsoRepository) RefreshTokens(ctx context.Context, refreshToken strin
 	}, nil
 }
 
-func (repo *SsoRepository) UpdateUserProfile(ctx context.Context, userProfileData entities.UpdateUserProfileDTO) error {
+func (repo *SsoRepository) UpdateUserProfile(
+	ctx context.Context,
+	userProfileData entities.UpdateUserProfileDTO,
+) error {
 	_, err := repo.client.UpdateUserProfile(
 		ctx,
 		&sso.UpdateUserProfileIn{

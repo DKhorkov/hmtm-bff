@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"net/http"
 
-	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/rs/cors"
-
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
 	"github.com/DKhorkov/libs/tracing"
+	"github.com/rs/cors"
+
+	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/config"
@@ -42,7 +42,10 @@ func New(
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle("/", playground.Handler("GraphQL playground", "/query")) // TODO should be deleted on prod
+	mux.Handle(
+		"/",
+		playground.Handler("GraphQL playground", "/query"),
+	) // TODO should be deleted on prod
 	mux.Handle("/query", graphqlServer)
 
 	httpHandler := cors.New(
@@ -56,10 +59,18 @@ func New(
 	).Handler(mux)
 
 	// Configures tracing:
-	httpHandler = middlewares.TracingMiddleware(httpHandler, logger, traceProvider, tracingConfig.Spans.Root)
+	httpHandler = middlewares.TracingMiddleware(
+		httpHandler,
+		logger,
+		traceProvider,
+		tracingConfig.Spans.Root,
+	)
 
 	// Read cookies for auth purposes:
-	httpHandler = middlewares.CookiesMiddleware(httpHandler, []string{"accessToken", "refreshToken"})
+	httpHandler = middlewares.CookiesMiddleware(
+		httpHandler,
+		[]string{"accessToken", "refreshToken"},
+	)
 
 	// Create request ID for request for later logging:
 	httpHandler = middlewares.RequestIDMiddleware(httpHandler)

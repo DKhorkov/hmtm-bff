@@ -27,7 +27,6 @@ func (repo *NotificationsRepository) GetUserEmailCommunications(
 			UserID: userID,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}

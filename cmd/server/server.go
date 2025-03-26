@@ -49,7 +49,6 @@ func main() {
 		traceProvider,
 		settings.Tracing.Spans.Clients.SSO,
 	)
-
 	if err != nil {
 		panic(err)
 	}
@@ -63,7 +62,6 @@ func main() {
 		traceProvider,
 		settings.Tracing.Spans.Clients.Toys,
 	)
-
 	if err != nil {
 		panic(err)
 	}
@@ -77,7 +75,6 @@ func main() {
 		traceProvider,
 		settings.Tracing.Spans.Clients.Tickets,
 	)
-
 	if err != nil {
 		panic(err)
 	}
@@ -91,7 +88,6 @@ func main() {
 		traceProvider,
 		settings.Tracing.Spans.Clients.Notifications,
 	)
-
 	if err != nil {
 		panic(err)
 	}

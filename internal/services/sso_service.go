@@ -25,7 +25,12 @@ type SsoService struct {
 func (service *SsoService) GetAllUsers(ctx context.Context) ([]entities.User, error) {
 	users, err := service.ssoRepository.GetAllUsers(ctx)
 	if err != nil {
-		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get all Users", err)
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			"Error occurred while trying to get all Users",
+			err,
+		)
 	}
 
 	return users, err
@@ -45,7 +50,10 @@ func (service *SsoService) GetUserByID(ctx context.Context, id uint64) (*entitie
 	return user, err
 }
 
-func (service *SsoService) GetUserByEmail(ctx context.Context, email string) (*entities.User, error) {
+func (service *SsoService) GetUserByEmail(
+	ctx context.Context,
+	email string,
+) (*entities.User, error) {
 	user, err := service.ssoRepository.GetUserByEmail(ctx, email)
 	if err != nil {
 		logging.LogErrorContext(
@@ -59,10 +67,18 @@ func (service *SsoService) GetUserByEmail(ctx context.Context, email string) (*e
 	return user, err
 }
 
-func (service *SsoService) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
+func (service *SsoService) RegisterUser(
+	ctx context.Context,
+	userData entities.RegisterUserDTO,
+) (uint64, error) {
 	userID, err := service.ssoRepository.RegisterUser(ctx, userData)
 	if err != nil {
-		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to register User", err)
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			"Error occurred while trying to register User",
+			err,
+		)
 	}
 
 	return userID, err
@@ -91,7 +107,10 @@ func (service *SsoService) LogoutUser(ctx context.Context, accessToken string) e
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to logout User with AccessToken=%s", accessToken),
+			fmt.Sprintf(
+				"Error occurred while trying to logout User with AccessToken=%s",
+				accessToken,
+			),
 			err,
 		)
 	}
@@ -122,7 +141,10 @@ func (service *SsoService) ForgetPassword(ctx context.Context, accessToken strin
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to forget password for User with AccessToken=%s", accessToken),
+			fmt.Sprintf(
+				"Error occurred while trying to forget password for User with AccessToken=%s",
+				accessToken,
+			),
 			err,
 		)
 	}
@@ -141,7 +163,10 @@ func (service *SsoService) ChangePassword(
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to change password for User with AccessToken=%s", accessToken),
+			fmt.Sprintf(
+				"Error occurred while trying to change password for User with AccessToken=%s",
+				accessToken,
+			),
 			err,
 		)
 	}
@@ -155,7 +180,10 @@ func (service *SsoService) SendVerifyEmailMessage(ctx context.Context, email str
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to send verify email message to User with email=%s", email),
+			fmt.Sprintf(
+				"Error occurred while trying to send verify email message to User with email=%s",
+				email,
+			),
 			err,
 		)
 	}
@@ -163,7 +191,10 @@ func (service *SsoService) SendVerifyEmailMessage(ctx context.Context, email str
 	return err
 }
 
-func (service *SsoService) UpdateUserProfile(ctx context.Context, userProfileData entities.UpdateUserProfileDTO) error {
+func (service *SsoService) UpdateUserProfile(
+	ctx context.Context,
+	userProfileData entities.UpdateUserProfileDTO,
+) error {
 	err := service.ssoRepository.UpdateUserProfile(ctx, userProfileData)
 	if err != nil {
 		logging.LogErrorContext(
@@ -194,13 +225,19 @@ func (service *SsoService) GetMe(ctx context.Context, accessToken string) (*enti
 	return user, err
 }
 
-func (service *SsoService) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
+func (service *SsoService) RefreshTokens(
+	ctx context.Context,
+	refreshToken string,
+) (*entities.TokensDTO, error) {
 	tokens, err := service.ssoRepository.RefreshTokens(ctx, refreshToken)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to refresh tokens with RefreshToken=%s", refreshToken),
+			fmt.Sprintf(
+				"Error occurred while trying to refresh tokens with RefreshToken=%s",
+				refreshToken,
+			),
 			err,
 		)
 	}

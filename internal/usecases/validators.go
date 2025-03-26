@@ -10,6 +10,6 @@ func validateFileExtension(extension string, allowedExtensions []string) bool {
 	return false
 }
 
-func validateFileSize(size int64, maxSize int64) bool {
+func validateFileSize(size, maxSize int64) bool {
 	return size <= maxSize
 }

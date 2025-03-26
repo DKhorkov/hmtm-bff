@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
-
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/loadenv"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func New() Config {
@@ -151,7 +150,10 @@ func New() Config {
 							Name: "Calling handler",
 							Opts: []trace.EventOption{
 								trace.WithAttributes(
-									attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									attribute.String(
+										"Environment",
+										loadenv.GetEnv("ENVIRONMENT", "local"),
+									),
 								),
 							},
 						},
@@ -159,7 +161,10 @@ func New() Config {
 							Name: "Received response from handler",
 							Opts: []trace.EventOption{
 								trace.WithAttributes(
-									attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									attribute.String(
+										"Environment",
+										loadenv.GetEnv("ENVIRONMENT", "local"),
+									),
 								),
 							},
 						},
@@ -169,7 +174,10 @@ func New() Config {
 					SSO: tracing.SpanConfig{
 						Opts: []trace.SpanStartOption{
 							trace.WithAttributes(
-								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								attribute.String(
+									"Environment",
+									loadenv.GetEnv("ENVIRONMENT", "local"),
+								),
 							),
 						},
 						Events: tracing.SpanEventsConfig{
@@ -177,7 +185,10 @@ func New() Config {
 								Name: "Calling gRPC SSO client",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -185,7 +196,10 @@ func New() Config {
 								Name: "Received response from gRPC SSO client",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -194,7 +208,10 @@ func New() Config {
 					Toys: tracing.SpanConfig{
 						Opts: []trace.SpanStartOption{
 							trace.WithAttributes(
-								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								attribute.String(
+									"Environment",
+									loadenv.GetEnv("ENVIRONMENT", "local"),
+								),
 							),
 						},
 						Events: tracing.SpanEventsConfig{
@@ -202,7 +219,10 @@ func New() Config {
 								Name: "Calling gRPC Toys client",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -210,7 +230,10 @@ func New() Config {
 								Name: "Received response from gRPC Toys client",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -219,7 +242,10 @@ func New() Config {
 					Tickets: tracing.SpanConfig{
 						Opts: []trace.SpanStartOption{
 							trace.WithAttributes(
-								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								attribute.String(
+									"Environment",
+									loadenv.GetEnv("ENVIRONMENT", "local"),
+								),
 							),
 						},
 						Events: tracing.SpanEventsConfig{
@@ -227,7 +253,10 @@ func New() Config {
 								Name: "Calling gRPC Tickets client",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -235,7 +264,10 @@ func New() Config {
 								Name: "Received response from gRPC Tickets client",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -244,7 +276,10 @@ func New() Config {
 					Notifications: tracing.SpanConfig{
 						Opts: []trace.SpanStartOption{
 							trace.WithAttributes(
-								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								attribute.String(
+									"Environment",
+									loadenv.GetEnv("ENVIRONMENT", "local"),
+								),
 							),
 						},
 						Events: tracing.SpanEventsConfig{
@@ -252,7 +287,10 @@ func New() Config {
 								Name: "Calling gRPC Notifications client",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -260,7 +298,10 @@ func New() Config {
 								Name: "Received response from gRPC Notifications client",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
