@@ -25,7 +25,11 @@ type FileStorageService struct {
 	logger                logging.Logger
 }
 
-func (service *FileStorageService) Upload(ctx context.Context, key string, data []byte) (string, error) {
+func (service *FileStorageService) Upload(
+	ctx context.Context,
+	key string,
+	data []byte,
+) (string, error) {
 	url, err := service.fileStorageRepository.Upload(ctx, key, data)
 	if err != nil {
 		logging.LogErrorContext(

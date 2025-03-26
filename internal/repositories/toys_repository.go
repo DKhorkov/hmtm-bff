@@ -3,9 +3,8 @@ package repositories
 import (
 	"context"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
@@ -19,7 +18,10 @@ type ToysRepository struct {
 	client interfaces.ToysClient
 }
 
-func (repo *ToysRepository) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
+func (repo *ToysRepository) AddToy(
+	ctx context.Context,
+	toyData entities.AddToyDTO,
+) (uint64, error) {
 	response, err := repo.client.AddToy(
 		ctx,
 		&toys.AddToyIn{
@@ -33,7 +35,6 @@ func (repo *ToysRepository) AddToy(ctx context.Context, toyData entities.AddToyD
 			Attachments: toyData.Attachments,
 		},
 	)
-
 	if err != nil {
 		return 0, err
 	}
@@ -46,7 +47,6 @@ func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, err
 		ctx,
 		&emptypb.Empty{},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -59,14 +59,16 @@ func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, err
 	return allToys, nil
 }
 
-func (repo *ToysRepository) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (repo *ToysRepository) GetMasterToys(
+	ctx context.Context,
+	masterID uint64,
+) ([]entities.Toy, error) {
 	response, err := repo.client.GetMasterToys(
 		ctx,
 		&toys.GetMasterToysIn{
 			MasterID: masterID,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -79,14 +81,16 @@ func (repo *ToysRepository) GetMasterToys(ctx context.Context, masterID uint64) 
 	return masterToys, nil
 }
 
-func (repo *ToysRepository) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
+func (repo *ToysRepository) GetUserToys(
+	ctx context.Context,
+	userID uint64,
+) ([]entities.Toy, error) {
 	response, err := repo.client.GetUserToys(
 		ctx,
 		&toys.GetUserToysIn{
 			UserID: userID,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +110,6 @@ func (repo *ToysRepository) GetToyByID(ctx context.Context, id uint64) (*entitie
 			ID: id,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +122,6 @@ func (repo *ToysRepository) GetAllMasters(ctx context.Context) ([]entities.Maste
 		ctx,
 		&emptypb.Empty{},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -132,14 +134,16 @@ func (repo *ToysRepository) GetAllMasters(ctx context.Context) ([]entities.Maste
 	return masters, nil
 }
 
-func (repo *ToysRepository) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
+func (repo *ToysRepository) GetMasterByID(
+	ctx context.Context,
+	id uint64,
+) (*entities.Master, error) {
 	response, err := repo.client.GetMaster(
 		ctx,
 		&toys.GetMasterIn{
 			ID: id,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +162,6 @@ func (repo *ToysRepository) RegisterMaster(
 			Info:   masterData.Info,
 		},
 	)
-
 	if err != nil {
 		return 0, err
 	}
@@ -171,7 +174,6 @@ func (repo *ToysRepository) GetAllCategories(ctx context.Context) ([]entities.Ca
 		ctx,
 		&emptypb.Empty{},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -184,14 +186,16 @@ func (repo *ToysRepository) GetAllCategories(ctx context.Context) ([]entities.Ca
 	return categories, nil
 }
 
-func (repo *ToysRepository) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+func (repo *ToysRepository) GetCategoryByID(
+	ctx context.Context,
+	id uint32,
+) (*entities.Category, error) {
 	response, err := repo.client.GetCategory(
 		ctx,
 		&toys.GetCategoryIn{
 			ID: id,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +208,6 @@ func (repo *ToysRepository) GetAllTags(ctx context.Context) ([]entities.Tag, err
 		ctx,
 		&emptypb.Empty{},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +227,6 @@ func (repo *ToysRepository) GetTagByID(ctx context.Context, id uint32) (*entitie
 			ID: id,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +241,9 @@ func (repo *ToysRepository) processTagResponse(tagResponse *toys.GetTagOut) *ent
 	}
 }
 
-func (repo *ToysRepository) processMasterResponse(masterResponse *toys.GetMasterOut) *entities.Master {
+func (repo *ToysRepository) processMasterResponse(
+	masterResponse *toys.GetMasterOut,
+) *entities.Master {
 	return &entities.Master{
 		ID:        masterResponse.GetID(),
 		UserID:    masterResponse.GetUserID(),
@@ -249,7 +253,9 @@ func (repo *ToysRepository) processMasterResponse(masterResponse *toys.GetMaster
 	}
 }
 
-func (repo *ToysRepository) processCategoryResponse(categoryResponse *toys.GetCategoryOut) *entities.Category {
+func (repo *ToysRepository) processCategoryResponse(
+	categoryResponse *toys.GetCategoryOut,
+) *entities.Category {
 	return &entities.Category{
 		ID:   categoryResponse.GetID(),
 		Name: categoryResponse.GetName(),
@@ -288,7 +294,10 @@ func (repo *ToysRepository) processToyResponse(toyResponse *toys.GetToyOut) *ent
 	}
 }
 
-func (repo *ToysRepository) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+func (repo *ToysRepository) CreateTags(
+	ctx context.Context,
+	tagsData []entities.CreateTagDTO,
+) ([]uint32, error) {
 	tagsRequest := make([]*toys.CreateTagIn, len(tagsData))
 	for i, tag := range tagsData {
 		tagsRequest[i] = &toys.CreateTagIn{
@@ -338,14 +347,16 @@ func (repo *ToysRepository) DeleteToy(ctx context.Context, id uint64) error {
 	return err
 }
 
-func (repo *ToysRepository) GetMasterByUser(ctx context.Context, userID uint64) (*entities.Master, error) {
+func (repo *ToysRepository) GetMasterByUser(
+	ctx context.Context,
+	userID uint64,
+) (*entities.Master, error) {
 	response, err := repo.client.GetMasterByUser(
 		ctx,
 		&toys.GetMasterByUserIn{
 			UserID: userID,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -353,7 +364,10 @@ func (repo *ToysRepository) GetMasterByUser(ctx context.Context, userID uint64) 
 	return repo.processMasterResponse(response), nil
 }
 
-func (repo *ToysRepository) UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error {
+func (repo *ToysRepository) UpdateMaster(
+	ctx context.Context,
+	masterData entities.UpdateMasterDTO,
+) error {
 	_, err := repo.client.UpdateMaster(
 		ctx,
 		&toys.UpdateMasterIn{

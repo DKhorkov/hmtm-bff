@@ -3,9 +3,8 @@ package repositories
 import (
 	"context"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"github.com/DKhorkov/hmtm-tickets/api/protobuf/generated/go/tickets"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
@@ -36,7 +35,6 @@ func (repo *TicketsRepository) CreateTicket(
 			Attachments: ticketData.Attachments,
 		},
 	)
-
 	if err != nil {
 		return 0, err
 	}
@@ -44,14 +42,16 @@ func (repo *TicketsRepository) CreateTicket(
 	return response.GetTicketID(), nil
 }
 
-func (repo *TicketsRepository) GetTicketByID(ctx context.Context, id uint64) (*entities.RawTicket, error) {
+func (repo *TicketsRepository) GetTicketByID(
+	ctx context.Context,
+	id uint64,
+) (*entities.RawTicket, error) {
 	response, err := repo.client.GetTicket(
 		ctx,
 		&tickets.GetTicketIn{
 			ID: id,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,6 @@ func (repo *TicketsRepository) GetAllTickets(ctx context.Context) ([]entities.Ra
 		ctx,
 		&emptypb.Empty{},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -77,14 +76,16 @@ func (repo *TicketsRepository) GetAllTickets(ctx context.Context) ([]entities.Ra
 	return allTickets, nil
 }
 
-func (repo *TicketsRepository) GetUserTickets(ctx context.Context, userID uint64) ([]entities.RawTicket, error) {
+func (repo *TicketsRepository) GetUserTickets(
+	ctx context.Context,
+	userID uint64,
+) ([]entities.RawTicket, error) {
 	response, err := repo.client.GetUserTickets(
 		ctx,
 		&tickets.GetUserTicketsIn{
 			UserID: userID,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +111,6 @@ func (repo *TicketsRepository) RespondToTicket(
 			Comment:  respondData.Comment,
 		},
 	)
-
 	if err != nil {
 		return 0, err
 	}
@@ -118,14 +118,16 @@ func (repo *TicketsRepository) RespondToTicket(
 	return response.GetRespondID(), nil
 }
 
-func (repo *TicketsRepository) GetRespondByID(ctx context.Context, id uint64) (*entities.Respond, error) {
+func (repo *TicketsRepository) GetRespondByID(
+	ctx context.Context,
+	id uint64,
+) (*entities.Respond, error) {
 	response, err := repo.client.GetRespond(
 		ctx,
 		&tickets.GetRespondIn{
 			ID: id,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -133,14 +135,16 @@ func (repo *TicketsRepository) GetRespondByID(ctx context.Context, id uint64) (*
 	return repo.processRespondResponse(response), nil
 }
 
-func (repo *TicketsRepository) GetTicketResponds(ctx context.Context, ticketID uint64) ([]entities.Respond, error) {
+func (repo *TicketsRepository) GetTicketResponds(
+	ctx context.Context,
+	ticketID uint64,
+) ([]entities.Respond, error) {
 	response, err := repo.client.GetTicketResponds(
 		ctx,
 		&tickets.GetTicketRespondsIn{
 			TicketID: ticketID,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -153,14 +157,16 @@ func (repo *TicketsRepository) GetTicketResponds(ctx context.Context, ticketID u
 	return ticketResponds, nil
 }
 
-func (repo *TicketsRepository) GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error) {
+func (repo *TicketsRepository) GetUserResponds(
+	ctx context.Context,
+	userID uint64,
+) ([]entities.Respond, error) {
 	response, err := repo.client.GetUserResponds(
 		ctx,
 		&tickets.GetUserRespondsIn{
 			UserID: userID,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +179,9 @@ func (repo *TicketsRepository) GetUserResponds(ctx context.Context, userID uint6
 	return userResponds, nil
 }
 
-func (repo *TicketsRepository) processRespondResponse(respondResponse *tickets.GetRespondOut) *entities.Respond {
+func (repo *TicketsRepository) processRespondResponse(
+	respondResponse *tickets.GetRespondOut,
+) *entities.Respond {
 	return &entities.Respond{
 		ID:        respondResponse.GetID(),
 		MasterID:  respondResponse.GetMasterID(),
@@ -185,7 +193,9 @@ func (repo *TicketsRepository) processRespondResponse(respondResponse *tickets.G
 	}
 }
 
-func (repo *TicketsRepository) processTicketResponse(ticketResponse *tickets.GetTicketOut) *entities.RawTicket {
+func (repo *TicketsRepository) processTicketResponse(
+	ticketResponse *tickets.GetTicketOut,
+) *entities.RawTicket {
 	attachments := make([]entities.TicketAttachment, len(ticketResponse.GetAttachments()))
 	for i, attachment := range ticketResponse.GetAttachments() {
 		attachments[i] = entities.TicketAttachment{
@@ -212,7 +222,10 @@ func (repo *TicketsRepository) processTicketResponse(ticketResponse *tickets.Get
 	}
 }
 
-func (repo *TicketsRepository) UpdateRespond(ctx context.Context, respondData entities.UpdateRespondDTO) error {
+func (repo *TicketsRepository) UpdateRespond(
+	ctx context.Context,
+	respondData entities.UpdateRespondDTO,
+) error {
 	_, err := repo.client.UpdateRespond(
 		ctx,
 		&tickets.UpdateRespondIn{
@@ -236,7 +249,10 @@ func (repo *TicketsRepository) DeleteRespond(ctx context.Context, id uint64) err
 	return err
 }
 
-func (repo *TicketsRepository) UpdateTicket(ctx context.Context, ticketData entities.UpdateTicketDTO) error {
+func (repo *TicketsRepository) UpdateTicket(
+	ctx context.Context,
+	ticketData entities.UpdateTicketDTO,
+) error {
 	_, err := repo.client.UpdateTicket(
 		ctx,
 		&tickets.UpdateTicketIn{

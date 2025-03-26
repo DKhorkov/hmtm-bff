@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/pointers"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-
-	"github.com/DKhorkov/libs/logging"
-	"github.com/DKhorkov/libs/pointers"
 
 	appconfig "github.com/DKhorkov/hmtm-bff/internal/config"
 )
@@ -35,7 +34,6 @@ func NewS3FileStorageRepository(
 		),
 		config.WithRegion(s3config.Region),
 	)
-
 	if err != nil {
 		logging.LogError(logger, "Failed to load AWS configuration: %s", err)
 		return nil, err
@@ -57,7 +55,11 @@ type S3FileStorageRepository struct {
 	s3config appconfig.S3Config
 }
 
-func (repo *S3FileStorageRepository) Upload(ctx context.Context, key string, file []byte) (string, error) {
+func (repo *S3FileStorageRepository) Upload(
+	ctx context.Context,
+	key string,
+	file []byte,
+) (string, error) {
 	_, err := repo.client.PutObject(
 		ctx,
 		&s3.PutObjectInput{
@@ -67,7 +69,6 @@ func (repo *S3FileStorageRepository) Upload(ctx context.Context, key string, fil
 			ACL:    types.ObjectCannedACL(repo.s3config.ACL),
 		},
 	)
-
 	if err != nil {
 		return "", err
 	}
@@ -132,7 +133,10 @@ func (repo *S3FileStorageRepository) DeleteMany(ctx context.Context, keys []stri
 	case len(delOut.Errors) > 0:
 		out = make([]error, 0, len(delOut.Errors))
 		for _, err := range delOut.Errors {
-			out = append(out, fmt.Errorf("%v-%v:%v-%v", err.VersionId, err.Code, err.Key, err.Message))
+			out = append(
+				out,
+				fmt.Errorf("%v-%v:%v-%v", err.VersionId, err.Code, err.Key, err.Message),
+			)
 		}
 	default:
 		for _, delObj := range delOut.Deleted {

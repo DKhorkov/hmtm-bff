@@ -121,7 +121,10 @@ tasks:
     aliases:
       - lint
     dir: ../
-    cmd: golangci-lint run -v --fix
+    cmds:
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+      - export PATH=$PATH:$(go env GOPATH)/bin
+      - golangci-lint run -v --fix
 
   upload_docker_image:
     desc: "Uploads docker image to dockerhub."

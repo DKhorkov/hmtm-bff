@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
-
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/security"
 	"github.com/DKhorkov/libs/tracing"
@@ -53,7 +52,10 @@ type UseCases struct {
 	traceProvider        tracing.Provider
 }
 
-func (useCases *UseCases) RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (uint64, error) {
+func (useCases *UseCases) RegisterUser(
+	ctx context.Context,
+	userData entities.RegisterUserDTO,
+) (uint64, error) {
 	return useCases.ssoService.RegisterUser(ctx, userData)
 }
 
@@ -93,7 +95,10 @@ func (useCases *UseCases) GetMe(ctx context.Context, accessToken string) (*entit
 	return useCases.ssoService.GetMe(ctx, accessToken)
 }
 
-func (useCases *UseCases) RefreshTokens(ctx context.Context, refreshToken string) (*entities.TokensDTO, error) {
+func (useCases *UseCases) RefreshTokens(
+	ctx context.Context,
+	refreshToken string,
+) (*entities.TokensDTO, error) {
 	return useCases.ssoService.RefreshTokens(ctx, refreshToken)
 }
 
@@ -101,7 +106,10 @@ func (useCases *UseCases) GetUserByID(ctx context.Context, id uint64) (*entities
 	return useCases.ssoService.GetUserByID(ctx, id)
 }
 
-func (useCases *UseCases) GetUserByEmail(ctx context.Context, email string) (*entities.User, error) {
+func (useCases *UseCases) GetUserByEmail(
+	ctx context.Context,
+	email string,
+) (*entities.User, error) {
 	return useCases.ssoService.GetUserByEmail(ctx, email)
 }
 
@@ -109,7 +117,10 @@ func (useCases *UseCases) GetAllUsers(ctx context.Context) ([]entities.User, err
 	return useCases.ssoService.GetAllUsers(ctx)
 }
 
-func (useCases *UseCases) AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (uint64, error) {
+func (useCases *UseCases) AddToy(
+	ctx context.Context,
+	rawToyData entities.RawAddToyDTO,
+) (uint64, error) {
 	user, err := useCases.GetMe(ctx, rawToyData.AccessToken)
 	if err != nil {
 		return 0, err
@@ -150,11 +161,17 @@ func (useCases *UseCases) GetAllToys(ctx context.Context) ([]entities.Toy, error
 	return useCases.toysService.GetAllToys(ctx)
 }
 
-func (useCases *UseCases) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (useCases *UseCases) GetMasterToys(
+	ctx context.Context,
+	masterID uint64,
+) ([]entities.Toy, error) {
 	return useCases.toysService.GetMasterToys(ctx, masterID)
 }
 
-func (useCases *UseCases) GetMyToys(ctx context.Context, accessToken string) ([]entities.Toy, error) {
+func (useCases *UseCases) GetMyToys(
+	ctx context.Context,
+	accessToken string,
+) ([]entities.Toy, error) {
 	user, err := useCases.GetMe(ctx, accessToken)
 	if err != nil {
 		return nil, err
@@ -196,7 +213,10 @@ func (useCases *UseCases) GetAllCategories(ctx context.Context) ([]entities.Cate
 	return useCases.toysService.GetAllCategories(ctx)
 }
 
-func (useCases *UseCases) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+func (useCases *UseCases) GetCategoryByID(
+	ctx context.Context,
+	id uint32,
+) (*entities.Category, error) {
 	return useCases.toysService.GetCategoryByID(ctx, id)
 }
 
@@ -208,7 +228,11 @@ func (useCases *UseCases) GetTagByID(ctx context.Context, id uint32) (*entities.
 	return useCases.toysService.GetTagByID(ctx, id)
 }
 
-func (useCases *UseCases) UploadFile(ctx context.Context, userID uint64, file *graphql.Upload) (string, error) {
+func (useCases *UseCases) UploadFile(
+	ctx context.Context,
+	userID uint64,
+	file *graphql.Upload,
+) (string, error) {
 	filename, err := useCases.createFilename(userID, file)
 	if err != nil {
 		return "", err
@@ -222,7 +246,11 @@ func (useCases *UseCases) UploadFile(ctx context.Context, userID uint64, file *g
 	return useCases.fileStorageService.Upload(ctx, filename, binaryFile)
 }
 
-func (useCases *UseCases) UploadFiles(ctx context.Context, userID uint64, files []*graphql.Upload) ([]string, error) {
+func (useCases *UseCases) UploadFiles(
+	ctx context.Context,
+	userID uint64,
+	files []*graphql.Upload,
+) ([]string, error) {
 	uploadedFiles := make([]string, 0, len(files))
 	uploadingErrors := make([]error, 0, len(files))
 	for _, file := range files {
@@ -308,7 +336,10 @@ func (useCases *UseCases) GetTicketByID(ctx context.Context, id uint64) (*entiti
 	return useCases.processRawTicket(ctx, *rawTicket), nil
 }
 
-func (useCases *UseCases) processRawTicket(ctx context.Context, ticket entities.RawTicket) *entities.Ticket {
+func (useCases *UseCases) processRawTicket(
+	ctx context.Context,
+	ticket entities.RawTicket,
+) *entities.Ticket {
 	processedTags := make([]entities.Tag, len(ticket.TagIDs))
 	for tagIndex := range ticket.TagIDs {
 		processedTags[tagIndex] = entities.Tag{ID: ticket.TagIDs[tagIndex]}
@@ -356,7 +387,10 @@ func (useCases *UseCases) GetAllTickets(ctx context.Context) ([]entities.Ticket,
 	return tickets, err
 }
 
-func (useCases *UseCases) GetUserTickets(ctx context.Context, userID uint64) ([]entities.Ticket, error) {
+func (useCases *UseCases) GetUserTickets(
+	ctx context.Context,
+	userID uint64,
+) ([]entities.Ticket, error) {
 	rawTickets, err := useCases.ticketsService.GetUserTickets(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -416,12 +450,12 @@ func (useCases *UseCases) GetRespondByID(
 		return nil, err
 	}
 
-	ticket, err := useCases.ticketsService.GetTicketByID(ctx, respond.TicketID)
+	ticket, err := useCases.GetTicketByID(ctx, respond.TicketID)
 	if err != nil {
 		return nil, err
 	}
 
-	master, err := useCases.toysService.GetMasterByID(ctx, respond.MasterID)
+	master, err := useCases.GetMasterByID(ctx, respond.MasterID)
 	if err != nil {
 		return nil, err
 	}
@@ -451,7 +485,7 @@ func (useCases *UseCases) GetTicketResponds(
 		return nil, err
 	}
 
-	ticket, err := useCases.ticketsService.GetTicketByID(ctx, ticketID)
+	ticket, err := useCases.GetTicketByID(ctx, ticketID)
 	if err != nil {
 		return nil, err
 	}
@@ -552,11 +586,16 @@ func (useCases *UseCases) createFilename(userID uint64, file *graphql.Upload) (s
 		return "", &customerrors.InvalidFileSizeError{Message: strconv.FormatInt(file.Size, 10)}
 	}
 
-	filename := security.RawEncode([]byte(fmt.Sprintf("%d:%s", userID, file.Filename))) + fileExtension
+	filename := security.RawEncode(
+		[]byte(fmt.Sprintf("%d:%s", userID, file.Filename)),
+	) + fileExtension
 	return filename, nil
 }
 
-func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.RawUpdateToyDTO) error {
+func (useCases *UseCases) UpdateToy(
+	ctx context.Context,
+	rawToyData entities.RawUpdateToyDTO,
+) error {
 	user, err := useCases.GetMe(ctx, rawToyData.AccessToken)
 	if err != nil {
 		return err
@@ -567,7 +606,7 @@ func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.Raw
 		return err
 	}
 
-	toy, err := useCases.toysService.GetToyByID(ctx, rawToyData.ID)
+	toy, err := useCases.GetToyByID(ctx, rawToyData.ID)
 	if err != nil {
 		return err
 	}
@@ -701,7 +740,7 @@ func (useCases *UseCases) DeleteToy(ctx context.Context, accessToken string, id 
 		return err
 	}
 
-	toy, err := useCases.toysService.GetToyByID(ctx, id)
+	toy, err := useCases.GetToyByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -747,7 +786,10 @@ func (useCases *UseCases) DeleteToy(ctx context.Context, accessToken string, id 
 	return useCases.toysService.DeleteToy(ctx, toy.ID)
 }
 
-func (useCases *UseCases) UpdateRespond(ctx context.Context, rawRespondData entities.RawUpdateRespondDTO) error {
+func (useCases *UseCases) UpdateRespond(
+	ctx context.Context,
+	rawRespondData entities.RawUpdateRespondDTO,
+) error {
 	user, err := useCases.GetMe(ctx, rawRespondData.AccessToken)
 	if err != nil {
 		return err
@@ -813,13 +855,16 @@ func (useCases *UseCases) DeleteRespond(ctx context.Context, accessToken string,
 	return useCases.ticketsService.DeleteRespond(ctx, respond.ID)
 }
 
-func (useCases *UseCases) UpdateMaster(ctx context.Context, rawMasterData entities.RawUpdateMasterDTO) error {
+func (useCases *UseCases) UpdateMaster(
+	ctx context.Context,
+	rawMasterData entities.RawUpdateMasterDTO,
+) error {
 	user, err := useCases.GetMe(ctx, rawMasterData.AccessToken)
 	if err != nil {
 		return err
 	}
 
-	master, err := useCases.toysService.GetMasterByID(ctx, rawMasterData.ID)
+	master, err := useCases.GetMasterByID(ctx, rawMasterData.ID)
 	if err != nil {
 		return err
 	}
@@ -843,13 +888,16 @@ func (useCases *UseCases) UpdateMaster(ctx context.Context, rawMasterData entiti
 	return useCases.toysService.UpdateMaster(ctx, masterData)
 }
 
-func (useCases *UseCases) UpdateTicket(ctx context.Context, rawTicketData entities.RawUpdateTicketDTO) error {
+func (useCases *UseCases) UpdateTicket(
+	ctx context.Context,
+	rawTicketData entities.RawUpdateTicketDTO,
+) error {
 	user, err := useCases.GetMe(ctx, rawTicketData.AccessToken)
 	if err != nil {
 		return err
 	}
 
-	ticket, err := useCases.ticketsService.GetTicketByID(ctx, rawTicketData.ID)
+	ticket, err := useCases.GetTicketByID(ctx, rawTicketData.ID)
 	if err != nil {
 		return err
 	}
@@ -978,7 +1026,7 @@ func (useCases *UseCases) DeleteTicket(ctx context.Context, accessToken string, 
 		return err
 	}
 
-	ticket, err := useCases.ticketsService.GetTicketByID(ctx, id)
+	ticket, err := useCases.GetTicketByID(ctx, id)
 	if err != nil {
 		return err
 	}

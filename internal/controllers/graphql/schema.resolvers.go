@@ -10,14 +10,15 @@ import (
 	"net/http"
 	"strconv"
 
-	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
 	"github.com/DKhorkov/libs/pointers"
+
+	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 )
 
 // User is the resolver for the user field.
@@ -51,7 +52,10 @@ func (r *masterResolver) User(ctx context.Context, obj *entities.Master) (*entit
 }
 
 // RegisterUser is the resolver for the register field.
-func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.RegisterUserInput) (string, error) {
+func (r *mutationResolver) RegisterUser(
+	ctx context.Context,
+	input graphqlapi.RegisterUserInput,
+) (string, error) {
 	userData := entities.RegisterUserDTO{
 		DisplayName: input.DisplayName,
 		Email:       input.Email,
@@ -63,7 +67,10 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphqlapi.Re
 }
 
 // LoginUser is the resolver for the login field.
-func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.LoginUserInput) (bool, error) {
+func (r *mutationResolver) LoginUser(
+	ctx context.Context,
+	input graphqlapi.LoginUserInput,
+) (bool, error) {
 	user, err := r.useCases.GetUserByEmail(ctx, input.Email)
 	if err != nil {
 		return false, err
@@ -85,7 +92,10 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.Login
 		return false, err
 	}
 
-	writer, err := contextlib.ValueFromContext[http.ResponseWriter](ctx, middlewares.CookiesWriterName)
+	writer, err := contextlib.ValueFromContext[http.ResponseWriter](
+		ctx,
+		middlewares.CookiesWriterName,
+	)
 	if err != nil {
 		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
 		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
@@ -108,7 +118,10 @@ func (r *mutationResolver) LogoutUser(ctx context.Context) (bool, error) {
 		return false, err
 	}
 
-	writer, err := contextlib.ValueFromContext[http.ResponseWriter](ctx, middlewares.CookiesWriterName)
+	writer, err := contextlib.ValueFromContext[http.ResponseWriter](
+		ctx,
+		middlewares.CookiesWriterName,
+	)
 	if err != nil {
 		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
 		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
@@ -132,7 +145,10 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context) (bool, error) {
 		return false, err
 	}
 
-	writer, err := contextlib.ValueFromContext[http.ResponseWriter](ctx, middlewares.CookiesWriterName)
+	writer, err := contextlib.ValueFromContext[http.ResponseWriter](
+		ctx,
+		middlewares.CookiesWriterName,
+	)
 	if err != nil {
 		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
 		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
@@ -144,7 +160,10 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context) (bool, error) {
 }
 
 // VerifyUserEmail is the resolver for the verifyEmail field.
-func (r *mutationResolver) VerifyUserEmail(ctx context.Context, input graphqlapi.VerifyUserEmailInput) (bool, error) {
+func (r *mutationResolver) VerifyUserEmail(
+	ctx context.Context,
+	input graphqlapi.VerifyUserEmailInput,
+) (bool, error) {
 	if err := r.useCases.VerifyUserEmail(ctx, input.VerifyEmailToken); err != nil {
 		return false, err
 	}
@@ -167,7 +186,10 @@ func (r *mutationResolver) ForgetPassword(ctx context.Context) (bool, error) {
 }
 
 // SendVerifyEmailMessage is the resolver for the sendVerifyEmailMessage field.
-func (r *mutationResolver) SendVerifyEmailMessage(ctx context.Context, input graphqlapi.SendVerifyEmailMessageInput) (bool, error) {
+func (r *mutationResolver) SendVerifyEmailMessage(
+	ctx context.Context,
+	input graphqlapi.SendVerifyEmailMessageInput,
+) (bool, error) {
 	if err := r.useCases.SendVerifyEmailMessage(ctx, input.Email); err != nil {
 		return false, err
 	}
@@ -176,7 +198,10 @@ func (r *mutationResolver) SendVerifyEmailMessage(ctx context.Context, input gra
 }
 
 // ChangePassword is the resolver for the changePassword field.
-func (r *mutationResolver) ChangePassword(ctx context.Context, input graphqlapi.ChangePasswordInput) (bool, error) {
+func (r *mutationResolver) ChangePassword(
+	ctx context.Context,
+	input graphqlapi.ChangePasswordInput,
+) (bool, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -190,7 +215,10 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, input graphqlapi.
 }
 
 // UpdateUserProfile is the resolver for the updateUserProfile field.
-func (r *mutationResolver) UpdateUserProfile(ctx context.Context, input graphqlapi.UpdateUserProfileInput) (bool, error) {
+func (r *mutationResolver) UpdateUserProfile(
+	ctx context.Context,
+	input graphqlapi.UpdateUserProfileInput,
+) (bool, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -212,7 +240,10 @@ func (r *mutationResolver) UpdateUserProfile(ctx context.Context, input graphqla
 }
 
 // RegisterMaster is the resolver for the registerMaster field.
-func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.RegisterMasterInput) (string, error) {
+func (r *mutationResolver) RegisterMaster(
+	ctx context.Context,
+	input graphqlapi.RegisterMasterInput,
+) (string, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return "", &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -228,7 +259,10 @@ func (r *mutationResolver) RegisterMaster(ctx context.Context, input graphqlapi.
 }
 
 // UpdateMaster is the resolver for the updateMaster field.
-func (r *mutationResolver) UpdateMaster(ctx context.Context, input graphqlapi.UpdateMasterInput) (bool, error) {
+func (r *mutationResolver) UpdateMaster(
+	ctx context.Context,
+	input graphqlapi.UpdateMasterInput,
+) (bool, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -253,7 +287,10 @@ func (r *mutationResolver) UpdateMaster(ctx context.Context, input graphqlapi.Up
 }
 
 // AddToy is the resolver for the addToy field.
-func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyInput) (string, error) {
+func (r *mutationResolver) AddToy(
+	ctx context.Context,
+	input graphqlapi.AddToyInput,
+) (string, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return "", &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -280,7 +317,10 @@ func (r *mutationResolver) AddToy(ctx context.Context, input graphqlapi.AddToyIn
 }
 
 // UpdateToy is the resolver for the updateToy field.
-func (r *mutationResolver) UpdateToy(ctx context.Context, input graphqlapi.UpdateToyInput) (bool, error) {
+func (r *mutationResolver) UpdateToy(
+	ctx context.Context,
+	input graphqlapi.UpdateToyInput,
+) (bool, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -331,7 +371,10 @@ func (r *mutationResolver) UpdateToy(ctx context.Context, input graphqlapi.Updat
 }
 
 // DeleteToy is the resolver for the deleteToy field.
-func (r *mutationResolver) DeleteToy(ctx context.Context, input graphqlapi.DeleteToyInput) (bool, error) {
+func (r *mutationResolver) DeleteToy(
+	ctx context.Context,
+	input graphqlapi.DeleteToyInput,
+) (bool, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -350,7 +393,10 @@ func (r *mutationResolver) DeleteToy(ctx context.Context, input graphqlapi.Delet
 }
 
 // CreateTicket is the resolver for the createTicket field.
-func (r *mutationResolver) CreateTicket(ctx context.Context, input graphqlapi.CreateTicketInput) (string, error) {
+func (r *mutationResolver) CreateTicket(
+	ctx context.Context,
+	input graphqlapi.CreateTicketInput,
+) (string, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return "", &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -382,7 +428,10 @@ func (r *mutationResolver) CreateTicket(ctx context.Context, input graphqlapi.Cr
 }
 
 // RespondToTicket is the resolver for the respondToTicket field.
-func (r *mutationResolver) RespondToTicket(ctx context.Context, input graphqlapi.RespondToTicketInput) (string, error) {
+func (r *mutationResolver) RespondToTicket(
+	ctx context.Context,
+	input graphqlapi.RespondToTicketInput,
+) (string, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return "", &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -405,7 +454,10 @@ func (r *mutationResolver) RespondToTicket(ctx context.Context, input graphqlapi
 }
 
 // UpdateRespond is the resolver for the updateRespond field.
-func (r *mutationResolver) UpdateRespond(ctx context.Context, input graphqlapi.UpdateRespondInput) (bool, error) {
+func (r *mutationResolver) UpdateRespond(
+	ctx context.Context,
+	input graphqlapi.UpdateRespondInput,
+) (bool, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -436,7 +488,10 @@ func (r *mutationResolver) UpdateRespond(ctx context.Context, input graphqlapi.U
 }
 
 // DeleteRespond is the resolver for the deleteRespond field.
-func (r *mutationResolver) DeleteRespond(ctx context.Context, input graphqlapi.DeleteRespondInput) (bool, error) {
+func (r *mutationResolver) DeleteRespond(
+	ctx context.Context,
+	input graphqlapi.DeleteRespondInput,
+) (bool, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -455,7 +510,10 @@ func (r *mutationResolver) DeleteRespond(ctx context.Context, input graphqlapi.D
 }
 
 // UpdateTicket is the resolver for the updateTicket field.
-func (r *mutationResolver) UpdateTicket(ctx context.Context, input graphqlapi.UpdateTicketInput) (bool, error) {
+func (r *mutationResolver) UpdateTicket(
+	ctx context.Context,
+	input graphqlapi.UpdateTicketInput,
+) (bool, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -506,7 +564,10 @@ func (r *mutationResolver) UpdateTicket(ctx context.Context, input graphqlapi.Up
 }
 
 // DeleteTicket is the resolver for the deleteTicket field.
-func (r *mutationResolver) DeleteTicket(ctx context.Context, input graphqlapi.DeleteTicketInput) (bool, error) {
+func (r *mutationResolver) DeleteTicket(
+	ctx context.Context,
+	input graphqlapi.DeleteTicketInput,
+) (bool, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return false, &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -725,7 +786,10 @@ func (r *queryResolver) Tickets(ctx context.Context) ([]*entities.Ticket, error)
 }
 
 // UserTickets is the resolver for the userTickets field.
-func (r *queryResolver) UserTickets(ctx context.Context, userID string) ([]*entities.Ticket, error) {
+func (r *queryResolver) UserTickets(
+	ctx context.Context,
+	userID string,
+) ([]*entities.Ticket, error) {
 	intUserID, err := strconv.Atoi(userID)
 	if err != nil {
 		return nil, err
@@ -780,7 +844,10 @@ func (r *queryResolver) Respond(ctx context.Context, id string) (*entities.Respo
 }
 
 // TicketResponds is the resolver for the ticketResponds field.
-func (r *queryResolver) TicketResponds(ctx context.Context, ticketID string) ([]*entities.Respond, error) {
+func (r *queryResolver) TicketResponds(
+	ctx context.Context,
+	ticketID string,
+) ([]*entities.Respond, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
@@ -845,7 +912,10 @@ func (r *queryResolver) MyEmailCommunications(ctx context.Context) ([]*entities.
 }
 
 // Ticket is the resolver for the ticket field.
-func (r *respondResolver) Ticket(ctx context.Context, obj *entities.Respond) (*entities.Ticket, error) {
+func (r *respondResolver) Ticket(
+	ctx context.Context,
+	obj *entities.Respond,
+) (*entities.Ticket, error) {
 	ticket, err := r.useCases.GetTicketByID(ctx, obj.TicketID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -860,7 +930,10 @@ func (r *respondResolver) Ticket(ctx context.Context, obj *entities.Respond) (*e
 }
 
 // Master is the resolver for the master field.
-func (r *respondResolver) Master(ctx context.Context, obj *entities.Respond) (*entities.Master, error) {
+func (r *respondResolver) Master(
+	ctx context.Context,
+	obj *entities.Respond,
+) (*entities.Master, error) {
 	master, err := r.useCases.GetMasterByID(ctx, obj.MasterID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -895,7 +968,10 @@ func (r *ticketResolver) User(ctx context.Context, obj *entities.Ticket) (*entit
 }
 
 // Category is the resolver for the category field.
-func (r *ticketResolver) Category(ctx context.Context, obj *entities.Ticket) (*entities.Category, error) {
+func (r *ticketResolver) Category(
+	ctx context.Context,
+	obj *entities.Ticket,
+) (*entities.Category, error) {
 	category, err := r.useCases.GetCategoryByID(ctx, obj.CategoryID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -985,10 +1061,12 @@ func (r *Resolver) Ticket() graphqlapi.TicketResolver { return &ticketResolver{r
 // Toy returns graphqlapi.ToyResolver implementation.
 func (r *Resolver) Toy() graphqlapi.ToyResolver { return &toyResolver{r} }
 
-type emailResolver struct{ *Resolver }
-type masterResolver struct{ *Resolver }
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
-type respondResolver struct{ *Resolver }
-type ticketResolver struct{ *Resolver }
-type toyResolver struct{ *Resolver }
+type (
+	emailResolver    struct{ *Resolver }
+	masterResolver   struct{ *Resolver }
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+	respondResolver  struct{ *Resolver }
+	ticketResolver   struct{ *Resolver }
+	toyResolver      struct{ *Resolver }
+)

@@ -31,13 +31,21 @@ func (service *TicketsService) CreateTicket(
 ) (uint64, error) {
 	ticketID, err := service.ticketsRepository.CreateTicket(ctx, ticketData)
 	if err != nil {
-		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to create new Ticket", err)
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			"Error occurred while trying to create new Ticket",
+			err,
+		)
 	}
 
 	return ticketID, err
 }
 
-func (service *TicketsService) GetTicketByID(ctx context.Context, id uint64) (*entities.RawTicket, error) {
+func (service *TicketsService) GetTicketByID(
+	ctx context.Context,
+	id uint64,
+) (*entities.RawTicket, error) {
 	ticket, err := service.ticketsRepository.GetTicketByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -54,13 +62,21 @@ func (service *TicketsService) GetTicketByID(ctx context.Context, id uint64) (*e
 func (service *TicketsService) GetAllTickets(ctx context.Context) ([]entities.RawTicket, error) {
 	tickets, err := service.ticketsRepository.GetAllTickets(ctx)
 	if err != nil {
-		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get all Tickets", err)
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			"Error occurred while trying to get all Tickets",
+			err,
+		)
 	}
 
 	return tickets, err
 }
 
-func (service *TicketsService) GetUserTickets(ctx context.Context, userID uint64) ([]entities.RawTicket, error) {
+func (service *TicketsService) GetUserTickets(
+	ctx context.Context,
+	userID uint64,
+) ([]entities.RawTicket, error) {
 	tickets, err := service.ticketsRepository.GetUserTickets(ctx, userID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -83,7 +99,10 @@ func (service *TicketsService) RespondToTicket(
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to respond to Ticket with ID=%d", respondData.TicketID),
+			fmt.Sprintf(
+				"Error occurred while trying to respond to Ticket with ID=%d",
+				respondData.TicketID,
+			),
 			err,
 		)
 	}
@@ -91,7 +110,10 @@ func (service *TicketsService) RespondToTicket(
 	return respondID, err
 }
 
-func (service *TicketsService) GetRespondByID(ctx context.Context, id uint64) (*entities.Respond, error) {
+func (service *TicketsService) GetRespondByID(
+	ctx context.Context,
+	id uint64,
+) (*entities.Respond, error) {
 	respond, err := service.ticketsRepository.GetRespondByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -114,7 +136,10 @@ func (service *TicketsService) GetTicketResponds(
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to get Responds for Ticket with ID=%d", ticketID),
+			fmt.Sprintf(
+				"Error occurred while trying to get Responds for Ticket with ID=%d",
+				ticketID,
+			),
 			err,
 		)
 	}
@@ -122,7 +147,10 @@ func (service *TicketsService) GetTicketResponds(
 	return responds, err
 }
 
-func (service *TicketsService) GetUserResponds(ctx context.Context, userID uint64) ([]entities.Respond, error) {
+func (service *TicketsService) GetUserResponds(
+	ctx context.Context,
+	userID uint64,
+) ([]entities.Respond, error) {
 	responds, err := service.ticketsRepository.GetUserResponds(ctx, userID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -136,7 +164,10 @@ func (service *TicketsService) GetUserResponds(ctx context.Context, userID uint6
 	return responds, err
 }
 
-func (service *TicketsService) UpdateRespond(ctx context.Context, respondData entities.UpdateRespondDTO) error {
+func (service *TicketsService) UpdateRespond(
+	ctx context.Context,
+	respondData entities.UpdateRespondDTO,
+) error {
 	err := service.ticketsRepository.UpdateRespond(ctx, respondData)
 	if err != nil {
 		logging.LogErrorContext(
@@ -164,7 +195,10 @@ func (service *TicketsService) DeleteRespond(ctx context.Context, id uint64) err
 	return err
 }
 
-func (service *TicketsService) UpdateTicket(ctx context.Context, ticketData entities.UpdateTicketDTO) error {
+func (service *TicketsService) UpdateTicket(
+	ctx context.Context,
+	ticketData entities.UpdateTicketDTO,
+) error {
 	err := service.ticketsRepository.UpdateTicket(ctx, ticketData)
 	if err != nil {
 		logging.LogErrorContext(
