@@ -36,6 +36,7 @@ func NewS3FileStorageRepository(
 	)
 	if err != nil {
 		logging.LogError(logger, "Failed to load AWS configuration: %s", err)
+
 		return nil, err
 	}
 
@@ -127,6 +128,7 @@ func (repo *S3FileStorageRepository) DeleteMany(ctx context.Context, keys []stri
 	)
 
 	var out []error
+
 	switch {
 	case err != nil:
 		out = append(out, err)

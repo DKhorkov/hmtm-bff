@@ -253,6 +253,7 @@ func (useCases *UseCases) UploadFiles(
 ) ([]string, error) {
 	uploadedFiles := make([]string, 0, len(files))
 	uploadingErrors := make([]error, 0, len(files))
+
 	for _, file := range files {
 		filename, err := useCases.UploadFile(ctx, userID, file)
 		if err != nil {
@@ -264,6 +265,7 @@ func (useCases *UseCases) UploadFiles(
 
 	concatenatedErrBuilder := strings.Builder{}
 	concatenatedErrBuilder.WriteString("Failed to upload files:\n")
+
 	for i, err := range uploadingErrors {
 		// i + 1 due to index starts from zero
 		concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
@@ -539,14 +541,17 @@ func (useCases *UseCases) UpdateUserProfile(
 
 	// Check old avatar existence and necessary to upload or delete files:
 	var avatar string
+
 	if rawUserProfileData.Avatar != nil {
 		var newAvatarFilename string
+
 		newAvatarFilename, err = useCases.createFilename(user.ID, rawUserProfileData.Avatar)
 		if err != nil {
 			return err
 		}
 
 		var oldAvatarFilename string
+
 		if user.Avatar != nil && *user.Avatar != "" {
 			split := strings.Split(*user.Avatar, "/")
 			oldAvatarFilename = split[len(split)-1]
@@ -589,6 +594,7 @@ func (useCases *UseCases) createFilename(userID uint64, file *graphql.Upload) (s
 	filename := security.RawEncode(
 		[]byte(fmt.Sprintf("%d:%s", userID, file.Filename)),
 	) + fileExtension
+
 	return filename, nil
 }
 
@@ -636,6 +642,7 @@ func (useCases *UseCases) UpdateToy(
 
 	// Old Toy Attachments set:
 	oldAttachmentsSet := make(map[string]struct{}, len(toy.Attachments))
+
 	for _, attachment := range toy.Attachments {
 		split := strings.Split(attachment.Link, "/")
 		oldAttachmentFilename := split[len(split)-1]
@@ -644,6 +651,7 @@ func (useCases *UseCases) UpdateToy(
 
 	// New Toy Attachments set:
 	newAttachmentsSet := make(map[string]struct{}, len(rawToyData.Attachments))
+
 	for _, attachment := range rawToyData.Attachments {
 		filename, err := useCases.createFilename(user.ID, attachment)
 		if err != nil {
@@ -655,6 +663,7 @@ func (useCases *UseCases) UpdateToy(
 
 	// Add new Attachments if it is not already exists:
 	attachmentsToAdd := make([]*graphql.Upload, 0)
+
 	for _, attachment := range rawToyData.Attachments {
 		filename, err := useCases.createFilename(user.ID, attachment)
 		if err != nil {
@@ -668,8 +677,10 @@ func (useCases *UseCases) UpdateToy(
 
 	// Still used Attachments:
 	stillUsedAttachments := make([]string, 0)
+
 	for _, attachment := range toy.Attachments {
 		split := strings.Split(attachment.Link, "/")
+
 		oldAttachmentFilename := split[len(split)-1]
 		if _, ok := newAttachmentsSet[oldAttachmentFilename]; ok {
 			stillUsedAttachments = append(stillUsedAttachments, attachment.Link)
@@ -678,8 +689,10 @@ func (useCases *UseCases) UpdateToy(
 
 	// Delete old Attachments if it is not used by Toy now:
 	attachmentsToDelete := make([]string, 0)
+
 	for _, attachment := range toy.Attachments {
 		split := strings.Split(attachment.Link, "/")
+
 		oldAttachmentFilename := split[len(split)-1]
 		if _, ok := newAttachmentsSet[oldAttachmentFilename]; !ok {
 			attachmentsToDelete = append(attachmentsToDelete, oldAttachmentFilename)
@@ -691,6 +704,7 @@ func (useCases *UseCases) UpdateToy(
 		if len(deleteAttachmentErrors) > 0 {
 			concatenatedErrBuilder := strings.Builder{}
 			concatenatedErrBuilder.WriteString("Failed to delete files:\n")
+
 			for i, err := range deleteAttachmentErrors {
 				// i + 1 due to index starts from zero
 				concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
@@ -757,6 +771,7 @@ func (useCases *UseCases) DeleteToy(ctx context.Context, accessToken string, id 
 	}
 
 	attachmentsToDelete := make([]string, 0, len(toy.Attachments))
+
 	for _, attachment := range toy.Attachments {
 		split := strings.Split(attachment.Link, "/")
 		oldAttachmentFilename := split[len(split)-1]
@@ -768,6 +783,7 @@ func (useCases *UseCases) DeleteToy(ctx context.Context, accessToken string, id 
 		if len(deleteAttachmentErrors) > 0 {
 			concatenatedErrBuilder := strings.Builder{}
 			concatenatedErrBuilder.WriteString("Failed to delete files:\n")
+
 			for i, err := range deleteAttachmentErrors {
 				// i + 1 due to index starts from zero
 				concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
@@ -927,6 +943,7 @@ func (useCases *UseCases) UpdateTicket(
 
 	// Old Ticket Attachments set:
 	oldAttachmentsSet := make(map[string]struct{}, len(ticket.Attachments))
+
 	for _, attachment := range ticket.Attachments {
 		split := strings.Split(attachment.Link, "/")
 		oldAttachmentFilename := split[len(split)-1]
@@ -935,6 +952,7 @@ func (useCases *UseCases) UpdateTicket(
 
 	// New Ticket Attachments set:
 	newAttachmentsSet := make(map[string]struct{}, len(rawTicketData.Attachments))
+
 	for _, attachment := range rawTicketData.Attachments {
 		filename, err := useCases.createFilename(user.ID, attachment)
 		if err != nil {
@@ -946,6 +964,7 @@ func (useCases *UseCases) UpdateTicket(
 
 	// Add new Attachments if it is not already exists:
 	attachmentsToAdd := make([]*graphql.Upload, 0)
+
 	for _, attachment := range rawTicketData.Attachments {
 		filename, err := useCases.createFilename(user.ID, attachment)
 		if err != nil {
@@ -959,8 +978,10 @@ func (useCases *UseCases) UpdateTicket(
 
 	// Still used Attachments:
 	stillUsedAttachments := make([]string, 0)
+
 	for _, attachment := range ticket.Attachments {
 		split := strings.Split(attachment.Link, "/")
+
 		oldAttachmentFilename := split[len(split)-1]
 		if _, ok := newAttachmentsSet[oldAttachmentFilename]; ok {
 			stillUsedAttachments = append(stillUsedAttachments, attachment.Link)
@@ -969,8 +990,10 @@ func (useCases *UseCases) UpdateTicket(
 
 	// Delete old Attachments if it is not used by Ticket now:
 	attachmentsToDelete := make([]string, 0)
+
 	for _, attachment := range ticket.Attachments {
 		split := strings.Split(attachment.Link, "/")
+
 		oldAttachmentFilename := split[len(split)-1]
 		if _, ok := newAttachmentsSet[oldAttachmentFilename]; !ok {
 			attachmentsToDelete = append(attachmentsToDelete, oldAttachmentFilename)
@@ -982,6 +1005,7 @@ func (useCases *UseCases) UpdateTicket(
 		if len(deleteAttachmentErrors) > 0 {
 			concatenatedErrBuilder := strings.Builder{}
 			concatenatedErrBuilder.WriteString("Failed to delete files:\n")
+
 			for i, err := range deleteAttachmentErrors {
 				// i + 1 due to index starts from zero
 				concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
@@ -1043,6 +1067,7 @@ func (useCases *UseCases) DeleteTicket(ctx context.Context, accessToken string, 
 	}
 
 	attachmentsToDelete := make([]string, 0, len(ticket.Attachments))
+
 	for _, attachment := range ticket.Attachments {
 		split := strings.Split(attachment.Link, "/")
 		oldAttachmentFilename := split[len(split)-1]
@@ -1054,6 +1079,7 @@ func (useCases *UseCases) DeleteTicket(ctx context.Context, accessToken string, 
 		if len(deleteAttachmentErrors) > 0 {
 			concatenatedErrBuilder := strings.Builder{}
 			concatenatedErrBuilder.WriteString("Failed to delete files:\n")
+
 			for i, err := range deleteAttachmentErrors {
 				// i + 1 due to index starts from zero
 				concatenatedErrBuilder.WriteString(fmt.Sprintf("%d) %v\n", i+1, err))
