@@ -63,6 +63,7 @@ func (r *mutationResolver) RegisterUser(
 	}
 
 	userID, err := r.useCases.RegisterUser(ctx, userData)
+
 	return strconv.FormatUint(userID, 10), err
 }
 
@@ -98,11 +99,13 @@ func (r *mutationResolver) LoginUser(
 	)
 	if err != nil {
 		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
+
 		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
 	}
 
 	cookies.Set(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
 	cookies.Set(writer, refreshTokenCookieName, tokens.RefreshToken, r.cookiesConfig.RefreshToken)
+
 	return true, nil
 }
 
@@ -124,12 +127,14 @@ func (r *mutationResolver) LogoutUser(ctx context.Context) (bool, error) {
 	)
 	if err != nil {
 		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
+
 		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
 	}
 
 	// Deleting cookies:
 	cookies.Set(writer, accessTokenCookieName, "", cookies.Config{MaxAge: -1})
 	cookies.Set(writer, refreshTokenCookieName, "", cookies.Config{MaxAge: -1})
+
 	return true, nil
 }
 
@@ -151,11 +156,13 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context) (bool, error) {
 	)
 	if err != nil {
 		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
+
 		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
 	}
 
 	cookies.Set(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
 	cookies.Set(writer, refreshTokenCookieName, tokens.RefreshToken, r.cookiesConfig.RefreshToken)
+
 	return true, nil
 }
 
@@ -255,6 +262,7 @@ func (r *mutationResolver) RegisterMaster(
 	}
 
 	masterID, err := r.useCases.RegisterMaster(ctx, masterData)
+
 	return strconv.FormatUint(masterID, 10), err
 }
 
@@ -313,6 +321,7 @@ func (r *mutationResolver) AddToy(
 	}
 
 	toyID, err := r.useCases.AddToy(ctx, toyData)
+
 	return strconv.FormatUint(toyID, 10), err
 }
 
@@ -332,6 +341,7 @@ func (r *mutationResolver) UpdateToy(
 	}
 
 	var categoryID *uint32
+
 	if input.CategoryID != nil {
 		intCategoryID, err := strconv.Atoi(*input.CategoryID)
 		if err != nil {
@@ -424,6 +434,7 @@ func (r *mutationResolver) CreateTicket(
 	}
 
 	ticketID, err := r.useCases.CreateTicket(ctx, ticketData)
+
 	return strconv.FormatUint(ticketID, 10), err
 }
 
@@ -450,6 +461,7 @@ func (r *mutationResolver) RespondToTicket(
 	}
 
 	respondID, err := r.useCases.RespondToTicket(ctx, respondData)
+
 	return strconv.FormatUint(respondID, 10), err
 }
 
@@ -525,6 +537,7 @@ func (r *mutationResolver) UpdateTicket(
 	}
 
 	var categoryID *uint32
+
 	if input.CategoryID != nil {
 		intCategoryID, err := strconv.Atoi(*input.CategoryID)
 		if err != nil {

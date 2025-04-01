@@ -35,7 +35,7 @@ func (service *FileStorageService) Upload(
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to upload File with key=%s", key),
+			"Error occurred while trying to upload File with key="+key,
 			err,
 		)
 
@@ -51,7 +51,7 @@ func (service *FileStorageService) Delete(ctx context.Context, key string) error
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to delete File with key=%s", key),
+			"Error occurred while trying to delete File with key="+key,
 			err,
 		)
 	}

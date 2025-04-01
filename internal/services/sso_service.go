@@ -59,7 +59,7 @@ func (service *SsoService) GetUserByEmail(
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to get User with Email=%s", email),
+			"Error occurred while trying to get User with Email="+email,
 			err,
 		)
 	}
@@ -93,7 +93,7 @@ func (service *SsoService) LoginUser(
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to login User with email=%s", userData.Email),
+			"Error occurred while trying to login User with email="+userData.Email,
 			err,
 		)
 	}
@@ -107,10 +107,7 @@ func (service *SsoService) LogoutUser(ctx context.Context, accessToken string) e
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf(
-				"Error occurred while trying to logout User with AccessToken=%s",
-				accessToken,
-			),
+			"Error occurred while trying to logout User with AccessToken="+accessToken,
 			err,
 		)
 	}
@@ -124,10 +121,7 @@ func (service *SsoService) VerifyUserEmail(ctx context.Context, verifyEmailToken
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf(
-				"Error occurred while trying to verify email for User with verify email token=%s",
-				verifyEmailToken,
-			),
+			"Error occurred while trying to verify email for User with verify email token="+verifyEmailToken,
 			err,
 		)
 	}
@@ -141,10 +135,7 @@ func (service *SsoService) ForgetPassword(ctx context.Context, accessToken strin
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf(
-				"Error occurred while trying to forget password for User with AccessToken=%s",
-				accessToken,
-			),
+			"Error occurred while trying to forget password for User with AccessToken="+accessToken,
 			err,
 		)
 	}
@@ -163,10 +154,7 @@ func (service *SsoService) ChangePassword(
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf(
-				"Error occurred while trying to change password for User with AccessToken=%s",
-				accessToken,
-			),
+			"Error occurred while trying to change password for User with AccessToken="+accessToken,
 			err,
 		)
 	}
@@ -180,10 +168,7 @@ func (service *SsoService) SendVerifyEmailMessage(ctx context.Context, email str
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf(
-				"Error occurred while trying to send verify email message to User with email=%s",
-				email,
-			),
+			"Error occurred while trying to send verify email message to User with email="+email,
 			err,
 		)
 	}
@@ -200,10 +185,7 @@ func (service *SsoService) UpdateUserProfile(
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf(
-				"Error occurred while trying to update profile for User with AccessToken=%s",
-				userProfileData.AccessToken,
-			),
+			"Error occurred while trying to update profile for User with AccessToken="+userProfileData.AccessToken,
 			err,
 		)
 	}
@@ -217,7 +199,7 @@ func (service *SsoService) GetMe(ctx context.Context, accessToken string) (*enti
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to get User with AccessToken=%s", accessToken),
+			"Error occurred while trying to get User with AccessToken="+accessToken,
 			err,
 		)
 	}
@@ -234,10 +216,7 @@ func (service *SsoService) RefreshTokens(
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf(
-				"Error occurred while trying to refresh tokens with RefreshToken=%s",
-				refreshToken,
-			),
+			"Error occurred while trying to refresh tokens with RefreshToken="+refreshToken,
 			err,
 		)
 	}

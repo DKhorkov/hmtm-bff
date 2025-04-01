@@ -8,30 +8,30 @@ import (
 
 type Respond struct {
 	ID        uint64    `json:"id"`
-	TicketID  uint64    `json:"ticket_id"`
-	MasterID  uint64    `json:"master_id"`
+	TicketID  uint64    `json:"tagliatelle"`
+	MasterID  uint64    `json:"masterId"`
 	Price     float32   `json:"price"`
 	Comment   *string   `json:"comment,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 type RespondToTicketDTO struct {
-	TicketID uint64  `json:"ticket_id"`
-	UserID   uint64  `json:"user_id"`
+	TicketID uint64  `json:"ticketId"`
+	UserID   uint64  `json:"userId"`
 	Price    float32 `json:"price"`
 	Comment  *string `json:"comment,omitempty"`
 }
 
 type RawRespondToTicketDTO struct {
-	AccessToken string  `json:"access_token"`
-	TicketID    uint64  `json:"ticket_id"`
+	AccessToken string  `json:"accessToken"`
+	TicketID    uint64  `json:"ticketId"`
 	Price       float32 `json:"price"`
 	Comment     *string `json:"comment,omitempty"`
 }
 
 type RawUpdateRespondDTO struct {
-	AccessToken string   `json:"access_token"`
+	AccessToken string   `json:"accessToken"`
 	ID          uint64   `json:"id"`
 	Price       *float32 `json:"price,omitempty"`
 	Comment     *string  `json:"comment,omitempty"`
@@ -45,54 +45,54 @@ type UpdateRespondDTO struct {
 
 type TicketAttachment struct {
 	ID        uint64    `json:"id"`
-	TicketID  uint64    `json:"ticket_id"`
+	TicketID  uint64    `json:"ticketId"`
 	Link      string    `json:"link"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 type RawTicket struct {
 	ID          uint64             `json:"id"`
-	UserID      uint64             `json:"user_id"`
-	CategoryID  uint32             `json:"category_id"`
+	UserID      uint64             `json:"userId"`
+	CategoryID  uint32             `json:"categoryId"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       *float32           `json:"price,omitempty"`
 	Quantity    uint32             `json:"quantity"`
-	CreatedAt   time.Time          `json:"created_at"`
-	UpdatedAt   time.Time          `json:"updated_at"`
-	TagIDs      []uint32           `json:"tag_ids"`
+	CreatedAt   time.Time          `json:"createdAt"`
+	UpdatedAt   time.Time          `json:"updatedAt"`
+	TagIDs      []uint32           `json:"tagIds"`
 	Attachments []TicketAttachment `json:"attachments,omitempty"`
 }
 
 type Ticket struct {
 	ID          uint64             `json:"id"`
-	UserID      uint64             `json:"user_id"`
-	CategoryID  uint32             `json:"category_id"`
+	UserID      uint64             `json:"userId"`
+	CategoryID  uint32             `json:"categoryId"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       *float32           `json:"price,omitempty"`
 	Quantity    uint32             `json:"quantity"`
-	CreatedAt   time.Time          `json:"created_at"`
-	UpdatedAt   time.Time          `json:"updated_at"`
+	CreatedAt   time.Time          `json:"createdAt"`
+	UpdatedAt   time.Time          `json:"updatedAt"`
 	Tags        []Tag              `json:"tags,omitempty"`
 	Attachments []TicketAttachment `json:"attachments,omitempty"`
 }
 
 type CreateTicketDTO struct {
-	UserID      uint64   `json:"user_id"`
-	CategoryID  uint32   `json:"category_id"`
+	UserID      uint64   `json:"userId"`
+	CategoryID  uint32   `json:"categoryId"`
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Price       *float32 `json:"price,omitempty"`
 	Quantity    uint32   `json:"quantity"`
-	TagIDs      []uint32 `json:"tag_ids,omitempty"`
+	TagIDs      []uint32 `json:"tagIds,omitempty"`
 	Attachments []string `json:"attachments,omitempty"`
 }
 
 type RawCreateTicketDTO struct {
-	AccessToken string            `json:"access_token"`
-	CategoryID  uint32            `json:"category_id"`
+	AccessToken string            `json:"accessToken"`
+	CategoryID  uint32            `json:"categoryId"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	Price       *float32          `json:"price,omitempty"`
@@ -102,9 +102,9 @@ type RawCreateTicketDTO struct {
 }
 
 type RawUpdateTicketDTO struct {
-	AccessToken string            `json:"access_token"`
+	AccessToken string            `json:"accessToken"`
 	ID          uint64            `json:"id"`
-	CategoryID  *uint32           `json:"category_id,omitempty"`
+	CategoryID  *uint32           `json:"categoryId,omitempty"`
 	Name        *string           `json:"name,omitempty"`
 	Description *string           `json:"description,omitempty"`
 	Price       *float32          `json:"price,omitempty"`
@@ -115,11 +115,11 @@ type RawUpdateTicketDTO struct {
 
 type UpdateTicketDTO struct {
 	ID          uint64   `json:"id"`
-	CategoryID  *uint32  `json:"category_id,omitempty"`
+	CategoryID  *uint32  `json:"categoryId,omitempty"`
 	Name        *string  `json:"name,omitempty"`
 	Description *string  `json:"description,omitempty"`
 	Price       *float32 `json:"price,omitempty"`
 	Quantity    *uint32  `json:"quantity,omitempty"`
-	TagIDs      []uint32 `json:"tag_ids,omitempty"`
+	TagIDs      []uint32 `json:"tagIds,omitempty"`
 	Attachments []string `json:"attachments,omitempty"`
 }

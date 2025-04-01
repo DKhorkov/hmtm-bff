@@ -12,42 +12,42 @@ type LoginUserDTO struct {
 }
 
 type TokensDTO struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 type RegisterUserDTO struct {
-	DisplayName string `json:"display_name"`
+	DisplayName string `json:"displayName"`
 	Email       string `json:"email"`
 	Password    string `json:"password"`
 }
 
 type User struct {
 	ID                uint64    `json:"id"`
-	DisplayName       string    `json:"display_name"`
+	DisplayName       string    `json:"displayName"`
 	Email             string    `json:"email"`
-	EmailConfirmed    bool      `json:"email_confirmed"`
+	EmailConfirmed    bool      `json:"emailConfirmed"`
 	Password          string    `json:"password"`
 	Phone             *string   `json:"phone,omitempty"`
-	PhoneConfirmed    bool      `json:"phone_confirmed"`
+	PhoneConfirmed    bool      `json:"phoneConfirmed"`
 	Telegram          *string   `json:"telegram,omitempty"`
-	TelegramConfirmed bool      `json:"telegram_confirmed"`
+	TelegramConfirmed bool      `json:"telegramConfirmed"`
 	Avatar            *string   `json:"avatar,omitempty"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
+	CreatedAt         time.Time `json:"createdAt"`
+	UpdatedAt         time.Time `json:"updatedAt"`
 }
 
 type RawUpdateUserProfileDTO struct {
-	AccessToken string          `json:"access_token"`
-	DisplayName *string         `json:"display_name,omitempty"`
+	AccessToken string          `json:"accessToken"`
+	DisplayName *string         `json:"displayName,omitempty"`
 	Phone       *string         `json:"phone,omitempty"`
 	Telegram    *string         `json:"telegram,omitempty"`
 	Avatar      *graphql.Upload `json:"avatar,omitempty"`
 }
 
 type UpdateUserProfileDTO struct {
-	AccessToken string  `json:"access_token"`
-	DisplayName *string `json:"display_name,omitempty"`
+	AccessToken string  `json:"accessToken"`
+	DisplayName *string `json:"displayName,omitempty"`
 	Phone       *string `json:"phone,omitempty"`
 	Telegram    *string `json:"telegram,omitempty"`
 	Avatar      *string `json:"avatar,omitempty"`
