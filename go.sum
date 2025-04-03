@@ -1,9 +1,9 @@
 github.com/99designs/gqlgen v0.17.55 h1:3vzrNWYyzSZjGDFo68e5j9sSauLxfKvLp+6ioRokVtM=
 github.com/99designs/gqlgen v0.17.55/go.mod h1:3Bq768f8hgVPGZxL8aY9MaYmbxa6llPM/qu1IGH1EJo=
-github.com/DKhorkov/hmtm-notifications v1.2.0 h1:rMWsFx4hrO8VNmLUBJE0LCv065RKal5LnHNREpNL5E0=
-github.com/DKhorkov/hmtm-notifications v1.2.0/go.mod h1:rpzrSRtUJm5e3rvVyxeIv+F29V9Uh5nfCxF3H/VlrDg=
-github.com/DKhorkov/hmtm-sso v1.4.1 h1:C3+sQ7C1r7VtrGW48m3h9ISv4toZPs+rYwbeI0c+ofk=
-github.com/DKhorkov/hmtm-sso v1.4.1/go.mod h1:Jsjg1AmV9elSPxL3cUX6QRJNz+IXYHGz9E3qNfH3qO8=
+github.com/DKhorkov/hmtm-notifications v1.2.1 h1:+kKNf9QIQbtRcu2gQnBNDuzPI42n5q5UgYN4Fq+NvP0=
+github.com/DKhorkov/hmtm-notifications v1.2.1/go.mod h1:rpzrSRtUJm5e3rvVyxeIv+F29V9Uh5nfCxF3H/VlrDg=
+github.com/DKhorkov/hmtm-sso v1.5.1 h1:6oXlqYddhbmWqx4qOW+zJzQtCSdgEQVxOKgoAMAydjc=
+github.com/DKhorkov/hmtm-sso v1.5.1/go.mod h1:WEXMe2IHooLL4RlMwuKg52adlikhkNdWQ10OeQtVrqI=
 github.com/DKhorkov/hmtm-tickets v1.2.0 h1:Aq5hl0UfVjXNg30DZ1NIVINej+5bkO+aSZZ+USxQVd0=
 github.com/DKhorkov/hmtm-tickets v1.2.0/go.mod h1:NPIBWKov5KHgnncwXvZ5W06Qq7FzJpAxuUCmSg+p85Y=
 github.com/DKhorkov/hmtm-toys v1.2.0 h1:5yMwwugqf07QGMtzwil16TyZOeVYyPWqytrVWH05hOQ=

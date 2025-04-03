@@ -74,26 +74,27 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddToy                 func(childComplexity int, input AddToyInput) int
-		ChangePassword         func(childComplexity int, input ChangePasswordInput) int
-		CreateTicket           func(childComplexity int, input CreateTicketInput) int
-		DeleteRespond          func(childComplexity int, input DeleteRespondInput) int
-		DeleteTicket           func(childComplexity int, input DeleteTicketInput) int
-		DeleteToy              func(childComplexity int, input DeleteToyInput) int
-		ForgetPassword         func(childComplexity int) int
-		LoginUser              func(childComplexity int, input LoginUserInput) int
-		LogoutUser             func(childComplexity int) int
-		RefreshTokens          func(childComplexity int) int
-		RegisterMaster         func(childComplexity int, input RegisterMasterInput) int
-		RegisterUser           func(childComplexity int, input RegisterUserInput) int
-		RespondToTicket        func(childComplexity int, input RespondToTicketInput) int
-		SendVerifyEmailMessage func(childComplexity int, input SendVerifyEmailMessageInput) int
-		UpdateMaster           func(childComplexity int, input UpdateMasterInput) int
-		UpdateRespond          func(childComplexity int, input UpdateRespondInput) int
-		UpdateTicket           func(childComplexity int, input UpdateTicketInput) int
-		UpdateToy              func(childComplexity int, input UpdateToyInput) int
-		UpdateUserProfile      func(childComplexity int, input UpdateUserProfileInput) int
-		VerifyUserEmail        func(childComplexity int, input VerifyUserEmailInput) int
+		AddToy                    func(childComplexity int, input AddToyInput) int
+		ChangePassword            func(childComplexity int, input ChangePasswordInput) int
+		CreateTicket              func(childComplexity int, input CreateTicketInput) int
+		DeleteRespond             func(childComplexity int, input DeleteRespondInput) int
+		DeleteTicket              func(childComplexity int, input DeleteTicketInput) int
+		DeleteToy                 func(childComplexity int, input DeleteToyInput) int
+		ForgetPassword            func(childComplexity int, input ForgetPasswordInput) int
+		LoginUser                 func(childComplexity int, input LoginUserInput) int
+		LogoutUser                func(childComplexity int) int
+		RefreshTokens             func(childComplexity int) int
+		RegisterMaster            func(childComplexity int, input RegisterMasterInput) int
+		RegisterUser              func(childComplexity int, input RegisterUserInput) int
+		RespondToTicket           func(childComplexity int, input RespondToTicketInput) int
+		SendForgetPasswordMessage func(childComplexity int, input SendForgetPasswordMessageInput) int
+		SendVerifyEmailMessage    func(childComplexity int, input SendVerifyEmailMessageInput) int
+		UpdateMaster              func(childComplexity int, input UpdateMasterInput) int
+		UpdateRespond             func(childComplexity int, input UpdateRespondInput) int
+		UpdateTicket              func(childComplexity int, input UpdateTicketInput) int
+		UpdateToy                 func(childComplexity int, input UpdateToyInput) int
+		UpdateUserProfile         func(childComplexity int, input UpdateUserProfileInput) int
+		VerifyUserEmail           func(childComplexity int, input VerifyUserEmailInput) int
 	}
 
 	Query struct {
@@ -206,8 +207,9 @@ type MutationResolver interface {
 	LogoutUser(ctx context.Context) (bool, error)
 	RefreshTokens(ctx context.Context) (bool, error)
 	VerifyUserEmail(ctx context.Context, input VerifyUserEmailInput) (bool, error)
-	ForgetPassword(ctx context.Context) (bool, error)
 	SendVerifyEmailMessage(ctx context.Context, input SendVerifyEmailMessageInput) (bool, error)
+	ForgetPassword(ctx context.Context, input ForgetPasswordInput) (bool, error)
+	SendForgetPasswordMessage(ctx context.Context, input SendForgetPasswordMessageInput) (bool, error)
 	ChangePassword(ctx context.Context, input ChangePasswordInput) (bool, error)
 	UpdateUserProfile(ctx context.Context, input UpdateUserProfileInput) (bool, error)
 	RegisterMaster(ctx context.Context, input RegisterMasterInput) (string, error)
@@ -438,7 +440,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Mutation.ForgetPassword(childComplexity), true
+		args, err := ec.field_Mutation_forgetPassword_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ForgetPassword(childComplexity, args["input"].(ForgetPasswordInput)), true
 
 	case "Mutation.loginUser":
 		if e.complexity.Mutation.LoginUser == nil {
@@ -501,6 +508,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RespondToTicket(childComplexity, args["input"].(RespondToTicketInput)), true
+
+	case "Mutation.sendForgetPasswordMessage":
+		if e.complexity.Mutation.SendForgetPasswordMessage == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_sendForgetPasswordMessage_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SendForgetPasswordMessage(childComplexity, args["input"].(SendForgetPasswordMessageInput)), true
 
 	case "Mutation.sendVerifyEmailMessage":
 		if e.complexity.Mutation.SendVerifyEmailMessage == nil {
@@ -1161,10 +1180,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteRespondInput,
 		ec.unmarshalInputDeleteTicketInput,
 		ec.unmarshalInputDeleteToyInput,
+		ec.unmarshalInputForgetPasswordInput,
 		ec.unmarshalInputLoginUserInput,
 		ec.unmarshalInputRegisterMasterInput,
 		ec.unmarshalInputRegisterUserInput,
 		ec.unmarshalInputRespondToTicketInput,
+		ec.unmarshalInputSendForgetPasswordMessageInput,
 		ec.unmarshalInputSendVerifyEmailMessageInput,
 		ec.unmarshalInputUpdateMasterInput,
 		ec.unmarshalInputUpdateRespondInput,
@@ -1480,6 +1501,38 @@ func (ec *executionContext) field_Mutation_deleteToy_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_forgetPassword_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_forgetPassword_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_forgetPassword_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (ForgetPasswordInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal ForgetPasswordInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNForgetPasswordInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐForgetPasswordInput(ctx, tmp)
+	}
+
+	var zeroVal ForgetPasswordInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_loginUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1605,6 +1658,38 @@ func (ec *executionContext) field_Mutation_respondToTicket_argsInput(
 	}
 
 	var zeroVal RespondToTicketInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_sendForgetPasswordMessage_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_sendForgetPasswordMessage_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_sendForgetPasswordMessage_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (SendForgetPasswordMessageInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal SendForgetPasswordMessageInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNSendForgetPasswordMessageInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐSendForgetPasswordMessageInput(ctx, tmp)
+	}
+
+	var zeroVal SendForgetPasswordMessageInput
 	return zeroVal, nil
 }
 
@@ -3038,50 +3123,6 @@ func (ec *executionContext) fieldContext_Mutation_verifyUserEmail(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_forgetPassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_forgetPassword(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ForgetPassword(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_forgetPassword(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_sendVerifyEmailMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_sendVerifyEmailMessage(ctx, field)
 	if err != nil {
@@ -3131,6 +3172,116 @@ func (ec *executionContext) fieldContext_Mutation_sendVerifyEmailMessage(ctx con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_sendVerifyEmailMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_forgetPassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_forgetPassword(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ForgetPassword(rctx, fc.Args["input"].(ForgetPasswordInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_forgetPassword(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_forgetPassword_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_sendForgetPasswordMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_sendForgetPasswordMessage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SendForgetPasswordMessage(rctx, fc.Args["input"].(SendForgetPasswordMessageInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_sendForgetPasswordMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_sendForgetPasswordMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -9753,6 +9904,40 @@ func (ec *executionContext) unmarshalInputDeleteToyInput(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputForgetPasswordInput(ctx context.Context, obj interface{}) (ForgetPasswordInput, error) {
+	var it ForgetPasswordInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"forgetPasswordToken", "newPassword"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "forgetPasswordToken":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("forgetPasswordToken"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ForgetPasswordToken = data
+		case "newPassword":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newPassword"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NewPassword = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLoginUserInput(ctx context.Context, obj interface{}) (LoginUserInput, error) {
 	var it LoginUserInput
 	asMap := map[string]interface{}{}
@@ -9890,6 +10075,33 @@ func (ec *executionContext) unmarshalInputRespondToTicketInput(ctx context.Conte
 				return it, err
 			}
 			it.Comment = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputSendForgetPasswordMessageInput(ctx context.Context, obj interface{}) (SendForgetPasswordMessageInput, error) {
+	var it SendForgetPasswordMessageInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
 		}
 	}
 
@@ -10503,6 +10715,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "sendVerifyEmailMessage":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_sendVerifyEmailMessage(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "forgetPassword":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_forgetPassword(ctx, field)
@@ -10510,9 +10729,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "sendVerifyEmailMessage":
+		case "sendForgetPasswordMessage":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_sendVerifyEmailMessage(ctx, field)
+				return ec._Mutation_sendForgetPasswordMessage(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -12326,6 +12545,11 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
+func (ec *executionContext) unmarshalNForgetPasswordInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐForgetPasswordInput(ctx context.Context, v interface{}) (ForgetPasswordInput, error) {
+	res, err := ec.unmarshalInputForgetPasswordInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -12431,6 +12655,11 @@ func (ec *executionContext) marshalNRespond2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑ
 
 func (ec *executionContext) unmarshalNRespondToTicketInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐRespondToTicketInput(ctx context.Context, v interface{}) (RespondToTicketInput, error) {
 	res, err := ec.unmarshalInputRespondToTicketInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNSendForgetPasswordMessageInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐSendForgetPasswordMessageInput(ctx context.Context, v interface{}) (SendForgetPasswordMessageInput, error) {
+	res, err := ec.unmarshalInputSendForgetPasswordMessageInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

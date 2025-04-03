@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/pointers"
@@ -100,7 +99,7 @@ func (repo *S3FileStorageRepository) Delete(ctx context.Context, key string) err
 			Bucket: aws.String(repo.s3config.Bucket),
 			Key:    aws.String(key),
 		},
-		time.Minute,
+		repo.s3config.Timeout,
 	); err != nil {
 		return err
 	}
@@ -148,7 +147,7 @@ func (repo *S3FileStorageRepository) DeleteMany(ctx context.Context, keys []stri
 					Bucket: aws.String(repo.s3config.Bucket),
 					Key:    delObj.Key,
 				},
-				time.Minute,
+				repo.s3config.Timeout,
 			); err != nil {
 				out = append(out, err)
 			}

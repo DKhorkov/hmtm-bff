@@ -78,6 +78,10 @@ func (useCases *UseCases) SendVerifyEmailMessage(ctx context.Context, email stri
 	return useCases.ssoService.SendVerifyEmailMessage(ctx, email)
 }
 
+func (useCases *UseCases) SendForgetPasswordMessage(ctx context.Context, email string) error {
+	return useCases.ssoService.SendForgetPasswordMessage(ctx, email)
+}
+
 func (useCases *UseCases) ChangePassword(
 	ctx context.Context,
 	accessToken string,
@@ -87,8 +91,8 @@ func (useCases *UseCases) ChangePassword(
 	return useCases.ssoService.ChangePassword(ctx, accessToken, oldPassword, newPassword)
 }
 
-func (useCases *UseCases) ForgetPassword(ctx context.Context, accessToken string) error {
-	return useCases.ssoService.ForgetPassword(ctx, accessToken)
+func (useCases *UseCases) ForgetPassword(ctx context.Context, forgetPasswordToken, newPassword string) error {
+	return useCases.ssoService.ForgetPassword(ctx, forgetPasswordToken, newPassword)
 }
 
 func (useCases *UseCases) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {

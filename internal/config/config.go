@@ -109,6 +109,9 @@ func New() Config {
 			Region:          loadenv.GetEnv("S3_REGION", ""),
 			Bucket:          loadenv.GetEnv("S3_BUCKET", ""),
 			ACL:             loadenv.GetEnv("S3_ACL", "public-read"),
+			Timeout: time.Second * time.Duration(
+				loadenv.GetEnvAsInt("S3_TIMEOUT", 60),
+			),
 		},
 		Validation: ValidationConfig{
 			FileMaxSize: int64(loadenv.GetEnvAsInt("FILE_MAX_SIZE", 5*1024*1024)), // 5 Mb
@@ -354,6 +357,7 @@ type S3Config struct {
 	AccessKeyID     string
 	SecretAccessKey string
 	ACL             string
+	Timeout         time.Duration
 }
 
 type ValidationConfig struct {
