@@ -219,6 +219,15 @@ input VerifyUserEmailInput {
     verifyEmailToken: String!
 }
 
+input ForgetPasswordInput {
+    forgetPasswordToken: String!
+    newPassword: String!
+}
+
+input SendForgetPasswordMessageInput {
+    email: String!
+}
+
 input SendVerifyEmailMessageInput {
     email: String!
 }
@@ -242,8 +251,9 @@ type Mutation {
     logoutUser: Boolean!
     refreshTokens: Boolean!
     verifyUserEmail(input: VerifyUserEmailInput!): Boolean!
-    forgetPassword: Boolean!
     sendVerifyEmailMessage(input: SendVerifyEmailMessageInput!): Boolean!
+    forgetPassword(input: ForgetPasswordInput!): Boolean!
+    sendForgetPasswordMessage(input: SendForgetPasswordMessageInput!): Boolean!
     changePassword(input: ChangePasswordInput!): Boolean!
     updateUserProfile(input: UpdateUserProfileInput!): Boolean!
 

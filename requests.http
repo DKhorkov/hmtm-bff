@@ -16,14 +16,14 @@ Content-Type: application/json
 
 ###
 
-POST https://your-graphql-api.com/graphql
+POST http://localhost:8080/query
 Content-Type: application/json
 
 {
   "query": "mutation VerifyUserEmail($input: VerifyUserEmailInput!) { verifyUserEmail(input: $input) }",
   "variables": {
     "input": {
-      "verifyEmailToken": "your-verify-email-token"
+      "verifyEmailToken": "MzE"
     }
   }
 }
@@ -333,6 +333,35 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDI1NzI4OTA
   "variables": {
     "input": {
       "id": "10"
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "mutation SendForgetPasswordMessage($input: SendForgetPasswordMessageInput!) { sendForgetPasswordMessage(input: $input) }",
+  "variables": {
+    "input": {
+      "email": "alexqwerty35@yandex.ru"
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "mutation ForgetPassword($input: ForgetPasswordInput!) { forgetPassword(input: $input) }",
+  "variables": {
+    "input": {
+      "forgetPasswordToken": "MzE",
+      "newPassword": "Qwer1234@"
     }
   }
 }

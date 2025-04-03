@@ -43,6 +43,11 @@ type DeleteToyInput struct {
 	ID string `json:"id"`
 }
 
+type ForgetPasswordInput struct {
+	ForgetPasswordToken string `json:"forgetPasswordToken"`
+	NewPassword         string `json:"newPassword"`
+}
+
 type LoginUserInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -68,6 +73,10 @@ type RespondToTicketInput struct {
 	TicketID string  `json:"ticketId"`
 	Price    float64 `json:"price"`
 	Comment  *string `json:"comment,omitempty"`
+}
+
+type SendForgetPasswordMessageInput struct {
+	Email string `json:"email"`
 }
 
 type SendVerifyEmailMessageInput struct {

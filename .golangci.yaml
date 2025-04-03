@@ -111,6 +111,7 @@ linters:
           - gosec
           - dupl
           - ireturn
+          - lll
       - path: "internal/usecases/usecases.go"
         linters:
           - dupl

@@ -129,13 +129,13 @@ func (service *SsoService) VerifyUserEmail(ctx context.Context, verifyEmailToken
 	return err
 }
 
-func (service *SsoService) ForgetPassword(ctx context.Context, accessToken string) error {
-	err := service.ssoRepository.ForgetPassword(ctx, accessToken)
+func (service *SsoService) ForgetPassword(ctx context.Context, forgetPasswordToken, newPassword string) error {
+	err := service.ssoRepository.ForgetPassword(ctx, forgetPasswordToken, newPassword)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			"Error occurred while trying to forget password for User with AccessToken="+accessToken,
+			"Error occurred while trying to forget password for User with ForgetPasswordToken="+forgetPasswordToken,
 			err,
 		)
 	}
@@ -168,7 +168,21 @@ func (service *SsoService) SendVerifyEmailMessage(ctx context.Context, email str
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			"Error occurred while trying to send verify email message to User with email="+email,
+			"Error occurred while trying to send verify-email message to User with email="+email,
+			err,
+		)
+	}
+
+	return err
+}
+
+func (service *SsoService) SendForgetPasswordMessage(ctx context.Context, email string) error {
+	err := service.ssoRepository.SendForgetPasswordMessage(ctx, email)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			"Error occurred while trying to send forget-password message to User with email="+email,
 			err,
 		)
 	}
