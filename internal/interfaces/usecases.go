@@ -8,6 +8,7 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 )
 
+//go:generate mockgen -source=usecases.go -destination=../../mocks/usecases/usecases.go -package=mockusecases
 type UseCases interface {
 	// SSO cases:
 	GetAllUsers(ctx context.Context) ([]entities.User, error)

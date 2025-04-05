@@ -10,18 +10,23 @@ import (
 	"net/http"
 	"strconv"
 
-	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
 	"github.com/DKhorkov/libs/pointers"
+
+	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 )
 
 // User is the resolver for the user field.
 func (r *emailResolver) User(ctx context.Context, obj *entities.Email) (*entities.User, error) {
+	if obj == nil {
+		return nil, nil
+	}
+
 	user, err := r.useCases.GetUserByID(ctx, obj.UserID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -37,6 +42,10 @@ func (r *emailResolver) User(ctx context.Context, obj *entities.Email) (*entitie
 
 // User is the resolver for the user field.
 func (r *masterResolver) User(ctx context.Context, obj *entities.Master) (*entities.User, error) {
+	if obj == nil {
+		return nil, nil
+	}
+
 	user, err := r.useCases.GetUserByID(ctx, obj.UserID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -93,7 +102,7 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input graphqlapi.Login
 	if err != nil {
 		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
 
-		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
+		return false, &contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
 	}
 
 	cookies.Set(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
@@ -121,7 +130,7 @@ func (r *mutationResolver) LogoutUser(ctx context.Context) (bool, error) {
 	if err != nil {
 		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
 
-		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
+		return false, &contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
 	}
 
 	// Deleting cookies:
@@ -150,7 +159,7 @@ func (r *mutationResolver) RefreshTokens(ctx context.Context) (bool, error) {
 	if err != nil {
 		logging.LogErrorContext(ctx, r.logger, "Failed to get cookies writer", err)
 
-		return false, contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
+		return false, &contextlib.ValueNotFoundError{Message: middlewares.CookiesWriterName}
 	}
 
 	cookies.Set(writer, accessTokenCookieName, tokens.AccessToken, r.cookiesConfig.AccessToken)
@@ -872,6 +881,10 @@ func (r *queryResolver) MyEmailCommunications(ctx context.Context) ([]*entities.
 
 // Ticket is the resolver for the ticket field.
 func (r *respondResolver) Ticket(ctx context.Context, obj *entities.Respond) (*entities.Ticket, error) {
+	if obj == nil {
+		return nil, nil
+	}
+
 	ticket, err := r.useCases.GetTicketByID(ctx, obj.TicketID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -887,6 +900,10 @@ func (r *respondResolver) Ticket(ctx context.Context, obj *entities.Respond) (*e
 
 // Master is the resolver for the master field.
 func (r *respondResolver) Master(ctx context.Context, obj *entities.Respond) (*entities.Master, error) {
+	if obj == nil {
+		return nil, nil
+	}
+
 	master, err := r.useCases.GetMasterByID(ctx, obj.MasterID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -902,11 +919,20 @@ func (r *respondResolver) Master(ctx context.Context, obj *entities.Respond) (*e
 
 // Price is the resolver for the price field.
 func (r *respondResolver) Price(ctx context.Context, obj *entities.Respond) (float64, error) {
-	return float64(obj.Price), nil
+	var price float64
+	if obj != nil {
+		price = float64(obj.Price)
+	}
+
+	return price, nil
 }
 
 // User is the resolver for the user field.
 func (r *ticketResolver) User(ctx context.Context, obj *entities.Ticket) (*entities.User, error) {
+	if obj == nil {
+		return nil, nil
+	}
+
 	user, err := r.useCases.GetUserByID(ctx, obj.UserID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -922,6 +948,10 @@ func (r *ticketResolver) User(ctx context.Context, obj *entities.Ticket) (*entit
 
 // Category is the resolver for the category field.
 func (r *ticketResolver) Category(ctx context.Context, obj *entities.Ticket) (*entities.Category, error) {
+	if obj == nil {
+		return nil, nil
+	}
+
 	category, err := r.useCases.GetCategoryByID(ctx, obj.CategoryID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -938,7 +968,7 @@ func (r *ticketResolver) Category(ctx context.Context, obj *entities.Ticket) (*e
 // Price is the resolver for the price field.
 func (r *ticketResolver) Price(ctx context.Context, obj *entities.Ticket) (*float64, error) {
 	var price *float64
-	if obj.Price != nil {
+	if obj != nil && obj.Price != nil {
 		price = pointers.New[float64](float64(*obj.Price))
 	}
 
@@ -947,11 +977,20 @@ func (r *ticketResolver) Price(ctx context.Context, obj *entities.Ticket) (*floa
 
 // Quantity is the resolver for the quantity field.
 func (r *ticketResolver) Quantity(ctx context.Context, obj *entities.Ticket) (int, error) {
-	return int(obj.Quantity), nil
+	var quantity int
+	if obj != nil {
+		quantity = int(obj.Quantity)
+	}
+
+	return quantity, nil
 }
 
 // Master is the resolver for the master field.
 func (r *toyResolver) Master(ctx context.Context, obj *entities.Toy) (*entities.Master, error) {
+	if obj == nil {
+		return nil, nil
+	}
+
 	master, err := r.useCases.GetMasterByID(ctx, obj.MasterID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -967,6 +1006,10 @@ func (r *toyResolver) Master(ctx context.Context, obj *entities.Toy) (*entities.
 
 // Category is the resolver for the category field.
 func (r *toyResolver) Category(ctx context.Context, obj *entities.Toy) (*entities.Category, error) {
+	if obj == nil {
+		return nil, nil
+	}
+
 	category, err := r.useCases.GetCategoryByID(ctx, obj.CategoryID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -982,12 +1025,22 @@ func (r *toyResolver) Category(ctx context.Context, obj *entities.Toy) (*entitie
 
 // Price is the resolver for the price field.
 func (r *toyResolver) Price(ctx context.Context, obj *entities.Toy) (float64, error) {
-	return float64(obj.Price), nil
+	var price float64
+	if obj != nil {
+		price = float64(obj.Price)
+	}
+
+	return price, nil
 }
 
 // Quantity is the resolver for the quantity field.
 func (r *toyResolver) Quantity(ctx context.Context, obj *entities.Toy) (int, error) {
-	return int(obj.Quantity), nil
+	var quantity int
+	if obj != nil {
+		quantity = int(obj.Quantity)
+	}
+
+	return quantity, nil
 }
 
 // Email returns graphqlapi.EmailResolver implementation.
@@ -1011,10 +1064,12 @@ func (r *Resolver) Ticket() graphqlapi.TicketResolver { return &ticketResolver{r
 // Toy returns graphqlapi.ToyResolver implementation.
 func (r *Resolver) Toy() graphqlapi.ToyResolver { return &toyResolver{r} }
 
-type emailResolver struct{ *Resolver }
-type masterResolver struct{ *Resolver }
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
-type respondResolver struct{ *Resolver }
-type ticketResolver struct{ *Resolver }
-type toyResolver struct{ *Resolver }
+type (
+	emailResolver    struct{ *Resolver }
+	masterResolver   struct{ *Resolver }
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+	respondResolver  struct{ *Resolver }
+	ticketResolver   struct{ *Resolver }
+	toyResolver      struct{ *Resolver }
+)
