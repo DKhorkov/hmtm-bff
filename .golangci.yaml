@@ -112,6 +112,7 @@ linters:
           - dupl
           - ireturn
           - lll
+          - nilnil
       - path: "internal/usecases/usecases.go"
         linters:
           - dupl
