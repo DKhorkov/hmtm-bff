@@ -339,20 +339,22 @@ func (useCases *UseCases) GetTicketByID(ctx context.Context, id uint64) (*entiti
 		return nil, err
 	}
 
-	return useCases.processRawTicket(ctx, *rawTicket), nil
+	// Soft processing if tags were received not to have distributed monolith antipattern:
+	tags, _ := useCases.GetAllTags(ctx)
+
+	return useCases.processRawTicket(*rawTicket, tags), nil
 }
 
 func (useCases *UseCases) processRawTicket(
-	ctx context.Context,
 	ticket entities.RawTicket,
+	tags []entities.Tag,
 ) *entities.Ticket {
 	processedTags := make([]entities.Tag, len(ticket.TagIDs))
 	for tagIndex := range ticket.TagIDs {
 		processedTags[tagIndex] = entities.Tag{ID: ticket.TagIDs[tagIndex]}
 	}
 
-	tags, err := useCases.toysService.GetAllTags(ctx)
-	if err == nil { // Soft processing if tags were received not to have distributed monolith antipattern.
+	if tags != nil { // Soft processing if tags were received not to have distributed monolith antipattern.
 		tagsMap := make(map[uint32]entities.Tag)
 		for _, tag := range tags {
 			tagsMap[tag.ID] = tag
@@ -376,6 +378,7 @@ func (useCases *UseCases) processRawTicket(
 		CreatedAt:   ticket.CreatedAt,
 		UpdatedAt:   ticket.UpdatedAt,
 		Tags:        processedTags,
+		Attachments: ticket.Attachments,
 	}
 }
 
@@ -385,9 +388,12 @@ func (useCases *UseCases) GetAllTickets(ctx context.Context) ([]entities.Ticket,
 		return nil, err
 	}
 
+	// Soft processing if tags were received not to have distributed monolith antipattern:
+	tags, _ := useCases.GetAllTags(ctx)
+
 	tickets := make([]entities.Ticket, len(rawTickets))
 	for i, rawTicket := range rawTickets {
-		tickets[i] = *useCases.processRawTicket(ctx, rawTicket)
+		tickets[i] = *useCases.processRawTicket(rawTicket, tags)
 	}
 
 	return tickets, err
@@ -402,9 +408,12 @@ func (useCases *UseCases) GetUserTickets(
 		return nil, err
 	}
 
+	// Soft processing if tags were received not to have distributed monolith antipattern:
+	tags, _ := useCases.GetAllTags(ctx)
+
 	tickets := make([]entities.Ticket, len(rawTickets))
 	for i, rawTicket := range rawTickets {
-		tickets[i] = *useCases.processRawTicket(ctx, rawTicket)
+		tickets[i] = *useCases.processRawTicket(rawTicket, tags)
 	}
 
 	return tickets, err

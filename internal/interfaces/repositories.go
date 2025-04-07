@@ -6,6 +6,7 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 )
 
+//go:generate mockgen -source=repositories.go -destination=../../mocks/repositories/sso_repository.go -package=mockrepositories -exclude_interfaces=ToysRepository,FileStorageRepository,TicketsRepository,NotificationsRepository
 type SsoRepository interface {
 	GetAllUsers(ctx context.Context) ([]entities.User, error)
 	GetUserByID(ctx context.Context, id uint64) (*entities.User, error)
@@ -23,6 +24,7 @@ type SsoRepository interface {
 	UpdateUserProfile(ctx context.Context, userProfileData entities.UpdateUserProfileDTO) error
 }
 
+//go:generate mockgen -source=repositories.go -destination=../../mocks/repositories/toys_repository.go -package=mockrepositories -exclude_interfaces=SsoRepository,FileStorageRepository,TicketsRepository,NotificationsRepository
 type ToysRepository interface {
 	AddToy(ctx context.Context, toyData entities.AddToyDTO) (toyID uint64, err error)
 	GetAllToys(ctx context.Context) ([]entities.Toy, error)
@@ -46,12 +48,14 @@ type ToysRepository interface {
 	UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error
 }
 
+//go:generate mockgen -source=repositories.go -destination=../../mocks/repositories/file_storage_repository.go -package=mockrepositories -exclude_interfaces=ToysRepository,SsoRepository,TicketsRepository,NotificationsRepository
 type FileStorageRepository interface {
 	Upload(ctx context.Context, key string, file []byte) (string, error)
 	Delete(ctx context.Context, key string) error
 	DeleteMany(ctx context.Context, keys []string) []error
 }
 
+//go:generate mockgen -source=repositories.go -destination=../../mocks/repositories/tickets_repository.go -package=mockrepositories -exclude_interfaces=ToysRepository,FileStorageRepository,SsoRepository,NotificationsRepository
 type TicketsRepository interface {
 	CreateTicket(
 		ctx context.Context,
@@ -73,6 +77,7 @@ type TicketsRepository interface {
 	DeleteTicket(ctx context.Context, id uint64) error
 }
 
+//go:generate mockgen -source=repositories.go -destination=../../mocks/repositories/notifications_repository.go -package=mockrepositories -exclude_interfaces=ToysRepository,FileStorageRepository,TicketsRepository,SsoRepository
 type NotificationsRepository interface {
 	GetUserEmailCommunications(ctx context.Context, userID uint64) ([]entities.Email, error)
 }
