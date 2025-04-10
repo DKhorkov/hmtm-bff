@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 
 	appconfig "github.com/DKhorkov/hmtm-bff/internal/config"
+	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
 func NewS3FileStorageRepository(
@@ -50,7 +51,7 @@ func NewS3FileStorageRepository(
 }
 
 type S3FileStorageRepository struct {
-	client   *s3.Client
+	client   interfaces.S3Client
 	logger   logging.Logger
 	s3config appconfig.S3Config
 }
