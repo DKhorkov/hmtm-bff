@@ -5289,7 +5289,6 @@ func TestUseCases_UpdateUserProfile(t *testing.T) {
 							DisplayName: pointers.New("New Name"),
 							Phone:       pointers.New("1234567890"),
 							Telegram:    pointers.New("@newtelegram"),
-							Avatar:      pointers.New(""),
 						}).
 					Return(nil).
 					Times(1)
