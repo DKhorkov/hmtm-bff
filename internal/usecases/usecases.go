@@ -553,7 +553,7 @@ func (useCases *UseCases) UpdateUserProfile(
 	}
 
 	// Check old avatar existence and necessary to upload or delete files:
-	var avatar string
+	var avatar *string
 
 	if rawUserProfileData.Avatar != nil {
 		var newAvatarFilename string
@@ -577,8 +577,14 @@ func (useCases *UseCases) UpdateUserProfile(
 		}
 
 		if newAvatarFilename != oldAvatarFilename {
-			if avatar, err = useCases.UploadFile(ctx, user.ID, rawUserProfileData.Avatar); err != nil {
+			var avatarURL string
+
+			if avatarURL, err = useCases.UploadFile(ctx, user.ID, rawUserProfileData.Avatar); err != nil {
 				return err
+			}
+
+			if avatarURL != "" {
+				avatar = &avatarURL
 			}
 		}
 	}
@@ -588,7 +594,7 @@ func (useCases *UseCases) UpdateUserProfile(
 		DisplayName: rawUserProfileData.DisplayName,
 		Phone:       rawUserProfileData.Phone,
 		Telegram:    rawUserProfileData.Telegram,
-		Avatar:      &avatar,
+		Avatar:      avatar,
 	}
 
 	return useCases.ssoService.UpdateUserProfile(ctx, userProfileData)
