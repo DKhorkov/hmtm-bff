@@ -17,6 +17,12 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
+type S3FileStorageRepository struct {
+	client   interfaces.S3Client
+	logger   logging.Logger
+	s3config appconfig.S3Config
+}
+
 func NewS3FileStorageRepository(
 	s3config appconfig.S3Config,
 	logger logging.Logger,
@@ -48,12 +54,6 @@ func NewS3FileStorageRepository(
 		logger:   logger,
 		s3config: s3config,
 	}, nil
-}
-
-type S3FileStorageRepository struct {
-	client   interfaces.S3Client
-	logger   logging.Logger
-	s3config appconfig.S3Config
 }
 
 func (repo *S3FileStorageRepository) Upload(

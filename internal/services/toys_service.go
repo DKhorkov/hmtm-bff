@@ -10,16 +10,16 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
+type ToysService struct {
+	toysRepository interfaces.ToysRepository
+	logger         logging.Logger
+}
+
 func NewToysService(toysRepository interfaces.ToysRepository, logger logging.Logger) *ToysService {
 	return &ToysService{
 		toysRepository: toysRepository,
 		logger:         logger,
 	}
-}
-
-type ToysService struct {
-	toysRepository interfaces.ToysRepository
-	logger         logging.Logger
 }
 
 func (service *ToysService) AddToy(

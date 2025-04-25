@@ -10,12 +10,12 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewTicketsRepository(client interfaces.TicketsClient) *TicketsRepository {
-	return &TicketsRepository{client: client}
-}
-
 type TicketsRepository struct {
 	client interfaces.TicketsClient
+}
+
+func NewTicketsRepository(client interfaces.TicketsClient) *TicketsRepository {
+	return &TicketsRepository{client: client}
 }
 
 func (repo *TicketsRepository) CreateTicket(
@@ -179,49 +179,6 @@ func (repo *TicketsRepository) GetUserResponds(
 	return userResponds, nil
 }
 
-func (repo *TicketsRepository) processRespondResponse(
-	respondResponse *tickets.GetRespondOut,
-) *entities.Respond {
-	return &entities.Respond{
-		ID:        respondResponse.GetID(),
-		MasterID:  respondResponse.GetMasterID(),
-		TicketID:  respondResponse.GetTicketID(),
-		Price:     respondResponse.GetPrice(),
-		Comment:   respondResponse.Comment,
-		CreatedAt: respondResponse.GetCreatedAt().AsTime(),
-		UpdatedAt: respondResponse.GetUpdatedAt().AsTime(),
-	}
-}
-
-func (repo *TicketsRepository) processTicketResponse(
-	ticketResponse *tickets.GetTicketOut,
-) *entities.RawTicket {
-	attachments := make([]entities.TicketAttachment, len(ticketResponse.GetAttachments()))
-	for i, attachment := range ticketResponse.GetAttachments() {
-		attachments[i] = entities.TicketAttachment{
-			ID:        attachment.GetID(),
-			TicketID:  attachment.GetTicketID(),
-			Link:      attachment.GetLink(),
-			CreatedAt: attachment.GetCreatedAt().AsTime(),
-			UpdatedAt: attachment.GetUpdatedAt().AsTime(),
-		}
-	}
-
-	return &entities.RawTicket{
-		ID:          ticketResponse.GetID(),
-		UserID:      ticketResponse.GetUserID(),
-		CategoryID:  ticketResponse.GetCategoryID(),
-		Name:        ticketResponse.GetName(),
-		Description: ticketResponse.GetDescription(),
-		Price:       ticketResponse.Price,
-		Quantity:    ticketResponse.GetQuantity(),
-		CreatedAt:   ticketResponse.GetCreatedAt().AsTime(),
-		UpdatedAt:   ticketResponse.GetUpdatedAt().AsTime(),
-		TagIDs:      ticketResponse.GetTagIDs(),
-		Attachments: attachments,
-	}
-}
-
 func (repo *TicketsRepository) UpdateRespond(
 	ctx context.Context,
 	respondData entities.UpdateRespondDTO,
@@ -279,4 +236,47 @@ func (repo *TicketsRepository) DeleteTicket(ctx context.Context, id uint64) erro
 	)
 
 	return err
+}
+
+func (repo *TicketsRepository) processRespondResponse(
+	respondResponse *tickets.GetRespondOut,
+) *entities.Respond {
+	return &entities.Respond{
+		ID:        respondResponse.GetID(),
+		MasterID:  respondResponse.GetMasterID(),
+		TicketID:  respondResponse.GetTicketID(),
+		Price:     respondResponse.GetPrice(),
+		Comment:   respondResponse.Comment,
+		CreatedAt: respondResponse.GetCreatedAt().AsTime(),
+		UpdatedAt: respondResponse.GetUpdatedAt().AsTime(),
+	}
+}
+
+func (repo *TicketsRepository) processTicketResponse(
+	ticketResponse *tickets.GetTicketOut,
+) *entities.RawTicket {
+	attachments := make([]entities.TicketAttachment, len(ticketResponse.GetAttachments()))
+	for i, attachment := range ticketResponse.GetAttachments() {
+		attachments[i] = entities.TicketAttachment{
+			ID:        attachment.GetID(),
+			TicketID:  attachment.GetTicketID(),
+			Link:      attachment.GetLink(),
+			CreatedAt: attachment.GetCreatedAt().AsTime(),
+			UpdatedAt: attachment.GetUpdatedAt().AsTime(),
+		}
+	}
+
+	return &entities.RawTicket{
+		ID:          ticketResponse.GetID(),
+		UserID:      ticketResponse.GetUserID(),
+		CategoryID:  ticketResponse.GetCategoryID(),
+		Name:        ticketResponse.GetName(),
+		Description: ticketResponse.GetDescription(),
+		Price:       ticketResponse.Price,
+		Quantity:    ticketResponse.GetQuantity(),
+		CreatedAt:   ticketResponse.GetCreatedAt().AsTime(),
+		UpdatedAt:   ticketResponse.GetUpdatedAt().AsTime(),
+		TagIDs:      ticketResponse.GetTagIDs(),
+		Attachments: attachments,
+	}
 }

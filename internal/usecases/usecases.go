@@ -354,43 +354,6 @@ func (useCases *UseCases) GetTicketByID(ctx context.Context, id uint64) (*entiti
 	return useCases.processRawTicket(*rawTicket, tags), nil
 }
 
-func (useCases *UseCases) processRawTicket(
-	ticket entities.RawTicket,
-	tags []entities.Tag,
-) *entities.Ticket {
-	processedTags := make([]entities.Tag, len(ticket.TagIDs))
-	for tagIndex := range ticket.TagIDs {
-		processedTags[tagIndex] = entities.Tag{ID: ticket.TagIDs[tagIndex]}
-	}
-
-	if tags != nil { // Soft processing if tags were received not to have distributed monolith antipattern.
-		tagsMap := make(map[uint32]entities.Tag)
-		for _, tag := range tags {
-			tagsMap[tag.ID] = tag
-		}
-
-		for i, tag := range processedTags {
-			if _, ok := tagsMap[tag.ID]; ok {
-				processedTags[i].Name = tagsMap[tag.ID].Name
-			}
-		}
-	}
-
-	return &entities.Ticket{
-		ID:          ticket.ID,
-		UserID:      ticket.UserID,
-		CategoryID:  ticket.CategoryID,
-		Name:        ticket.Name,
-		Description: ticket.Description,
-		Price:       ticket.Price,
-		Quantity:    ticket.Quantity,
-		CreatedAt:   ticket.CreatedAt,
-		UpdatedAt:   ticket.UpdatedAt,
-		Tags:        processedTags,
-		Attachments: ticket.Attachments,
-	}
-}
-
 func (useCases *UseCases) GetAllTickets(ctx context.Context) ([]entities.Ticket, error) {
 	rawTickets, err := useCases.ticketsService.GetAllTickets(ctx)
 	if err != nil {
@@ -607,23 +570,6 @@ func (useCases *UseCases) UpdateUserProfile(
 	}
 
 	return useCases.ssoService.UpdateUserProfile(ctx, userProfileData)
-}
-
-func (useCases *UseCases) createFilename(userID uint64, file *graphql.Upload) (string, error) {
-	fileExtension := path.Ext(file.Filename)
-	if !validateFileExtension(fileExtension, useCases.validationConfig.FileAllowedExtensions) {
-		return "", &customerrors.InvalidFileExtensionError{Message: fileExtension}
-	}
-
-	if !validateFileSize(file.Size, useCases.validationConfig.FileMaxSize) {
-		return "", &customerrors.InvalidFileSizeError{Message: strconv.FormatInt(file.Size, 10)}
-	}
-
-	filename := security.RawEncode(
-		[]byte(fmt.Sprintf("%d:%s", userID, file.Filename)),
-	) + fileExtension
-
-	return filename, nil
 }
 
 func (useCases *UseCases) UpdateToy(
@@ -1124,4 +1070,58 @@ func (useCases *UseCases) DeleteTicket(ctx context.Context, accessToken string, 
 	}
 
 	return useCases.ticketsService.DeleteTicket(ctx, ticket.ID)
+}
+
+func (useCases *UseCases) createFilename(userID uint64, file *graphql.Upload) (string, error) {
+	fileExtension := path.Ext(file.Filename)
+	if !validateFileExtension(fileExtension, useCases.validationConfig.FileAllowedExtensions) {
+		return "", &customerrors.InvalidFileExtensionError{Message: fileExtension}
+	}
+
+	if !validateFileSize(file.Size, useCases.validationConfig.FileMaxSize) {
+		return "", &customerrors.InvalidFileSizeError{Message: strconv.FormatInt(file.Size, 10)}
+	}
+
+	filename := security.RawEncode(
+		[]byte(fmt.Sprintf("%d:%s", userID, file.Filename)),
+	) + fileExtension
+
+	return filename, nil
+}
+
+func (useCases *UseCases) processRawTicket(
+	ticket entities.RawTicket,
+	tags []entities.Tag,
+) *entities.Ticket {
+	processedTags := make([]entities.Tag, len(ticket.TagIDs))
+	for tagIndex := range ticket.TagIDs {
+		processedTags[tagIndex] = entities.Tag{ID: ticket.TagIDs[tagIndex]}
+	}
+
+	if tags != nil { // Soft processing if tags were received not to have distributed monolith antipattern.
+		tagsMap := make(map[uint32]entities.Tag)
+		for _, tag := range tags {
+			tagsMap[tag.ID] = tag
+		}
+
+		for i, tag := range processedTags {
+			if _, ok := tagsMap[tag.ID]; ok {
+				processedTags[i].Name = tagsMap[tag.ID].Name
+			}
+		}
+	}
+
+	return &entities.Ticket{
+		ID:          ticket.ID,
+		UserID:      ticket.UserID,
+		CategoryID:  ticket.CategoryID,
+		Name:        ticket.Name,
+		Description: ticket.Description,
+		Price:       ticket.Price,
+		Quantity:    ticket.Quantity,
+		CreatedAt:   ticket.CreatedAt,
+		UpdatedAt:   ticket.UpdatedAt,
+		Tags:        processedTags,
+		Attachments: ticket.Attachments,
+	}
 }

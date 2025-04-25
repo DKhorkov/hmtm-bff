@@ -10,6 +10,11 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
+type NotificationsService struct {
+	notificationsRepository interfaces.NotificationsRepository
+	logger                  logging.Logger
+}
+
 func NewNotificationsService(
 	notificationsRepository interfaces.NotificationsRepository,
 	logger logging.Logger,
@@ -18,11 +23,6 @@ func NewNotificationsService(
 		notificationsRepository: notificationsRepository,
 		logger:                  logger,
 	}
-}
-
-type NotificationsService struct {
-	notificationsRepository interfaces.NotificationsRepository
-	logger                  logging.Logger
 }
 
 func (service *NotificationsService) GetUserEmailCommunications(
