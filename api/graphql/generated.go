@@ -101,6 +101,7 @@ type ComplexityRoot struct {
 		Categories            func(childComplexity int) int
 		Category              func(childComplexity int, id string) int
 		Master                func(childComplexity int, id string) int
+		MasterByUser          func(childComplexity int) int
 		MasterToys            func(childComplexity int, masterID string) int
 		Masters               func(childComplexity int) int
 		Me                    func(childComplexity int) int
@@ -229,6 +230,7 @@ type QueryResolver interface {
 	User(ctx context.Context, id string) (*entities.User, error)
 	Me(ctx context.Context) (*entities.User, error)
 	Master(ctx context.Context, id string) (*entities.Master, error)
+	MasterByUser(ctx context.Context) (*entities.Master, error)
 	Masters(ctx context.Context) ([]*entities.Master, error)
 	MasterToys(ctx context.Context, masterID string) ([]*entities.Toy, error)
 	Toy(ctx context.Context, id string) (*entities.Toy, error)
@@ -635,6 +637,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Master(childComplexity, args["id"].(string)), true
+
+	case "Query.masterByUser":
+		if e.complexity.Query.MasterByUser == nil {
+			break
+		}
+
+		return e.complexity.Query.MasterByUser(childComplexity), true
 
 	case "Query.masterToys":
 		if e.complexity.Query.MasterToys == nil {
@@ -4278,6 +4287,62 @@ func (ec *executionContext) fieldContext_Query_master(ctx context.Context, field
 	if fc.Args, err = ec.field_Query_master_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_masterByUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_masterByUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().MasterByUser(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Master)
+	fc.Result = res
+	return ec.marshalNMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_masterByUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Master_id(ctx, field)
+			case "user":
+				return ec.fieldContext_Master_user(ctx, field)
+			case "info":
+				return ec.fieldContext_Master_info(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Master_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Master_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Master", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -10942,6 +11007,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_master(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "masterByUser":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_masterByUser(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

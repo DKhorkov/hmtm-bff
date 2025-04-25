@@ -164,7 +164,7 @@ Content-Type: application/json
 Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDIxMTUzNjUsInZhbHVlIjozMX0.J1sCJmskFP7K6iMRXA6MORHrNRqTgmfHRr6rfliHOqo
 
 {
-"query": "query { myResponds { id ticket { id user { id displayName email } category { id name } name description price quantity createdAt updatedAt tags { id name } attachments { id ticketID link createdAt updatedAt } } master { id user { id displayName email } info createdAt updatedAt } price comment createdAt updatedAt } }"
+  "query": "query { myResponds { id ticket { id user { id displayName email } category { id name } name description price quantity createdAt updatedAt tags { id name } attachments { id ticketID link createdAt updatedAt } } master { id user { id displayName email } info createdAt updatedAt } price comment createdAt updatedAt } }"
 }
 
 ###
@@ -364,4 +364,14 @@ Content-Type: application/json
       "newPassword": "Qwer1234@"
     }
   }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDU1ODk3NTYsInZhbHVlIjozMX0.jpBGjGAjw9yc83D8bSi8fxu-aT5DBv9kK3H-CONToK8
+
+{
+  "query": "query { masterByUser { id user { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } info createdAt updatedAt } }"
 }

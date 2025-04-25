@@ -196,6 +196,15 @@ func (useCases *UseCases) GetMasterByID(ctx context.Context, id uint64) (*entiti
 	return useCases.toysService.GetMasterByID(ctx, id)
 }
 
+func (useCases *UseCases) GetMasterByUser(ctx context.Context, accessToken string) (*entities.Master, error) {
+	user, err := useCases.GetMe(ctx, accessToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return useCases.toysService.GetMasterByUser(ctx, user.ID)
+}
+
 func (useCases *UseCases) RegisterMaster(
 	ctx context.Context,
 	rawMasterData entities.RawRegisterMasterDTO,

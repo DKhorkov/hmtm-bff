@@ -106,6 +106,7 @@ type Query {
 
     # Toys queries:
     master(id: ID!): Master!
+    masterByUser: Master!
     masters: [Master!]
     masterToys(masterId: ID!): [Toy!]
     toy(id: ID!): Toy!

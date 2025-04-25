@@ -5198,3 +5198,102 @@ func TestToyResolver_Quantity(t *testing.T) {
 		})
 	}
 }
+
+func TestQueryResolver_MasterByUser(t *testing.T) {
+	validAccessToken := &http.Cookie{
+		Name:  accessTokenCookieName,
+		Value: "valid_access_token",
+	}
+
+	master := &entities.Master{
+		ID:        masterID,
+		UserID:    user.ID,
+		Info:      pointers.New("Tes master"),
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	testCases := []struct {
+		name           string
+		prepareContext func(ctx context.Context) context.Context
+		setupMocks     func(useCases *mockusecases.MockUseCases)
+		expected       *entities.Master
+		expectedError  error
+		errorExpected  bool
+	}{
+		{
+			name: "successful get master by user",
+			prepareContext: func(ctx context.Context) context.Context {
+				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					GetMasterByUser(gomock.Any(), validAccessToken.Value).
+					Return(master, nil).
+					Times(1)
+			},
+			expected: master,
+		},
+		{
+			name:          "access token not found",
+			expectedError: &cookies.NotFoundError{Message: accessTokenCookieName},
+			errorExpected: true,
+		},
+		{
+			name: "use case error",
+			prepareContext: func(ctx context.Context) context.Context {
+				invalidToken := &http.Cookie{
+					Name:  accessTokenCookieName,
+					Value: "invalid_token",
+				}
+				return contextlib.WithValue(ctx, accessTokenCookieName, invalidToken)
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					GetMasterByUser(gomock.Any(), "invalid_token").
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	resolver := &queryResolver{
+		Resolver: NewResolver(
+			useCases,
+			logger,
+			config.CookiesConfig{},
+		),
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			testCtx := ctx
+			if tc.prepareContext != nil {
+				testCtx = tc.prepareContext(testCtx)
+			}
+
+			if tc.setupMocks != nil {
+				tc.setupMocks(useCases)
+			}
+
+			actual, err := resolver.MasterByUser(testCtx)
+
+			if tc.errorExpected {
+				require.Error(t, err)
+				if tc.expectedError != nil {
+					require.IsType(t, err, tc.expectedError)
+				}
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
