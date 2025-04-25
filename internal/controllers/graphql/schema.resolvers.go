@@ -604,6 +604,16 @@ func (r *queryResolver) Master(ctx context.Context, id string) (*entities.Master
 	return r.useCases.GetMasterByID(ctx, uint64(masterID))
 }
 
+// MasterByUser is the resolver for the masterByUser field.
+func (r *queryResolver) MasterByUser(ctx context.Context) (*entities.Master, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	return r.useCases.GetMasterByUser(ctx, accessToken.Value)
+}
+
 // Masters is the resolver for the masters field.
 func (r *queryResolver) Masters(ctx context.Context) ([]*entities.Master, error) {
 	masters, err := r.useCases.GetAllMasters(ctx)

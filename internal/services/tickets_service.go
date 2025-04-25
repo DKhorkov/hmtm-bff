@@ -10,6 +10,11 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
+type TicketsService struct {
+	ticketsRepository interfaces.TicketsRepository
+	logger            logging.Logger
+}
+
 func NewTicketsService(
 	ticketsRepository interfaces.TicketsRepository,
 	logger logging.Logger,
@@ -18,11 +23,6 @@ func NewTicketsService(
 		ticketsRepository: ticketsRepository,
 		logger:            logger,
 	}
-}
-
-type TicketsService struct {
-	ticketsRepository interfaces.TicketsRepository
-	logger            logging.Logger
 }
 
 func (service *TicketsService) CreateTicket(

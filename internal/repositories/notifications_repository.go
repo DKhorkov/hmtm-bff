@@ -9,12 +9,12 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewNotificationsRepository(client interfaces.NotificationsClient) *NotificationsRepository {
-	return &NotificationsRepository{client: client}
-}
-
 type NotificationsRepository struct {
 	client interfaces.NotificationsClient
+}
+
+func NewNotificationsRepository(client interfaces.NotificationsClient) *NotificationsRepository {
+	return &NotificationsRepository{client: client}
 }
 
 func (repo *NotificationsRepository) GetUserEmailCommunications(

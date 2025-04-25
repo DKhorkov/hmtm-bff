@@ -10,12 +10,12 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-func NewToysRepository(client interfaces.ToysClient) *ToysRepository {
-	return &ToysRepository{client: client}
-}
-
 type ToysRepository struct {
 	client interfaces.ToysClient
+}
+
+func NewToysRepository(client interfaces.ToysClient) *ToysRepository {
+	return &ToysRepository{client: client}
 }
 
 func (repo *ToysRepository) AddToy(
@@ -234,66 +234,6 @@ func (repo *ToysRepository) GetTagByID(ctx context.Context, id uint32) (*entitie
 	return repo.processTagResponse(response), nil
 }
 
-func (repo *ToysRepository) processTagResponse(tagResponse *toys.GetTagOut) *entities.Tag {
-	return &entities.Tag{
-		ID:   tagResponse.GetID(),
-		Name: tagResponse.GetName(),
-	}
-}
-
-func (repo *ToysRepository) processMasterResponse(
-	masterResponse *toys.GetMasterOut,
-) *entities.Master {
-	return &entities.Master{
-		ID:        masterResponse.GetID(),
-		UserID:    masterResponse.GetUserID(),
-		Info:      masterResponse.Info,
-		CreatedAt: masterResponse.GetCreatedAt().AsTime(),
-		UpdatedAt: masterResponse.GetUpdatedAt().AsTime(),
-	}
-}
-
-func (repo *ToysRepository) processCategoryResponse(
-	categoryResponse *toys.GetCategoryOut,
-) *entities.Category {
-	return &entities.Category{
-		ID:   categoryResponse.GetID(),
-		Name: categoryResponse.GetName(),
-	}
-}
-
-func (repo *ToysRepository) processToyResponse(toyResponse *toys.GetToyOut) *entities.Toy {
-	tags := make([]entities.Tag, len(toyResponse.GetTags()))
-	for i, tagResponse := range toyResponse.GetTags() {
-		tags[i] = *repo.processTagResponse(tagResponse)
-	}
-
-	attachments := make([]entities.ToyAttachment, len(toyResponse.GetAttachments()))
-	for i, attachment := range toyResponse.GetAttachments() {
-		attachments[i] = entities.ToyAttachment{
-			ID:        attachment.GetID(),
-			ToyID:     attachment.GetToyID(),
-			Link:      attachment.GetLink(),
-			CreatedAt: attachment.GetCreatedAt().AsTime(),
-			UpdatedAt: attachment.GetUpdatedAt().AsTime(),
-		}
-	}
-
-	return &entities.Toy{
-		ID:          toyResponse.GetID(),
-		MasterID:    toyResponse.GetMasterID(),
-		CategoryID:  toyResponse.GetCategoryID(),
-		Name:        toyResponse.GetName(),
-		Description: toyResponse.GetDescription(),
-		Price:       toyResponse.GetPrice(),
-		Quantity:    toyResponse.GetQuantity(),
-		Tags:        tags,
-		Attachments: attachments,
-		CreatedAt:   toyResponse.GetCreatedAt().AsTime(),
-		UpdatedAt:   toyResponse.GetUpdatedAt().AsTime(),
-	}
-}
-
 func (repo *ToysRepository) CreateTags(
 	ctx context.Context,
 	tagsData []entities.CreateTagDTO,
@@ -377,4 +317,64 @@ func (repo *ToysRepository) UpdateMaster(
 	)
 
 	return err
+}
+
+func (repo *ToysRepository) processTagResponse(tagResponse *toys.GetTagOut) *entities.Tag {
+	return &entities.Tag{
+		ID:   tagResponse.GetID(),
+		Name: tagResponse.GetName(),
+	}
+}
+
+func (repo *ToysRepository) processMasterResponse(
+	masterResponse *toys.GetMasterOut,
+) *entities.Master {
+	return &entities.Master{
+		ID:        masterResponse.GetID(),
+		UserID:    masterResponse.GetUserID(),
+		Info:      masterResponse.Info,
+		CreatedAt: masterResponse.GetCreatedAt().AsTime(),
+		UpdatedAt: masterResponse.GetUpdatedAt().AsTime(),
+	}
+}
+
+func (repo *ToysRepository) processCategoryResponse(
+	categoryResponse *toys.GetCategoryOut,
+) *entities.Category {
+	return &entities.Category{
+		ID:   categoryResponse.GetID(),
+		Name: categoryResponse.GetName(),
+	}
+}
+
+func (repo *ToysRepository) processToyResponse(toyResponse *toys.GetToyOut) *entities.Toy {
+	tags := make([]entities.Tag, len(toyResponse.GetTags()))
+	for i, tagResponse := range toyResponse.GetTags() {
+		tags[i] = *repo.processTagResponse(tagResponse)
+	}
+
+	attachments := make([]entities.ToyAttachment, len(toyResponse.GetAttachments()))
+	for i, attachment := range toyResponse.GetAttachments() {
+		attachments[i] = entities.ToyAttachment{
+			ID:        attachment.GetID(),
+			ToyID:     attachment.GetToyID(),
+			Link:      attachment.GetLink(),
+			CreatedAt: attachment.GetCreatedAt().AsTime(),
+			UpdatedAt: attachment.GetUpdatedAt().AsTime(),
+		}
+	}
+
+	return &entities.Toy{
+		ID:          toyResponse.GetID(),
+		MasterID:    toyResponse.GetMasterID(),
+		CategoryID:  toyResponse.GetCategoryID(),
+		Name:        toyResponse.GetName(),
+		Description: toyResponse.GetDescription(),
+		Price:       toyResponse.GetPrice(),
+		Quantity:    toyResponse.GetQuantity(),
+		Tags:        tags,
+		Attachments: attachments,
+		CreatedAt:   toyResponse.GetCreatedAt().AsTime(),
+		UpdatedAt:   toyResponse.GetUpdatedAt().AsTime(),
+	}
 }

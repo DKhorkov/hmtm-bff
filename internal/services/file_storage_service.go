@@ -10,6 +10,11 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
+type FileStorageService struct {
+	fileStorageRepository interfaces.FileStorageRepository
+	logger                logging.Logger
+}
+
 func NewFileStorageService(
 	fileStorageRepository interfaces.FileStorageRepository,
 	logger logging.Logger,
@@ -18,11 +23,6 @@ func NewFileStorageService(
 		fileStorageRepository: fileStorageRepository,
 		logger:                logger,
 	}
-}
-
-type FileStorageService struct {
-	fileStorageRepository interfaces.FileStorageRepository
-	logger                logging.Logger
 }
 
 func (service *FileStorageService) Upload(

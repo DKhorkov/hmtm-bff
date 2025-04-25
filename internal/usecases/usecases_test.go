@@ -9389,3 +9389,164 @@ func TestUseCases_GetAllCategories(t *testing.T) {
 		})
 	}
 }
+
+func TestUseCases_GetMasterByUser(t *testing.T) {
+	type args struct {
+		ctx         context.Context
+		accessToken string
+	}
+
+	// Test data
+	testUser := &entities.User{
+		ID:          1,
+		DisplayName: "Test User",
+		Email:       "test@example.com",
+	}
+
+	testMaster := &entities.Master{
+		ID:        1,
+		UserID:    testUser.ID,
+		Info:      pointers.New("Test Bio"),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	testCases := []struct {
+		name       string
+		args       args
+		setupMocks func(
+			ssoService *mockservices.MockSsoService,
+			toysService *mockservices.MockToysService,
+		)
+		expected      *entities.Master
+		errorExpected bool
+		expectedError error
+	}{
+		{
+			name: "successful get master by user",
+			args: args{
+				ctx:         context.Background(),
+				accessToken: "valid_token",
+			},
+			setupMocks: func(
+				ssoService *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+			) {
+				ssoService.
+					EXPECT().
+					GetMe(gomock.Any(), "valid_token").
+					Return(testUser, nil).
+					Times(1)
+
+				toysService.
+					EXPECT().
+					GetMasterByUser(gomock.Any(), testUser.ID).
+					Return(testMaster, nil).
+					Times(1)
+			},
+			expected:      testMaster,
+			errorExpected: false,
+		},
+		{
+			name: "invalid access token",
+			args: args{
+				ctx:         context.Background(),
+				accessToken: "invalid_token",
+			},
+			setupMocks: func(
+				ssoService *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+			) {
+				ssoService.
+					EXPECT().
+					GetMe(gomock.Any(), "invalid_token").
+					Return(nil, errors.New("invalid token")).
+					Times(1)
+			},
+			expected:      nil,
+			errorExpected: true,
+			expectedError: errors.New("invalid token"),
+		},
+		{
+			name: "master not found",
+			args: args{
+				ctx:         context.Background(),
+				accessToken: "valid_token",
+			},
+			setupMocks: func(
+				ssoService *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+			) {
+				ssoService.
+					EXPECT().
+					GetMe(gomock.Any(), "valid_token").
+					Return(testUser, nil).
+					Times(1)
+
+				toysService.
+					EXPECT().
+					GetMasterByUser(gomock.Any(), testUser.ID).
+					Return(nil, errors.New("master not found")).
+					Times(1)
+			},
+			expected:      nil,
+			errorExpected: true,
+			expectedError: errors.New("master not found"),
+		},
+		{
+			name: "service error",
+			args: args{
+				ctx:         context.Background(),
+				accessToken: "valid_token",
+			},
+			setupMocks: func(
+				ssoService *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+			) {
+				ssoService.
+					EXPECT().
+					GetMe(gomock.Any(), "valid_token").
+					Return(testUser, nil).
+					Times(1)
+
+				toysService.
+					EXPECT().
+					GetMasterByUser(gomock.Any(), testUser.ID).
+					Return(nil, errors.New("service error")).
+					Times(1)
+			},
+			expected:      nil,
+			errorExpected: true,
+			expectedError: errors.New("service error"),
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	useCases := &UseCases{
+		ssoService:  ssoService,
+		toysService: toysService,
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(ssoService, toysService)
+			}
+
+			actual, err := useCases.GetMasterByUser(tc.args.ctx, tc.args.accessToken)
+
+			if tc.errorExpected {
+				require.Error(t, err)
+				if tc.expectedError != nil {
+					require.EqualError(t, err, tc.expectedError.Error())
+				}
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
