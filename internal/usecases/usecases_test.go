@@ -5592,7 +5592,7 @@ func TestUseCases_UpdateToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -5688,7 +5688,7 @@ func TestUseCases_UpdateToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(nil, errors.New("master not found")).
 					Times(1)
 			},
@@ -5721,7 +5721,7 @@ func TestUseCases_UpdateToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -5765,7 +5765,7 @@ func TestUseCases_UpdateToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -5810,7 +5810,7 @@ func TestUseCases_UpdateToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -5863,7 +5863,7 @@ func TestUseCases_UpdateToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -5916,7 +5916,7 @@ func TestUseCases_UpdateToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -5995,7 +5995,7 @@ func TestUseCases_UpdateToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6056,7 +6056,7 @@ func TestUseCases_UpdateToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6184,7 +6184,7 @@ func TestUseCases_DeleteToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6238,7 +6238,7 @@ func TestUseCases_DeleteToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6300,7 +6300,7 @@ func TestUseCases_DeleteToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(nil, errors.New("master not found")).
 					Times(1)
 			},
@@ -6331,7 +6331,7 @@ func TestUseCases_DeleteToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6373,7 +6373,7 @@ func TestUseCases_DeleteToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6418,7 +6418,7 @@ func TestUseCases_DeleteToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6480,7 +6480,7 @@ func TestUseCases_DeleteToy(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6598,7 +6598,7 @@ func TestUseCases_UpdateRespond(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6671,7 +6671,7 @@ func TestUseCases_UpdateRespond(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(nil, errors.New("master not found")).
 					Times(1)
 			},
@@ -6704,7 +6704,7 @@ func TestUseCases_UpdateRespond(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6748,7 +6748,7 @@ func TestUseCases_UpdateRespond(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6794,7 +6794,7 @@ func TestUseCases_UpdateRespond(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6907,7 +6907,7 @@ func TestUseCases_DeleteRespond(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -6969,7 +6969,7 @@ func TestUseCases_DeleteRespond(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(nil, errors.New("master not found")).
 					Times(1)
 			},
@@ -7000,7 +7000,7 @@ func TestUseCases_DeleteRespond(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -7042,7 +7042,7 @@ func TestUseCases_DeleteRespond(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -7084,7 +7084,7 @@ func TestUseCases_DeleteRespond(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 
@@ -9390,10 +9390,10 @@ func TestUseCases_GetAllCategories(t *testing.T) {
 	}
 }
 
-func TestUseCases_GetMasterByUser(t *testing.T) {
+func TestUseCases_GetMasterByUserID(t *testing.T) {
 	type args struct {
-		ctx         context.Context
-		accessToken string
+		ctx    context.Context
+		userID uint64
 	}
 
 	// Test data
@@ -9423,24 +9423,18 @@ func TestUseCases_GetMasterByUser(t *testing.T) {
 		expectedError error
 	}{
 		{
-			name: "successful get master by user",
+			name: "successful get master by user id",
 			args: args{
-				ctx:         context.Background(),
-				accessToken: "valid_token",
+				ctx:    context.Background(),
+				userID: testUser.ID,
 			},
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
 				toysService *mockservices.MockToysService,
 			) {
-				ssoService.
-					EXPECT().
-					GetMe(gomock.Any(), "valid_token").
-					Return(testUser, nil).
-					Times(1)
-
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), testUser.ID).
+					GetMasterByUserID(gomock.Any(), testUser.ID).
 					Return(testMaster, nil).
 					Times(1)
 			},
@@ -9448,44 +9442,18 @@ func TestUseCases_GetMasterByUser(t *testing.T) {
 			errorExpected: false,
 		},
 		{
-			name: "invalid access token",
-			args: args{
-				ctx:         context.Background(),
-				accessToken: "invalid_token",
-			},
-			setupMocks: func(
-				ssoService *mockservices.MockSsoService,
-				toysService *mockservices.MockToysService,
-			) {
-				ssoService.
-					EXPECT().
-					GetMe(gomock.Any(), "invalid_token").
-					Return(nil, errors.New("invalid token")).
-					Times(1)
-			},
-			expected:      nil,
-			errorExpected: true,
-			expectedError: errors.New("invalid token"),
-		},
-		{
 			name: "master not found",
 			args: args{
-				ctx:         context.Background(),
-				accessToken: "valid_token",
+				ctx:    context.Background(),
+				userID: testUser.ID,
 			},
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
 				toysService *mockservices.MockToysService,
 			) {
-				ssoService.
-					EXPECT().
-					GetMe(gomock.Any(), "valid_token").
-					Return(testUser, nil).
-					Times(1)
-
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), testUser.ID).
+					GetMasterByUserID(gomock.Any(), testUser.ID).
 					Return(nil, errors.New("master not found")).
 					Times(1)
 			},
@@ -9496,22 +9464,16 @@ func TestUseCases_GetMasterByUser(t *testing.T) {
 		{
 			name: "service error",
 			args: args{
-				ctx:         context.Background(),
-				accessToken: "valid_token",
+				ctx:    context.Background(),
+				userID: testUser.ID,
 			},
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
 				toysService *mockservices.MockToysService,
 			) {
-				ssoService.
-					EXPECT().
-					GetMe(gomock.Any(), "valid_token").
-					Return(testUser, nil).
-					Times(1)
-
 				toysService.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), testUser.ID).
+					GetMasterByUserID(gomock.Any(), testUser.ID).
 					Return(nil, errors.New("service error")).
 					Times(1)
 			},
@@ -9535,7 +9497,7 @@ func TestUseCases_GetMasterByUser(t *testing.T) {
 				tc.setupMocks(ssoService, toysService)
 			}
 
-			actual, err := useCases.GetMasterByUser(tc.args.ctx, tc.args.accessToken)
+			actual, err := useCases.GetMasterByUserID(tc.args.ctx, tc.args.userID)
 
 			if tc.errorExpected {
 				require.Error(t, err)

@@ -1173,7 +1173,7 @@ func TestToysService_DeleteToy(t *testing.T) {
 	}
 }
 
-func TestToysService_GetMasterByUser(t *testing.T) {
+func TestToysService_GetMasterByUserID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	toysRepository := mockrepositories.NewMockToysRepository(ctrl)
 	logger := mocklogging.NewMockLogger(ctrl)
@@ -1194,7 +1194,7 @@ func TestToysService_GetMasterByUser(t *testing.T) {
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(&entities.Master{
 						ID:        1,
 						UserID:    1,
@@ -1219,7 +1219,7 @@ func TestToysService_GetMasterByUser(t *testing.T) {
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), uint64(1)).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(nil, errors.New("not found")).
 					Times(1)
 
@@ -1239,7 +1239,7 @@ func TestToysService_GetMasterByUser(t *testing.T) {
 				tc.setupMocks(toysRepository, logger)
 			}
 
-			master, err := service.GetMasterByUser(context.Background(), tc.userID)
+			master, err := service.GetMasterByUserID(context.Background(), tc.userID)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, master)

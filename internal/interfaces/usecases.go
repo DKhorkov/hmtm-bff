@@ -41,7 +41,7 @@ type UseCases interface {
 	GetMyToys(ctx context.Context, accessToken string) ([]entities.Toy, error)
 	GetAllMasters(ctx context.Context) ([]entities.Master, error)
 	GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error)
-	GetMasterByUser(ctx context.Context, accessToken string) (*entities.Master, error)
+	GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error)
 	RegisterMaster(
 		ctx context.Context,
 		rawMasterData entities.RawRegisterMasterDTO,

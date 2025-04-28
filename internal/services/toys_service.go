@@ -256,11 +256,11 @@ func (service *ToysService) DeleteToy(ctx context.Context, id uint64) error {
 	return err
 }
 
-func (service *ToysService) GetMasterByUser(
+func (service *ToysService) GetMasterByUserID(
 	ctx context.Context,
 	userID uint64,
 ) (*entities.Master, error) {
-	master, err := service.toysRepository.GetMasterByUser(ctx, userID)
+	master, err := service.toysRepository.GetMasterByUserID(ctx, userID)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,

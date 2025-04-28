@@ -375,3 +375,15 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDU1ODk3NTY
 {
   "query": "query { masterByUser { id user { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } info createdAt updatedAt } }"
 }
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query MasterByUser($userId: ID!) { masterByUser(userId: $userId) { id user { id displayName email } info createdAt updatedAt } }",
+  "variables": {
+    "userId": "31"
+  }
+}

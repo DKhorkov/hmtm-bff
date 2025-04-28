@@ -196,13 +196,8 @@ func (useCases *UseCases) GetMasterByID(ctx context.Context, id uint64) (*entiti
 	return useCases.toysService.GetMasterByID(ctx, id)
 }
 
-func (useCases *UseCases) GetMasterByUser(ctx context.Context, accessToken string) (*entities.Master, error) {
-	user, err := useCases.GetMe(ctx, accessToken)
-	if err != nil {
-		return nil, err
-	}
-
-	return useCases.toysService.GetMasterByUser(ctx, user.ID)
+func (useCases *UseCases) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
+	return useCases.toysService.GetMasterByUserID(ctx, userID)
 }
 
 func (useCases *UseCases) RegisterMaster(
@@ -581,7 +576,7 @@ func (useCases *UseCases) UpdateToy(
 		return err
 	}
 
-	master, err := useCases.toysService.GetMasterByUser(ctx, user.ID)
+	master, err := useCases.GetMasterByUserID(ctx, user.ID)
 	if err != nil {
 		return err
 	}
@@ -723,7 +718,7 @@ func (useCases *UseCases) DeleteToy(ctx context.Context, accessToken string, id 
 		return err
 	}
 
-	master, err := useCases.toysService.GetMasterByUser(ctx, user.ID)
+	master, err := useCases.GetMasterByUserID(ctx, user.ID)
 	if err != nil {
 		return err
 	}
@@ -785,7 +780,7 @@ func (useCases *UseCases) UpdateRespond(
 		return err
 	}
 
-	master, err := useCases.toysService.GetMasterByUser(ctx, user.ID)
+	master, err := useCases.GetMasterByUserID(ctx, user.ID)
 	if err != nil {
 		return err
 	}
@@ -821,7 +816,7 @@ func (useCases *UseCases) DeleteRespond(ctx context.Context, accessToken string,
 		return err
 	}
 
-	master, err := useCases.toysService.GetMasterByUser(ctx, user.ID)
+	master, err := useCases.GetMasterByUserID(ctx, user.ID)
 	if err != nil {
 		return err
 	}
