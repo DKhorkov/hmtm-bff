@@ -287,7 +287,7 @@ func (repo *ToysRepository) DeleteToy(ctx context.Context, id uint64) error {
 	return err
 }
 
-func (repo *ToysRepository) GetMasterByUser(
+func (repo *ToysRepository) GetMasterByUserID(
 	ctx context.Context,
 	userID uint64,
 ) (*entities.Master, error) {

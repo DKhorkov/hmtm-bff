@@ -605,13 +605,13 @@ func (r *queryResolver) Master(ctx context.Context, id string) (*entities.Master
 }
 
 // MasterByUser is the resolver for the masterByUser field.
-func (r *queryResolver) MasterByUser(ctx context.Context) (*entities.Master, error) {
-	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+func (r *queryResolver) MasterByUser(ctx context.Context, userID string) (*entities.Master, error) {
+	intUserID, err := strconv.Atoi(userID)
 	if err != nil {
-		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
+		return nil, err
 	}
 
-	return r.useCases.GetMasterByUser(ctx, accessToken.Value)
+	return r.useCases.GetMasterByUserID(ctx, uint64(intUserID))
 }
 
 // Masters is the resolver for the masters field.

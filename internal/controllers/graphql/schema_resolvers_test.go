@@ -5199,12 +5199,7 @@ func TestToyResolver_Quantity(t *testing.T) {
 	}
 }
 
-func TestQueryResolver_MasterByUser(t *testing.T) {
-	validAccessToken := &http.Cookie{
-		Name:  accessTokenCookieName,
-		Value: "valid_access_token",
-	}
-
+func TestQueryResolver_MasterByUserID(t *testing.T) {
 	master := &entities.Master{
 		ID:        masterID,
 		UserID:    user.ID,
@@ -5215,6 +5210,7 @@ func TestQueryResolver_MasterByUser(t *testing.T) {
 
 	testCases := []struct {
 		name           string
+		userID         string
 		prepareContext func(ctx context.Context) context.Context
 		setupMocks     func(useCases *mockusecases.MockUseCases)
 		expected       *entities.Master
@@ -5222,37 +5218,24 @@ func TestQueryResolver_MasterByUser(t *testing.T) {
 		errorExpected  bool
 	}{
 		{
-			name: "successful get master by user",
-			prepareContext: func(ctx context.Context) context.Context {
-				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
-			},
+			name:   "successful get master by user id",
+			userID: "1",
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), validAccessToken.Value).
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(master, nil).
 					Times(1)
 			},
 			expected: master,
 		},
 		{
-			name:          "access token not found",
-			expectedError: &cookies.NotFoundError{Message: accessTokenCookieName},
-			errorExpected: true,
-		},
-		{
-			name: "use case error",
-			prepareContext: func(ctx context.Context) context.Context {
-				invalidToken := &http.Cookie{
-					Name:  accessTokenCookieName,
-					Value: "invalid_token",
-				}
-				return contextlib.WithValue(ctx, accessTokenCookieName, invalidToken)
-			},
+			name:   "use case error",
+			userID: "1",
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMasterByUser(gomock.Any(), "invalid_token").
+					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(nil, errors.New("test")).
 					Times(1)
 			},
@@ -5282,7 +5265,7 @@ func TestQueryResolver_MasterByUser(t *testing.T) {
 				tc.setupMocks(useCases)
 			}
 
-			actual, err := resolver.MasterByUser(testCtx)
+			actual, err := resolver.MasterByUser(testCtx, tc.userID)
 
 			if tc.errorExpected {
 				require.Error(t, err)

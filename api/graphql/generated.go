@@ -101,7 +101,7 @@ type ComplexityRoot struct {
 		Categories            func(childComplexity int) int
 		Category              func(childComplexity int, id string) int
 		Master                func(childComplexity int, id string) int
-		MasterByUser          func(childComplexity int) int
+		MasterByUser          func(childComplexity int, userID string) int
 		MasterToys            func(childComplexity int, masterID string) int
 		Masters               func(childComplexity int) int
 		Me                    func(childComplexity int) int
@@ -230,7 +230,7 @@ type QueryResolver interface {
 	User(ctx context.Context, id string) (*entities.User, error)
 	Me(ctx context.Context) (*entities.User, error)
 	Master(ctx context.Context, id string) (*entities.Master, error)
-	MasterByUser(ctx context.Context) (*entities.Master, error)
+	MasterByUser(ctx context.Context, userID string) (*entities.Master, error)
 	Masters(ctx context.Context) ([]*entities.Master, error)
 	MasterToys(ctx context.Context, masterID string) ([]*entities.Toy, error)
 	Toy(ctx context.Context, id string) (*entities.Toy, error)
@@ -643,7 +643,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.MasterByUser(childComplexity), true
+		args, err := ec.field_Query_masterByUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.MasterByUser(childComplexity, args["userId"].(string)), true
 
 	case "Query.masterToys":
 		if e.complexity.Query.MasterToys == nil {
@@ -1983,6 +1988,38 @@ func (ec *executionContext) field_Query_category_argsID(
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_masterByUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_masterByUser_argsUserID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["userId"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_masterByUser_argsUserID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["userId"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+	if tmp, ok := rawArgs["userId"]; ok {
 		return ec.unmarshalNID2string(ctx, tmp)
 	}
 
@@ -4305,7 +4342,7 @@ func (ec *executionContext) _Query_masterByUser(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().MasterByUser(rctx)
+		return ec.resolvers.Query().MasterByUser(rctx, fc.Args["userId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4322,7 +4359,7 @@ func (ec *executionContext) _Query_masterByUser(ctx context.Context, field graph
 	return ec.marshalNMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMaster(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_masterByUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_masterByUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4343,6 +4380,17 @@ func (ec *executionContext) fieldContext_Query_masterByUser(_ context.Context, f
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Master", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_masterByUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }

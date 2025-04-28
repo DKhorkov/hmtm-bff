@@ -44,7 +44,7 @@ type ToysRepository interface {
 	CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error)
 	UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error
 	DeleteToy(ctx context.Context, id uint64) error
-	GetMasterByUser(ctx context.Context, userID uint64) (*entities.Master, error)
+	GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error)
 	UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error
 }
 

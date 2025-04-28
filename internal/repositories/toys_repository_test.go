@@ -1236,7 +1236,7 @@ func TestToysRepository_DeleteToy(t *testing.T) {
 	}
 }
 
-func TestToysRepository_GetMasterByUser(t *testing.T) {
+func TestToysRepository_GetMasterByUserID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	toysClient := mockclients.NewMockToysClient(ctrl)
 	repo := NewToysRepository(toysClient)
@@ -1302,7 +1302,7 @@ func TestToysRepository_GetMasterByUser(t *testing.T) {
 				tc.setupMocks(toysClient)
 			}
 
-			master, err := repo.GetMasterByUser(context.Background(), tc.userID)
+			master, err := repo.GetMasterByUserID(context.Background(), tc.userID)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, master)

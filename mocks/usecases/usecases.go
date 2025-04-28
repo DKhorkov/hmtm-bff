@@ -262,19 +262,19 @@ func (mr *MockUseCasesMockRecorder) GetMasterByID(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterByID", reflect.TypeOf((*MockUseCases)(nil).GetMasterByID), ctx, id)
 }
 
-// GetMasterByUser mocks base method.
-func (m *MockUseCases) GetMasterByUser(ctx context.Context, accessToken string) (*entities.Master, error) {
+// GetMasterByUserID mocks base method.
+func (m *MockUseCases) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMasterByUser", ctx, accessToken)
+	ret := m.ctrl.Call(m, "GetMasterByUserID", ctx, userID)
 	ret0, _ := ret[0].(*entities.Master)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetMasterByUser indicates an expected call of GetMasterByUser.
-func (mr *MockUseCasesMockRecorder) GetMasterByUser(ctx, accessToken any) *gomock.Call {
+// GetMasterByUserID indicates an expected call of GetMasterByUserID.
+func (mr *MockUseCasesMockRecorder) GetMasterByUserID(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterByUser", reflect.TypeOf((*MockUseCases)(nil).GetMasterByUser), ctx, accessToken)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterByUserID", reflect.TypeOf((*MockUseCases)(nil).GetMasterByUserID), ctx, userID)
 }
 
 // GetMasterToys mocks base method.
