@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
@@ -68,10 +67,18 @@ func (repo *SsoRepository) GetUserByEmail(
 	return repo.processUserResponse(response), nil
 }
 
-func (repo *SsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, error) {
+func (repo *SsoRepository) GetUsers(ctx context.Context, pagination *entities.Pagination) ([]entities.User, error) {
+	in := &sso.GetUsersIn{}
+	if pagination != nil {
+		in.Pagination = &sso.Pagination{
+			Limit:  pagination.Limit,
+			Offset: pagination.Offset,
+		}
+	}
+
 	response, err := repo.client.GetUsers(
 		ctx,
-		&emptypb.Empty{},
+		in,
 	)
 	if err != nil {
 		return nil, err

@@ -144,7 +144,7 @@ func (mr *MockSsoClientMockRecorder) GetUserByEmail(ctx, in any, opts ...any) *g
 }
 
 // GetUsers mocks base method.
-func (m *MockSsoClient) GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*sso.GetUsersOut, error) {
+func (m *MockSsoClient) GetUsers(ctx context.Context, in *sso.GetUsersIn, opts ...grpc.CallOption) (*sso.GetUsersOut, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, in}
 	for _, a := range opts {

@@ -387,3 +387,29 @@ Content-Type: application/json
     "userId": "31"
   }
 }
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query GetUsers($input: GetUsersInput) { users(input: $input) { id displayName email phone createdAt } }",
+  "variables": {
+    "input": {
+      "pagination": {
+        "limit": 2,
+        "offset": 2
+      }
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query { users { id displayName email } }"
+}

@@ -1450,9 +1450,10 @@ func TestUseCases_GetUserByEmail(t *testing.T) {
 	}
 }
 
-func TestUseCases_GetAllUsers(t *testing.T) {
+func TestUseCases_GetUsers(t *testing.T) {
 	testCases := []struct {
 		name       string
+		pagination *entities.Pagination
 		setupMocks func(
 			ssoService *mockservices.MockSsoService,
 			toysService *mockservices.MockToysService,
@@ -1467,6 +1468,10 @@ func TestUseCases_GetAllUsers(t *testing.T) {
 	}{
 		{
 			name: "success with users",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
 				_ *mockservices.MockToysService,
@@ -1488,10 +1493,15 @@ func TestUseCases_GetAllUsers(t *testing.T) {
 						Email:       "user2@example.com",
 					},
 				}
+
 				ssoService.
 					EXPECT().
-					GetAllUsers(
+					GetUsers(
 						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
 					).
 					Return(users, nil).
 					Times(1)
@@ -1512,6 +1522,10 @@ func TestUseCases_GetAllUsers(t *testing.T) {
 		},
 		{
 			name: "success with empty list",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
 				_ *mockservices.MockToysService,
@@ -1523,8 +1537,12 @@ func TestUseCases_GetAllUsers(t *testing.T) {
 			) {
 				ssoService.
 					EXPECT().
-					GetAllUsers(
+					GetUsers(
 						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
 					).
 					Return([]entities.User{}, nil).
 					Times(1)
@@ -1534,6 +1552,10 @@ func TestUseCases_GetAllUsers(t *testing.T) {
 		},
 		{
 			name: "error from service",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
 				_ *mockservices.MockToysService,
@@ -1545,7 +1567,13 @@ func TestUseCases_GetAllUsers(t *testing.T) {
 			) {
 				ssoService.
 					EXPECT().
-					GetAllUsers(gomock.Any()).
+					GetUsers(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("database error")).
 					Times(1)
 			},
@@ -1587,7 +1615,7 @@ func TestUseCases_GetAllUsers(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetAllUsers(ctx)
+			actual, err := useCases.GetUsers(ctx, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {

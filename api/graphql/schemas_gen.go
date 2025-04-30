@@ -4,6 +4,7 @@ package graphqlapi
 
 import (
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
 )
 
 type AddToyInput struct {
@@ -46,6 +47,10 @@ type DeleteToyInput struct {
 type ForgetPasswordInput struct {
 	ForgetPasswordToken string `json:"forgetPasswordToken"`
 	NewPassword         string `json:"newPassword"`
+}
+
+type GetUsersInput struct {
+	Pagination *entities.Pagination `json:"pagination,omitempty"`
 }
 
 type LoginUserInput struct {

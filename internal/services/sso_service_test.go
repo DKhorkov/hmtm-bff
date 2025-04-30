@@ -15,7 +15,7 @@ import (
 	mockrepositories "github.com/DKhorkov/hmtm-bff/mocks/repositories"
 )
 
-func TestSsoService_GetAllUsers(t *testing.T) {
+func TestSsoService_GetUsers(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	ssoRepository := mockrepositories.NewMockSsoRepository(ctrl)
 	logger := mocklogging.NewMockLogger(ctrl)
@@ -23,16 +23,27 @@ func TestSsoService_GetAllUsers(t *testing.T) {
 
 	testCases := []struct {
 		name          string
+		pagination    *entities.Pagination
 		setupMocks    func(ssoRepository *mockrepositories.MockSsoRepository, logger *mocklogging.MockLogger)
 		expectedUsers []entities.User
 		errorExpected bool
 	}{
 		{
 			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(ssoRepository *mockrepositories.MockSsoRepository, logger *mocklogging.MockLogger) {
 				ssoRepository.
 					EXPECT().
-					GetAllUsers(gomock.Any()).
+					GetUsers(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.User{{ID: 1, Email: "user@example.com"}}, nil).
 					Times(1)
 			},
@@ -41,10 +52,20 @@ func TestSsoService_GetAllUsers(t *testing.T) {
 		},
 		{
 			name: "error",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(ssoRepository *mockrepositories.MockSsoRepository, logger *mocklogging.MockLogger) {
 				ssoRepository.
 					EXPECT().
-					GetAllUsers(gomock.Any()).
+					GetUsers(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("fetch failed")).
 					Times(1)
 
@@ -64,7 +85,7 @@ func TestSsoService_GetAllUsers(t *testing.T) {
 				tc.setupMocks(ssoRepository, logger)
 			}
 
-			users, err := service.GetAllUsers(context.Background())
+			users, err := service.GetUsers(context.Background(), tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, users)

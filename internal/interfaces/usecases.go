@@ -11,7 +11,7 @@ import (
 //go:generate mockgen -source=usecases.go -destination=../../mocks/usecases/usecases.go -package=mockusecases
 type UseCases interface {
 	// SSO cases:
-	GetAllUsers(ctx context.Context) ([]entities.User, error)
+	GetUsers(ctx context.Context, pagination *entities.Pagination) ([]entities.User, error)
 	GetUserByID(ctx context.Context, id uint64) (*entities.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*entities.User, error)
 	RegisterUser(ctx context.Context, userData entities.RegisterUserDTO) (userID uint64, err error)
