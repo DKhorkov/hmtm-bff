@@ -2590,16 +2590,29 @@ func TestQueryResolver_Users(t *testing.T) {
 
 	testCases := []struct {
 		name          string
+		input         *graphqlapi.GetUsersInput
 		setupMocks    func(useCases *mockusecases.MockUseCases)
 		expected      []*entities.User
 		errorExpected bool
 	}{
 		{
 			name: "successful users retrieval",
+			input: &graphqlapi.GetUsersInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetAllUsers(gomock.Any()).
+					GetUsers(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(testUsers, nil).
 					Times(1)
 			},
@@ -2609,10 +2622,22 @@ func TestQueryResolver_Users(t *testing.T) {
 		},
 		{
 			name: "use case error",
+			input: &graphqlapi.GetUsersInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetAllUsers(gomock.Any()).
+					GetUsers(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("get users error")).
 					Times(1)
 			},
@@ -2640,7 +2665,7 @@ func TestQueryResolver_Users(t *testing.T) {
 				tc.setupMocks(useCases)
 			}
 
-			actual, err := resolver.Users(testCtx)
+			actual, err := resolver.Users(testCtx, tc.input)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {

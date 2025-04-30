@@ -117,8 +117,8 @@ func (useCases *UseCases) GetUserByEmail(
 	return useCases.ssoService.GetUserByEmail(ctx, email)
 }
 
-func (useCases *UseCases) GetAllUsers(ctx context.Context) ([]entities.User, error) {
-	return useCases.ssoService.GetAllUsers(ctx)
+func (useCases *UseCases) GetUsers(ctx context.Context, pagination *entities.Pagination) ([]entities.User, error) {
+	return useCases.ssoService.GetUsers(ctx, pagination)
 }
 
 func (useCases *UseCases) AddToy(

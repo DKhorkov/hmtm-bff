@@ -69,21 +69,6 @@ func (mr *MockSsoRepositoryMockRecorder) ForgetPassword(ctx, forgetPasswordToken
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForgetPassword", reflect.TypeOf((*MockSsoRepository)(nil).ForgetPassword), ctx, forgetPasswordToken, newPassword)
 }
 
-// GetAllUsers mocks base method.
-func (m *MockSsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllUsers", ctx)
-	ret0, _ := ret[0].([]entities.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllUsers indicates an expected call of GetAllUsers.
-func (mr *MockSsoRepositoryMockRecorder) GetAllUsers(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllUsers", reflect.TypeOf((*MockSsoRepository)(nil).GetAllUsers), ctx)
-}
-
 // GetMe mocks base method.
 func (m *MockSsoRepository) GetMe(ctx context.Context, accessToken string) (*entities.User, error) {
 	m.ctrl.T.Helper()
@@ -127,6 +112,21 @@ func (m *MockSsoRepository) GetUserByID(ctx context.Context, id uint64) (*entiti
 func (mr *MockSsoRepositoryMockRecorder) GetUserByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockSsoRepository)(nil).GetUserByID), ctx, id)
+}
+
+// GetUsers mocks base method.
+func (m *MockSsoRepository) GetUsers(ctx context.Context, pagination *entities.Pagination) ([]entities.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsers", ctx, pagination)
+	ret0, _ := ret[0].([]entities.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockSsoRepositoryMockRecorder) GetUsers(ctx, pagination any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockSsoRepository)(nil).GetUsers), ctx, pagination)
 }
 
 // LoginUser mocks base method.

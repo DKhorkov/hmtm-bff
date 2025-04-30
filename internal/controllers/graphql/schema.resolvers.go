@@ -560,8 +560,13 @@ func (r *mutationResolver) DeleteTicket(ctx context.Context, input graphqlapi.De
 }
 
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*entities.User, error) {
-	users, err := r.useCases.GetAllUsers(ctx)
+func (r *queryResolver) Users(ctx context.Context, input *graphqlapi.GetUsersInput) ([]*entities.User, error) {
+	var pagination *entities.Pagination
+	if input != nil {
+		pagination = input.Pagination
+	}
+
+	users, err := r.useCases.GetUsers(ctx, pagination)
 	if err != nil {
 		return nil, err
 	}
@@ -1053,6 +1058,24 @@ func (r *toyResolver) Quantity(ctx context.Context, obj *entities.Toy) (int, err
 	return quantity, nil
 }
 
+// Limit is the resolver for the limit field.
+func (r *paginationResolver) Limit(ctx context.Context, obj *entities.Pagination, data *int) error {
+	if obj != nil && data != nil {
+		obj.Limit = pointers.New(uint64(*data))
+	}
+
+	return nil
+}
+
+// Offset is the resolver for the offset field.
+func (r *paginationResolver) Offset(ctx context.Context, obj *entities.Pagination, data *int) error {
+	if obj != nil && data != nil {
+		obj.Offset = pointers.New(uint64(*data))
+	}
+
+	return nil
+}
+
 // Email returns graphqlapi.EmailResolver implementation.
 func (r *Resolver) Email() graphqlapi.EmailResolver { return &emailResolver{r} }
 
@@ -1074,12 +1097,16 @@ func (r *Resolver) Ticket() graphqlapi.TicketResolver { return &ticketResolver{r
 // Toy returns graphqlapi.ToyResolver implementation.
 func (r *Resolver) Toy() graphqlapi.ToyResolver { return &toyResolver{r} }
 
+// Pagination returns graphqlapi.PaginationResolver implementation.
+func (r *Resolver) Pagination() graphqlapi.PaginationResolver { return &paginationResolver{r} }
+
 type (
-	emailResolver    struct{ *Resolver }
-	masterResolver   struct{ *Resolver }
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-	respondResolver  struct{ *Resolver }
-	ticketResolver   struct{ *Resolver }
-	toyResolver      struct{ *Resolver }
+	emailResolver      struct{ *Resolver }
+	masterResolver     struct{ *Resolver }
+	mutationResolver   struct{ *Resolver }
+	queryResolver      struct{ *Resolver }
+	respondResolver    struct{ *Resolver }
+	ticketResolver     struct{ *Resolver }
+	toyResolver        struct{ *Resolver }
+	paginationResolver struct{ *Resolver }
 )

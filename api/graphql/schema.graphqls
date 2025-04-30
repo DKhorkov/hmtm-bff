@@ -98,9 +98,18 @@ type Email {
     sentAt: Time!
 }
 
+input Pagination {
+    limit: Int
+    offset: Int
+}
+
+input GetUsersInput {
+    pagination: Pagination
+}
+
 type Query {
     # SSO queries:
-    users: [User!]
+    users(input: GetUsersInput): [User!]
     user(id: ID!): User!
     me: User!
 

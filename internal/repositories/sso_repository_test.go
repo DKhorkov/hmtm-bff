@@ -247,7 +247,7 @@ func TestSsoRepository_GetUserByEmail(t *testing.T) {
 	}
 }
 
-func TestSsoRepository_GetAllUsers(t *testing.T) {
+func TestSsoRepository_GetUsers(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	ssoClient := mockclients.NewMockSsoClient(ctrl)
 	repo := NewSsoRepository(ssoClient)
@@ -256,18 +256,28 @@ func TestSsoRepository_GetAllUsers(t *testing.T) {
 
 	testCases := []struct {
 		name          string
+		pagination    *entities.Pagination
 		setupMocks    func(ssoClient *mockclients.MockSsoClient)
 		expectedUsers []entities.User
 		errorExpected bool
 	}{
 		{
 			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(ssoClient *mockclients.MockSsoClient) {
 				ssoClient.
 					EXPECT().
 					GetUsers(
 						gomock.Any(),
-						&emptypb.Empty{},
+						&sso.GetUsersIn{
+							Pagination: &sso.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+						},
 					).
 					Return(&sso.GetUsersOut{
 						Users: []*sso.GetUserOut{
@@ -285,12 +295,21 @@ func TestSsoRepository_GetAllUsers(t *testing.T) {
 		},
 		{
 			name: "error",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(ssoClient *mockclients.MockSsoClient) {
 				ssoClient.
 					EXPECT().
 					GetUsers(
 						gomock.Any(),
-						&emptypb.Empty{},
+						&sso.GetUsersIn{
+							Pagination: &sso.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+						},
 					).
 					Return(nil, errors.New("get users failed")).
 					Times(1)
@@ -305,7 +324,7 @@ func TestSsoRepository_GetAllUsers(t *testing.T) {
 				tc.setupMocks(ssoClient)
 			}
 
-			users, err := repo.GetAllUsers(context.Background())
+			users, err := repo.GetUsers(context.Background(), tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, users)

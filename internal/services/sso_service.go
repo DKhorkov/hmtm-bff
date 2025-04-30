@@ -22,8 +22,8 @@ func NewSsoService(ssoRepository interfaces.SsoRepository, logger logging.Logger
 	}
 }
 
-func (service *SsoService) GetAllUsers(ctx context.Context) ([]entities.User, error) {
-	users, err := service.ssoRepository.GetAllUsers(ctx)
+func (service *SsoService) GetUsers(ctx context.Context, pagination *entities.Pagination) ([]entities.User, error) {
+	users, err := service.ssoRepository.GetUsers(ctx, pagination)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
