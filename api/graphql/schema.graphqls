@@ -111,6 +111,7 @@ type Query {
     # SSO queries:
     users(input: GetUsersInput): [User!]
     user(id: ID!): User!
+    userByEmail(email: String!): User!
     me: User!
 
     # Toys queries:

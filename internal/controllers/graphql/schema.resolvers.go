@@ -589,6 +589,11 @@ func (r *queryResolver) User(ctx context.Context, id string) (*entities.User, er
 	return r.useCases.GetUserByID(ctx, uint64(userID))
 }
 
+// UserByEmail is the resolver for the userByEmail field.
+func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*entities.User, error) {
+	return r.useCases.GetUserByEmail(ctx, email)
+}
+
 // Me is the resolver for me field.
 func (r *queryResolver) Me(ctx context.Context) (*entities.User, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)

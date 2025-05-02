@@ -2748,6 +2748,72 @@ func TestQueryResolver_User(t *testing.T) {
 	}
 }
 
+func TestQueryResolver_UserByEmail(t *testing.T) {
+	testCases := []struct {
+		name          string
+		email         string
+		setupMocks    func(useCases *mockusecases.MockUseCases)
+		expected      *entities.User
+		errorExpected bool
+	}{
+		{
+			name:  "successful user retrieval",
+			email: user.Email,
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					GetUserByEmail(gomock.Any(), user.Email).
+					Return(user, nil).
+					Times(1)
+			},
+			expected: user,
+		},
+		{
+			name:  "use case error",
+			email: user.Email,
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					GetUserByEmail(gomock.Any(), user.Email).
+					Return(nil, errors.New("get user error")).
+					Times(1)
+			},
+			expected:      nil,
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	resolver := &queryResolver{
+		Resolver: NewResolver(
+			useCases,
+			logger,
+			config.CookiesConfig{},
+		),
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			testCtx := context.Background()
+
+			if tc.setupMocks != nil {
+				tc.setupMocks(useCases)
+			}
+
+			actual, err := resolver.UserByEmail(testCtx, tc.email)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestQueryResolver_Me(t *testing.T) {
 	validAccessToken := &http.Cookie{
 		Name:  accessTokenCookieName,

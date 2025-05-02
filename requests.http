@@ -413,3 +413,15 @@ Content-Type: application/json
 {
   "query": "query { users { id displayName email } }"
 }
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query UserByEmail($email: String!) { userByEmail(email: $email) { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } }",
+  "variables": {
+    "email": "user@example.com"
+  }
+}
