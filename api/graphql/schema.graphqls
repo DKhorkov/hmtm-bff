@@ -31,7 +31,7 @@ type Tag {
 
 type ToyAttachment {
     id: ID!
-    toyID: ID!
+    toyId: ID!
     link: String!
     createdAt: Time!
     updatedAt: Time!
@@ -61,7 +61,7 @@ type Master {
 
 type TicketAttachment {
     id: ID!
-    ticketID: ID!
+    ticketId: ID!
     link: String!
     createdAt: Time!
     updatedAt: Time!
@@ -103,13 +103,30 @@ input Pagination {
     offset: Int
 }
 
-input GetUsersInput {
+input UsersInput {
+    pagination: Pagination
+}
+
+input ToysInput {
+    pagination: Pagination
+}
+
+input MyToysInput {
+    pagination: Pagination
+}
+
+input MasterToysInput {
+    masterId: ID!
+    pagination: Pagination
+}
+
+input MastersInput {
     pagination: Pagination
 }
 
 type Query {
     # SSO queries:
-    users(input: GetUsersInput): [User!]
+    users(input: UsersInput): [User!]
     user(id: ID!): User!
     userByEmail(email: String!): User!
     me: User!
@@ -117,11 +134,11 @@ type Query {
     # Toys queries:
     master(id: ID!): Master!
     masterByUser(userId: ID!): Master!
-    masters: [Master!]
-    masterToys(masterId: ID!): [Toy!]
+    masters(input: MastersInput): [Master!]
+    masterToys(input: MasterToysInput!): [Toy!]
     toy(id: ID!): Toy!
-    toys: [Toy!]
-    myToys: [Toy!]
+    toys(input: ToysInput): [Toy!]
+    myToys(input: MyToysInput): [Toy!]
     tag(id: ID!): Tag!
     tags: [Tag!]
     category(id: ID!): Category!

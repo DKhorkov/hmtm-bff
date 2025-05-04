@@ -179,3 +179,24 @@ func TestResolver_Email(t *testing.T) {
 		})
 	}
 }
+
+func TestResolver_Pagination(t *testing.T) {
+	testCases := []struct {
+		name     string
+		resolver *Resolver
+		expected *paginationResolver
+	}{
+		{
+			name:     "success",
+			resolver: &Resolver{},
+			expected: &paginationResolver{Resolver: &Resolver{}},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := tc.resolver.Pagination()
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}

@@ -157,21 +157,6 @@ func (mr *MockUseCasesMockRecorder) GetAllCategories(ctx any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCategories", reflect.TypeOf((*MockUseCases)(nil).GetAllCategories), ctx)
 }
 
-// GetAllMasters mocks base method.
-func (m *MockUseCases) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllMasters", ctx)
-	ret0, _ := ret[0].([]entities.Master)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllMasters indicates an expected call of GetAllMasters.
-func (mr *MockUseCasesMockRecorder) GetAllMasters(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllMasters", reflect.TypeOf((*MockUseCases)(nil).GetAllMasters), ctx)
-}
-
 // GetAllTags mocks base method.
 func (m *MockUseCases) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
 	m.ctrl.T.Helper()
@@ -200,21 +185,6 @@ func (m *MockUseCases) GetAllTickets(ctx context.Context) ([]entities.Ticket, er
 func (mr *MockUseCasesMockRecorder) GetAllTickets(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllTickets", reflect.TypeOf((*MockUseCases)(nil).GetAllTickets), ctx)
-}
-
-// GetAllToys mocks base method.
-func (m *MockUseCases) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllToys", ctx)
-	ret0, _ := ret[0].([]entities.Toy)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllToys indicates an expected call of GetAllToys.
-func (mr *MockUseCasesMockRecorder) GetAllToys(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllToys", reflect.TypeOf((*MockUseCases)(nil).GetAllToys), ctx)
 }
 
 // GetCategoryByID mocks base method.
@@ -263,18 +233,33 @@ func (mr *MockUseCasesMockRecorder) GetMasterByUserID(ctx, userID any) *gomock.C
 }
 
 // GetMasterToys mocks base method.
-func (m *MockUseCases) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (m *MockUseCases) GetMasterToys(ctx context.Context, masterID uint64, pagination *entities.Pagination) ([]entities.Toy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMasterToys", ctx, masterID)
+	ret := m.ctrl.Call(m, "GetMasterToys", ctx, masterID, pagination)
 	ret0, _ := ret[0].([]entities.Toy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMasterToys indicates an expected call of GetMasterToys.
-func (mr *MockUseCasesMockRecorder) GetMasterToys(ctx, masterID any) *gomock.Call {
+func (mr *MockUseCasesMockRecorder) GetMasterToys(ctx, masterID, pagination any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterToys", reflect.TypeOf((*MockUseCases)(nil).GetMasterToys), ctx, masterID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterToys", reflect.TypeOf((*MockUseCases)(nil).GetMasterToys), ctx, masterID, pagination)
+}
+
+// GetMasters mocks base method.
+func (m *MockUseCases) GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMasters", ctx, pagination)
+	ret0, _ := ret[0].([]entities.Master)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMasters indicates an expected call of GetMasters.
+func (mr *MockUseCasesMockRecorder) GetMasters(ctx, pagination any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasters", reflect.TypeOf((*MockUseCases)(nil).GetMasters), ctx, pagination)
 }
 
 // GetMe mocks base method.
@@ -338,18 +323,18 @@ func (mr *MockUseCasesMockRecorder) GetMyTickets(ctx, accessToken any) *gomock.C
 }
 
 // GetMyToys mocks base method.
-func (m *MockUseCases) GetMyToys(ctx context.Context, accessToken string) ([]entities.Toy, error) {
+func (m *MockUseCases) GetMyToys(ctx context.Context, accessToken string, pagination *entities.Pagination) ([]entities.Toy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMyToys", ctx, accessToken)
+	ret := m.ctrl.Call(m, "GetMyToys", ctx, accessToken, pagination)
 	ret0, _ := ret[0].([]entities.Toy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMyToys indicates an expected call of GetMyToys.
-func (mr *MockUseCasesMockRecorder) GetMyToys(ctx, accessToken any) *gomock.Call {
+func (mr *MockUseCasesMockRecorder) GetMyToys(ctx, accessToken, pagination any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMyToys", reflect.TypeOf((*MockUseCases)(nil).GetMyToys), ctx, accessToken)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMyToys", reflect.TypeOf((*MockUseCases)(nil).GetMyToys), ctx, accessToken, pagination)
 }
 
 // GetRespondByID mocks base method.
@@ -425,6 +410,21 @@ func (m *MockUseCases) GetToyByID(ctx context.Context, id uint64) (*entities.Toy
 func (mr *MockUseCasesMockRecorder) GetToyByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetToyByID", reflect.TypeOf((*MockUseCases)(nil).GetToyByID), ctx, id)
+}
+
+// GetToys mocks base method.
+func (m *MockUseCases) GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetToys", ctx, pagination)
+	ret0, _ := ret[0].([]entities.Toy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetToys indicates an expected call of GetToys.
+func (mr *MockUseCasesMockRecorder) GetToys(ctx, pagination any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetToys", reflect.TypeOf((*MockUseCases)(nil).GetToys), ctx, pagination)
 }
 
 // GetUserByEmail mocks base method.

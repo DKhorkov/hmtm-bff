@@ -39,8 +39,8 @@ func (service *ToysService) AddToy(
 	return toyID, err
 }
 
-func (service *ToysService) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
-	toys, err := service.toysRepository.GetAllToys(ctx)
+func (service *ToysService) GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error) {
+	toys, err := service.toysRepository.GetToys(ctx, pagination)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -56,8 +56,9 @@ func (service *ToysService) GetAllToys(ctx context.Context) ([]entities.Toy, err
 func (service *ToysService) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,
+	pagination *entities.Pagination,
 ) ([]entities.Toy, error) {
-	toys, err := service.toysRepository.GetMasterToys(ctx, masterID)
+	toys, err := service.toysRepository.GetMasterToys(ctx, masterID, pagination)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -76,8 +77,9 @@ func (service *ToysService) GetMasterToys(
 func (service *ToysService) GetUserToys(
 	ctx context.Context,
 	userID uint64,
+	pagination *entities.Pagination,
 ) ([]entities.Toy, error) {
-	toys, err := service.toysRepository.GetUserToys(ctx, userID)
+	toys, err := service.toysRepository.GetUserToys(ctx, userID, pagination)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -104,8 +106,11 @@ func (service *ToysService) GetToyByID(ctx context.Context, id uint64) (*entitie
 	return toy, err
 }
 
-func (service *ToysService) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
-	masters, err := service.toysRepository.GetAllMasters(ctx)
+func (service *ToysService) GetMasters(
+	ctx context.Context,
+	pagination *entities.Pagination,
+) ([]entities.Master, error) {
+	masters, err := service.toysRepository.GetMasters(ctx, pagination)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,

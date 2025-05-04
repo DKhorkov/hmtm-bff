@@ -560,7 +560,7 @@ func (r *mutationResolver) DeleteTicket(ctx context.Context, input graphqlapi.De
 }
 
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context, input *graphqlapi.GetUsersInput) ([]*entities.User, error) {
+func (r *queryResolver) Users(ctx context.Context, input *graphqlapi.UsersInput) ([]*entities.User, error) {
 	var pagination *entities.Pagination
 	if input != nil {
 		pagination = input.Pagination
@@ -625,8 +625,13 @@ func (r *queryResolver) MasterByUser(ctx context.Context, userID string) (*entit
 }
 
 // Masters is the resolver for the masters field.
-func (r *queryResolver) Masters(ctx context.Context) ([]*entities.Master, error) {
-	masters, err := r.useCases.GetAllMasters(ctx)
+func (r *queryResolver) Masters(ctx context.Context, input *graphqlapi.MastersInput) ([]*entities.Master, error) {
+	var pagination *entities.Pagination
+	if input != nil {
+		pagination = input.Pagination
+	}
+
+	masters, err := r.useCases.GetMasters(ctx, pagination)
 	if err != nil {
 		return nil, err
 	}
@@ -640,13 +645,13 @@ func (r *queryResolver) Masters(ctx context.Context) ([]*entities.Master, error)
 }
 
 // MasterToys is the resolver for the masterToys field.
-func (r *queryResolver) MasterToys(ctx context.Context, masterID string) ([]*entities.Toy, error) {
-	processedMasterID, err := strconv.Atoi(masterID)
+func (r *queryResolver) MasterToys(ctx context.Context, input graphqlapi.MasterToysInput) ([]*entities.Toy, error) {
+	processedMasterID, err := strconv.Atoi(input.MasterID)
 	if err != nil {
 		return nil, err
 	}
 
-	toys, err := r.useCases.GetMasterToys(ctx, uint64(processedMasterID))
+	toys, err := r.useCases.GetMasterToys(ctx, uint64(processedMasterID), input.Pagination)
 	if err != nil {
 		return nil, err
 	}
@@ -670,8 +675,13 @@ func (r *queryResolver) Toy(ctx context.Context, id string) (*entities.Toy, erro
 }
 
 // Toys is the resolver for the toys field.
-func (r *queryResolver) Toys(ctx context.Context) ([]*entities.Toy, error) {
-	toys, err := r.useCases.GetAllToys(ctx)
+func (r *queryResolver) Toys(ctx context.Context, input *graphqlapi.ToysInput) ([]*entities.Toy, error) {
+	var pagination *entities.Pagination
+	if input != nil {
+		pagination = input.Pagination
+	}
+
+	toys, err := r.useCases.GetToys(ctx, pagination)
 	if err != nil {
 		return nil, err
 	}
@@ -685,13 +695,18 @@ func (r *queryResolver) Toys(ctx context.Context) ([]*entities.Toy, error) {
 }
 
 // MyToys is the resolver for the myToys field.
-func (r *queryResolver) MyToys(ctx context.Context) ([]*entities.Toy, error) {
+func (r *queryResolver) MyToys(ctx context.Context, input *graphqlapi.MyToysInput) ([]*entities.Toy, error) {
+	var pagination *entities.Pagination
+	if input != nil {
+		pagination = input.Pagination
+	}
+
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	toys, err := r.useCases.GetMyToys(ctx, accessToken.Value)
+	toys, err := r.useCases.GetMyToys(ctx, accessToken.Value, pagination)
 	if err != nil {
 		return nil, err
 	}

@@ -105,7 +105,7 @@ func TestToysRepository_AddToy(t *testing.T) {
 	}
 }
 
-func TestToysRepository_GetAllToys(t *testing.T) {
+func TestToysRepository_GetToys(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	toysClient := mockclients.NewMockToysClient(ctrl)
 	repo := NewToysRepository(toysClient)
@@ -114,18 +114,28 @@ func TestToysRepository_GetAllToys(t *testing.T) {
 
 	testCases := []struct {
 		name          string
+		pagination    *entities.Pagination
 		setupMocks    func(toysClient *mockclients.MockToysClient)
 		expectedToys  []entities.Toy
 		errorExpected bool
 	}{
 		{
 			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
 					GetToys(
 						gomock.Any(),
-						&emptypb.Empty{},
+						&toys.GetToysIn{
+							Pagination: &toys.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+						},
 					).
 					Return(&toys.GetToysOut{
 						Toys: []*toys.GetToyOut{
@@ -163,12 +173,21 @@ func TestToysRepository_GetAllToys(t *testing.T) {
 		},
 		{
 			name: "error",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
 					GetToys(
 						gomock.Any(),
-						&emptypb.Empty{},
+						&toys.GetToysIn{
+							Pagination: &toys.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+						},
 					).
 					Return(nil, errors.New("fetch failed")).
 					Times(1)
@@ -184,7 +203,7 @@ func TestToysRepository_GetAllToys(t *testing.T) {
 				tc.setupMocks(toysClient)
 			}
 
-			toysList, err := repo.GetAllToys(context.Background())
+			toysList, err := repo.GetToys(context.Background(), tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, toysList)
@@ -205,20 +224,31 @@ func TestToysRepository_GetMasterToys(t *testing.T) {
 
 	testCases := []struct {
 		name          string
+		pagination    *entities.Pagination
 		masterID      uint64
 		setupMocks    func(toysClient *mockclients.MockToysClient)
 		expectedToys  []entities.Toy
 		errorExpected bool
 	}{
 		{
-			name:     "success",
+			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			masterID: 1,
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
 					GetMasterToys(
 						gomock.Any(),
-						&toys.GetMasterToysIn{MasterID: 1},
+						&toys.GetMasterToysIn{
+							MasterID: 1,
+							Pagination: &toys.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+						},
 					).
 					Return(&toys.GetToysOut{
 						Toys: []*toys.GetToyOut{
@@ -255,14 +285,24 @@ func TestToysRepository_GetMasterToys(t *testing.T) {
 			errorExpected: false,
 		},
 		{
-			name:     "error",
+			name: "error",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			masterID: 1,
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
 					GetMasterToys(
 						gomock.Any(),
-						&toys.GetMasterToysIn{MasterID: 1},
+						&toys.GetMasterToysIn{
+							MasterID: 1,
+							Pagination: &toys.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+						},
 					).
 					Return(nil, errors.New("fetch failed")).
 					Times(1)
@@ -278,7 +318,7 @@ func TestToysRepository_GetMasterToys(t *testing.T) {
 				tc.setupMocks(toysClient)
 			}
 
-			toysList, err := repo.GetMasterToys(context.Background(), tc.masterID)
+			toysList, err := repo.GetMasterToys(context.Background(), tc.masterID, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, toysList)
@@ -299,20 +339,31 @@ func TestToysRepository_GetUserToys(t *testing.T) {
 
 	testCases := []struct {
 		name          string
+		pagination    *entities.Pagination
 		userID        uint64
 		setupMocks    func(toysClient *mockclients.MockToysClient)
 		expectedToys  []entities.Toy
 		errorExpected bool
 	}{
 		{
-			name:   "success",
+			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			userID: 1,
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
 					GetUserToys(
 						gomock.Any(),
-						&toys.GetUserToysIn{UserID: 1},
+						&toys.GetUserToysIn{
+							UserID: 1,
+							Pagination: &toys.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+						},
 					).
 					Return(&toys.GetToysOut{
 						Toys: []*toys.GetToyOut{
@@ -349,14 +400,24 @@ func TestToysRepository_GetUserToys(t *testing.T) {
 			errorExpected: false,
 		},
 		{
-			name:   "error",
+			name: "error",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			userID: 1,
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
 					GetUserToys(
 						gomock.Any(),
-						&toys.GetUserToysIn{UserID: 1},
+						&toys.GetUserToysIn{
+							UserID: 1,
+							Pagination: &toys.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+						},
 					).
 					Return(nil, errors.New("fetch failed")).
 					Times(1)
@@ -372,7 +433,7 @@ func TestToysRepository_GetUserToys(t *testing.T) {
 				tc.setupMocks(toysClient)
 			}
 
-			toysList, err := repo.GetUserToys(context.Background(), tc.userID)
+			toysList, err := repo.GetUserToys(context.Background(), tc.userID, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, toysList)
@@ -502,7 +563,7 @@ func TestToysRepository_GetToyByID(t *testing.T) {
 	}
 }
 
-func TestToysRepository_GetAllMasters(t *testing.T) {
+func TestToysRepository_GetMasters(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	toysClient := mockclients.NewMockToysClient(ctrl)
 	repo := NewToysRepository(toysClient)
@@ -511,18 +572,28 @@ func TestToysRepository_GetAllMasters(t *testing.T) {
 
 	testCases := []struct {
 		name            string
+		pagination      *entities.Pagination
 		setupMocks      func(toysClient *mockclients.MockToysClient)
 		expectedMasters []entities.Master
 		errorExpected   bool
 	}{
 		{
 			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
 					GetMasters(
 						gomock.Any(),
-						&emptypb.Empty{},
+						&toys.GetMastersIn{
+							Pagination: &toys.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+						},
 					).
 					Return(&toys.GetMastersOut{
 						Masters: []*toys.GetMasterOut{
@@ -552,12 +623,21 @@ func TestToysRepository_GetAllMasters(t *testing.T) {
 		},
 		{
 			name: "error",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
 					GetMasters(
 						gomock.Any(),
-						&emptypb.Empty{},
+						&toys.GetMastersIn{
+							Pagination: &toys.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+						},
 					).
 					Return(nil, errors.New("fetch failed")).
 					Times(1)
@@ -573,7 +653,7 @@ func TestToysRepository_GetAllMasters(t *testing.T) {
 				tc.setupMocks(toysClient)
 			}
 
-			masters, err := repo.GetAllMasters(context.Background())
+			masters, err := repo.GetMasters(context.Background(), tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, masters)
