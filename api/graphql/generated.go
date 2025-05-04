@@ -103,13 +103,13 @@ type ComplexityRoot struct {
 		Category              func(childComplexity int, id string) int
 		Master                func(childComplexity int, id string) int
 		MasterByUser          func(childComplexity int, userID string) int
-		MasterToys            func(childComplexity int, masterID string) int
-		Masters               func(childComplexity int) int
+		MasterToys            func(childComplexity int, input MasterToysInput) int
+		Masters               func(childComplexity int, input *MastersInput) int
 		Me                    func(childComplexity int) int
 		MyEmailCommunications func(childComplexity int) int
 		MyResponds            func(childComplexity int) int
 		MyTickets             func(childComplexity int) int
-		MyToys                func(childComplexity int) int
+		MyToys                func(childComplexity int, input *MyToysInput) int
 		Respond               func(childComplexity int, id string) int
 		Tag                   func(childComplexity int, id string) int
 		Tags                  func(childComplexity int) int
@@ -117,11 +117,11 @@ type ComplexityRoot struct {
 		TicketResponds        func(childComplexity int, ticketID string) int
 		Tickets               func(childComplexity int) int
 		Toy                   func(childComplexity int, id string) int
-		Toys                  func(childComplexity int) int
+		Toys                  func(childComplexity int, input *ToysInput) int
 		User                  func(childComplexity int, id string) int
 		UserByEmail           func(childComplexity int, email string) int
 		UserTickets           func(childComplexity int, userID string) int
-		Users                 func(childComplexity int, input *GetUsersInput) int
+		Users                 func(childComplexity int, input *UsersInput) int
 	}
 
 	Respond struct {
@@ -228,17 +228,17 @@ type MutationResolver interface {
 	DeleteTicket(ctx context.Context, input DeleteTicketInput) (bool, error)
 }
 type QueryResolver interface {
-	Users(ctx context.Context, input *GetUsersInput) ([]*entities.User, error)
+	Users(ctx context.Context, input *UsersInput) ([]*entities.User, error)
 	User(ctx context.Context, id string) (*entities.User, error)
 	UserByEmail(ctx context.Context, email string) (*entities.User, error)
 	Me(ctx context.Context) (*entities.User, error)
 	Master(ctx context.Context, id string) (*entities.Master, error)
 	MasterByUser(ctx context.Context, userID string) (*entities.Master, error)
-	Masters(ctx context.Context) ([]*entities.Master, error)
-	MasterToys(ctx context.Context, masterID string) ([]*entities.Toy, error)
+	Masters(ctx context.Context, input *MastersInput) ([]*entities.Master, error)
+	MasterToys(ctx context.Context, input MasterToysInput) ([]*entities.Toy, error)
 	Toy(ctx context.Context, id string) (*entities.Toy, error)
-	Toys(ctx context.Context) ([]*entities.Toy, error)
-	MyToys(ctx context.Context) ([]*entities.Toy, error)
+	Toys(ctx context.Context, input *ToysInput) ([]*entities.Toy, error)
+	MyToys(ctx context.Context, input *MyToysInput) ([]*entities.Toy, error)
 	Tag(ctx context.Context, id string) (*entities.Tag, error)
 	Tags(ctx context.Context) ([]*entities.Tag, error)
 	Category(ctx context.Context, id string) (*entities.Category, error)
@@ -668,14 +668,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.MasterToys(childComplexity, args["masterId"].(string)), true
+		return e.complexity.Query.MasterToys(childComplexity, args["input"].(MasterToysInput)), true
 
 	case "Query.masters":
 		if e.complexity.Query.Masters == nil {
 			break
 		}
 
-		return e.complexity.Query.Masters(childComplexity), true
+		args, err := ec.field_Query_masters_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Masters(childComplexity, args["input"].(*MastersInput)), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -710,7 +715,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.MyToys(childComplexity), true
+		args, err := ec.field_Query_myToys_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.MyToys(childComplexity, args["input"].(*MyToysInput)), true
 
 	case "Query.respond":
 		if e.complexity.Query.Respond == nil {
@@ -791,7 +801,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Toys(childComplexity), true
+		args, err := ec.field_Query_toys_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Toys(childComplexity, args["input"].(*ToysInput)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -839,7 +854,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Users(childComplexity, args["input"].(*GetUsersInput)), true
+		return e.complexity.Query.Users(childComplexity, args["input"].(*UsersInput)), true
 
 	case "Respond.comment":
 		if e.complexity.Respond.Comment == nil {
@@ -1002,7 +1017,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TicketAttachment.Link(childComplexity), true
 
-	case "TicketAttachment.ticketID":
+	case "TicketAttachment.ticketId":
 		if e.complexity.TicketAttachment.TicketID == nil {
 			break
 		}
@@ -1114,7 +1129,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ToyAttachment.Link(childComplexity), true
 
-	case "ToyAttachment.toyID":
+	case "ToyAttachment.toyId":
 		if e.complexity.ToyAttachment.ToyID == nil {
 			break
 		}
@@ -1220,19 +1235,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteTicketInput,
 		ec.unmarshalInputDeleteToyInput,
 		ec.unmarshalInputForgetPasswordInput,
-		ec.unmarshalInputGetUsersInput,
 		ec.unmarshalInputLoginUserInput,
+		ec.unmarshalInputMasterToysInput,
+		ec.unmarshalInputMastersInput,
+		ec.unmarshalInputMyToysInput,
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputRegisterMasterInput,
 		ec.unmarshalInputRegisterUserInput,
 		ec.unmarshalInputRespondToTicketInput,
 		ec.unmarshalInputSendForgetPasswordMessageInput,
 		ec.unmarshalInputSendVerifyEmailMessageInput,
+		ec.unmarshalInputToysInput,
 		ec.unmarshalInputUpdateMasterInput,
 		ec.unmarshalInputUpdateRespondInput,
 		ec.unmarshalInputUpdateTicketInput,
 		ec.unmarshalInputUpdateToyInput,
 		ec.unmarshalInputUpdateUserProfileInput,
+		ec.unmarshalInputUsersInput,
 		ec.unmarshalInputVerifyUserEmailInput,
 	)
 	first := true
@@ -2057,32 +2076,32 @@ func (ec *executionContext) field_Query_masterByUser_argsUserID(
 func (ec *executionContext) field_Query_masterToys_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_masterToys_argsMasterID(ctx, rawArgs)
+	arg0, err := ec.field_Query_masterToys_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["masterId"] = arg0
+	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Query_masterToys_argsMasterID(
+func (ec *executionContext) field_Query_masterToys_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (MasterToysInput, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
-	_, ok := rawArgs["masterId"]
+	_, ok := rawArgs["input"]
 	if !ok {
-		var zeroVal string
+		var zeroVal MasterToysInput
 		return zeroVal, nil
 	}
 
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("masterId"))
-	if tmp, ok := rawArgs["masterId"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNMasterToysInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐMasterToysInput(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal MasterToysInput
 	return zeroVal, nil
 }
 
@@ -2115,6 +2134,70 @@ func (ec *executionContext) field_Query_master_argsID(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_masters_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_masters_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_masters_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*MastersInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal *MastersInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalOMastersInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐMastersInput(ctx, tmp)
+	}
+
+	var zeroVal *MastersInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_myToys_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_myToys_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_myToys_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*MyToysInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal *MyToysInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalOMyToysInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐMyToysInput(ctx, tmp)
+	}
+
+	var zeroVal *MyToysInput
 	return zeroVal, nil
 }
 
@@ -2278,6 +2361,38 @@ func (ec *executionContext) field_Query_toy_argsID(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Query_toys_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_toys_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_toys_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*ToysInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal *ToysInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalOToysInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐToysInput(ctx, tmp)
+	}
+
+	var zeroVal *ToysInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query_userByEmail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2387,22 +2502,22 @@ func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_users_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (*GetUsersInput, error) {
+) (*UsersInput, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
 	_, ok := rawArgs["input"]
 	if !ok {
-		var zeroVal *GetUsersInput
+		var zeroVal *UsersInput
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalOGetUsersInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐGetUsersInput(ctx, tmp)
+		return ec.unmarshalOUsersInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐUsersInput(ctx, tmp)
 	}
 
-	var zeroVal *GetUsersInput
+	var zeroVal *UsersInput
 	return zeroVal, nil
 }
 
@@ -4154,7 +4269,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Users(rctx, fc.Args["input"].(*GetUsersInput))
+		return ec.resolvers.Query().Users(rctx, fc.Args["input"].(*UsersInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4590,7 +4705,7 @@ func (ec *executionContext) _Query_masters(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Masters(rctx)
+		return ec.resolvers.Query().Masters(rctx, fc.Args["input"].(*MastersInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4604,7 +4719,7 @@ func (ec *executionContext) _Query_masters(ctx context.Context, field graphql.Co
 	return ec.marshalOMaster2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMasterᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_masters(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_masters(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4626,6 +4741,17 @@ func (ec *executionContext) fieldContext_Query_masters(_ context.Context, field 
 			return nil, fmt.Errorf("no field named %q was found under type Master", field.Name)
 		},
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_masters_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
 	return fc, nil
 }
 
@@ -4643,7 +4769,7 @@ func (ec *executionContext) _Query_masterToys(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().MasterToys(rctx, fc.Args["masterId"].(string))
+		return ec.resolvers.Query().MasterToys(rctx, fc.Args["input"].(MasterToysInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4798,7 +4924,7 @@ func (ec *executionContext) _Query_toys(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Toys(rctx)
+		return ec.resolvers.Query().Toys(rctx, fc.Args["input"].(*ToysInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4812,7 +4938,7 @@ func (ec *executionContext) _Query_toys(ctx context.Context, field graphql.Colle
 	return ec.marshalOToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToyᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_toys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_toys(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4845,6 +4971,17 @@ func (ec *executionContext) fieldContext_Query_toys(_ context.Context, field gra
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Toy", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_toys_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -4863,7 +5000,7 @@ func (ec *executionContext) _Query_myToys(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().MyToys(rctx)
+		return ec.resolvers.Query().MyToys(rctx, fc.Args["input"].(*MyToysInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4877,7 +5014,7 @@ func (ec *executionContext) _Query_myToys(ctx context.Context, field graphql.Col
 	return ec.marshalOToy2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐToyᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_myToys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_myToys(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4910,6 +5047,17 @@ func (ec *executionContext) fieldContext_Query_myToys(_ context.Context, field g
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Toy", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_myToys_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -6728,8 +6876,8 @@ func (ec *executionContext) fieldContext_Ticket_attachments(_ context.Context, f
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_TicketAttachment_id(ctx, field)
-			case "ticketID":
-				return ec.fieldContext_TicketAttachment_ticketID(ctx, field)
+			case "ticketId":
+				return ec.fieldContext_TicketAttachment_ticketId(ctx, field)
 			case "link":
 				return ec.fieldContext_TicketAttachment_link(ctx, field)
 			case "createdAt":
@@ -6787,8 +6935,8 @@ func (ec *executionContext) fieldContext_TicketAttachment_id(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _TicketAttachment_ticketID(ctx context.Context, field graphql.CollectedField, obj *entities.TicketAttachment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TicketAttachment_ticketID(ctx, field)
+func (ec *executionContext) _TicketAttachment_ticketId(ctx context.Context, field graphql.CollectedField, obj *entities.TicketAttachment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TicketAttachment_ticketId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6818,7 +6966,7 @@ func (ec *executionContext) _TicketAttachment_ticketID(ctx context.Context, fiel
 	return ec.marshalNID2uint64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TicketAttachment_ticketID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TicketAttachment_ticketId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TicketAttachment",
 		Field:      field,
@@ -7462,8 +7610,8 @@ func (ec *executionContext) fieldContext_Toy_attachments(_ context.Context, fiel
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_ToyAttachment_id(ctx, field)
-			case "toyID":
-				return ec.fieldContext_ToyAttachment_toyID(ctx, field)
+			case "toyId":
+				return ec.fieldContext_ToyAttachment_toyId(ctx, field)
 			case "link":
 				return ec.fieldContext_ToyAttachment_link(ctx, field)
 			case "createdAt":
@@ -7521,8 +7669,8 @@ func (ec *executionContext) fieldContext_ToyAttachment_id(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _ToyAttachment_toyID(ctx context.Context, field graphql.CollectedField, obj *entities.ToyAttachment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ToyAttachment_toyID(ctx, field)
+func (ec *executionContext) _ToyAttachment_toyId(ctx context.Context, field graphql.CollectedField, obj *entities.ToyAttachment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ToyAttachment_toyId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7552,7 +7700,7 @@ func (ec *executionContext) _ToyAttachment_toyID(ctx context.Context, field grap
 	return ec.marshalNID2uint64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ToyAttachment_toyID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ToyAttachment_toyId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ToyAttachment",
 		Field:      field,
@@ -10232,33 +10380,6 @@ func (ec *executionContext) unmarshalInputForgetPasswordInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputGetUsersInput(ctx context.Context, obj interface{}) (GetUsersInput, error) {
-	var it GetUsersInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"pagination"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "pagination":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Pagination = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputLoginUserInput(ctx context.Context, obj interface{}) (LoginUserInput, error) {
 	var it LoginUserInput
 	asMap := map[string]interface{}{}
@@ -10287,6 +10408,94 @@ func (ec *executionContext) unmarshalInputLoginUserInput(ctx context.Context, ob
 				return it, err
 			}
 			it.Password = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMasterToysInput(ctx context.Context, obj interface{}) (MasterToysInput, error) {
+	var it MasterToysInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"masterId", "pagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "masterId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("masterId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MasterID = data
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMastersInput(ctx context.Context, obj interface{}) (MastersInput, error) {
+	var it MastersInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"pagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMyToysInput(ctx context.Context, obj interface{}) (MyToysInput, error) {
+	var it MyToysInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"pagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
 		}
 	}
 
@@ -10488,6 +10697,33 @@ func (ec *executionContext) unmarshalInputSendVerifyEmailMessageInput(ctx contex
 				return it, err
 			}
 			it.Email = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputToysInput(ctx context.Context, obj interface{}) (ToysInput, error) {
+	var it ToysInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"pagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
 		}
 	}
 
@@ -10763,6 +10999,33 @@ func (ec *executionContext) unmarshalInputUpdateUserProfileInput(ctx context.Con
 				return it, err
 			}
 			it.Avatar = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUsersInput(ctx context.Context, obj interface{}) (UsersInput, error) {
+	var it UsersInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"pagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
 		}
 	}
 
@@ -12149,8 +12412,8 @@ func (ec *executionContext) _TicketAttachment(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "ticketID":
-			out.Values[i] = ec._TicketAttachment_ticketID(ctx, field, obj)
+		case "ticketId":
+			out.Values[i] = ec._TicketAttachment_ticketId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12415,8 +12678,8 @@ func (ec *executionContext) _ToyAttachment(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "toyID":
-			out.Values[i] = ec._ToyAttachment_toyID(ctx, field, obj)
+		case "toyId":
+			out.Values[i] = ec._ToyAttachment_toyId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -13032,6 +13295,11 @@ func (ec *executionContext) marshalNMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑb
 	return ec._Master(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNMasterToysInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐMasterToysInput(ctx context.Context, v interface{}) (MasterToysInput, error) {
+	res, err := ec.unmarshalInputMasterToysInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRegisterMasterInput2githubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐRegisterMasterInput(ctx context.Context, v interface{}) (RegisterMasterInput, error) {
 	res, err := ec.unmarshalInputRegisterMasterInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13605,14 +13873,6 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
-func (ec *executionContext) unmarshalOGetUsersInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐGetUsersInput(ctx context.Context, v interface{}) (*GetUsersInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputGetUsersInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -13690,6 +13950,22 @@ func (ec *executionContext) marshalOMaster2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtm�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOMastersInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐMastersInput(ctx context.Context, v interface{}) (*MastersInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputMastersInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOMyToysInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐMyToysInput(ctx context.Context, v interface{}) (*MyToysInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputMyToysInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOPagination2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐPagination(ctx context.Context, v interface{}) (*entities.Pagination, error) {
@@ -14083,6 +14359,14 @@ func (ec *executionContext) marshalOToyAttachment2ᚕgithubᚗcomᚋDKhorkovᚋh
 	return ret
 }
 
+func (ec *executionContext) unmarshalOToysInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐToysInput(ctx context.Context, v interface{}) (*ToysInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputToysInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOUpload2ᚕᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUploadᚄ(ctx context.Context, v interface{}) ([]*graphql.Upload, error) {
 	if v == nil {
 		return nil, nil
@@ -14182,6 +14466,14 @@ func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑ
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOUsersInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐUsersInput(ctx context.Context, v interface{}) (*UsersInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUsersInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

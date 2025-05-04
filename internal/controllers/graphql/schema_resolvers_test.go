@@ -2590,14 +2590,14 @@ func TestQueryResolver_Users(t *testing.T) {
 
 	testCases := []struct {
 		name          string
-		input         *graphqlapi.GetUsersInput
+		input         *graphqlapi.UsersInput
 		setupMocks    func(useCases *mockusecases.MockUseCases)
 		expected      []*entities.User
 		errorExpected bool
 	}{
 		{
 			name: "successful users retrieval",
-			input: &graphqlapi.GetUsersInput{
+			input: &graphqlapi.UsersInput{
 				Pagination: &entities.Pagination{
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
@@ -2622,7 +2622,7 @@ func TestQueryResolver_Users(t *testing.T) {
 		},
 		{
 			name: "use case error",
-			input: &graphqlapi.GetUsersInput{
+			input: &graphqlapi.UsersInput{
 				Pagination: &entities.Pagination{
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
@@ -2922,6 +2922,7 @@ func TestQueryResolver_MyToys(t *testing.T) {
 
 	testCases := []struct {
 		name           string
+		input          *graphqlapi.MyToysInput
 		prepareContext func(ctx context.Context) context.Context
 		setupMocks     func(useCases *mockusecases.MockUseCases)
 		expected       []*entities.Toy
@@ -2930,13 +2931,26 @@ func TestQueryResolver_MyToys(t *testing.T) {
 	}{
 		{
 			name: "successful get my toys",
+			input: &graphqlapi.MyToysInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			prepareContext: func(ctx context.Context) context.Context {
 				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMyToys(gomock.Any(), validAccessToken.Value).
+					GetMyToys(
+						gomock.Any(),
+						validAccessToken.Value,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(mockToys, nil).
 					Times(1)
 			},
@@ -2944,13 +2958,26 @@ func TestQueryResolver_MyToys(t *testing.T) {
 		},
 		{
 			name: "empty toys list",
+			input: &graphqlapi.MyToysInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			prepareContext: func(ctx context.Context) context.Context {
 				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMyToys(gomock.Any(), validAccessToken.Value).
+					GetMyToys(
+						gomock.Any(),
+						validAccessToken.Value,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.Toy{}, nil).
 					Times(1)
 			},
@@ -2963,13 +2990,26 @@ func TestQueryResolver_MyToys(t *testing.T) {
 		},
 		{
 			name: "use case error",
+			input: &graphqlapi.MyToysInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			prepareContext: func(ctx context.Context) context.Context {
 				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMyToys(gomock.Any(), validAccessToken.Value).
+					GetMyToys(
+						gomock.Any(),
+						validAccessToken.Value,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("error")).
 					Times(1)
 			},
@@ -2999,7 +3039,7 @@ func TestQueryResolver_MyToys(t *testing.T) {
 				tc.setupMocks(useCases)
 			}
 
-			actual, err := resolver.MyToys(testCtx)
+			actual, err := resolver.MyToys(testCtx, tc.input)
 
 			if tc.errorExpected {
 				require.Error(t, err)
@@ -3441,16 +3481,29 @@ func TestQueryResolver_Masters(t *testing.T) {
 
 	testCases := []struct {
 		name          string
+		input         *graphqlapi.MastersInput
 		setupMocks    func(useCases *mockusecases.MockUseCases)
 		expected      []*entities.Master
 		errorExpected bool
 	}{
 		{
 			name: "successful get all masters",
+			input: &graphqlapi.MastersInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(mockMasters, nil).
 					Times(1)
 			},
@@ -3458,10 +3511,22 @@ func TestQueryResolver_Masters(t *testing.T) {
 		},
 		{
 			name: "empty masters list",
+			input: &graphqlapi.MastersInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.Master{}, nil).
 					Times(1)
 			},
@@ -3469,10 +3534,22 @@ func TestQueryResolver_Masters(t *testing.T) {
 		},
 		{
 			name: "use case error",
+			input: &graphqlapi.MastersInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("test")).
 					Times(1)
 			},
@@ -3497,7 +3574,7 @@ func TestQueryResolver_Masters(t *testing.T) {
 				tc.setupMocks(useCases)
 			}
 
-			actual, err := resolver.Masters(ctx)
+			actual, err := resolver.Masters(ctx, tc.input)
 
 			if tc.errorExpected {
 				require.Error(t, err)
@@ -3526,48 +3603,93 @@ func TestQueryResolver_MasterToys(t *testing.T) {
 
 	testCases := []struct {
 		name          string
-		masterID      string
+		input         graphqlapi.MasterToysInput
 		setupMocks    func(useCases *mockusecases.MockUseCases)
 		expected      []*entities.Toy
 		errorExpected bool
 	}{
 		{
-			name:     "successful get master toys",
-			masterID: strconv.FormatUint(masterID, 10),
+			name: "successful get master toys",
+			input: graphqlapi.MasterToysInput{
+				MasterID: strconv.FormatUint(masterID, 10),
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMasterToys(gomock.Any(), masterID).
+					GetMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(mockToys, nil).
 					Times(1)
 			},
 			expected: []*entities.Toy{&mockToys[0]},
 		},
 		{
-			name:     "empty toys list",
-			masterID: strconv.FormatUint(masterID, 10),
+			name: "empty toys list",
+			input: graphqlapi.MasterToysInput{
+				MasterID: strconv.FormatUint(masterID, 10),
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMasterToys(gomock.Any(), masterID).
+					GetMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.Toy{}, nil).
 					Times(1)
 			},
 			expected: []*entities.Toy{},
 		},
 		{
-			name:          "invalid master ID",
-			masterID:      "invalid",
+			name: "invalid master ID",
+			input: graphqlapi.MasterToysInput{
+				MasterID: "invalid",
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks:    func(useCases *mockusecases.MockUseCases) {},
 			errorExpected: true,
 		},
 		{
-			name:     "use case error",
-			masterID: strconv.FormatUint(masterID, 10),
+			name: "use case error",
+			input: graphqlapi.MasterToysInput{
+				MasterID: strconv.FormatUint(masterID, 10),
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMasterToys(gomock.Any(), masterID).
+					GetMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("test")).
 					Times(1)
 			},
@@ -3592,7 +3714,7 @@ func TestQueryResolver_MasterToys(t *testing.T) {
 				tc.setupMocks(useCases)
 			}
 
-			actual, err := resolver.MasterToys(ctx, tc.masterID)
+			actual, err := resolver.MasterToys(ctx, tc.input)
 
 			if tc.errorExpected {
 				require.Error(t, err)
@@ -3699,6 +3821,7 @@ func TestQueryResolver_Toys(t *testing.T) {
 
 	testCases := []struct {
 		name          string
+		input         *graphqlapi.ToysInput
 		setupMocks    func(useCases *mockusecases.MockUseCases)
 		expected      []*entities.Toy
 		expectedError error
@@ -3706,10 +3829,22 @@ func TestQueryResolver_Toys(t *testing.T) {
 	}{
 		{
 			name: "successful toys retrieval",
+			input: &graphqlapi.ToysInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(testToys, nil).
 					Times(1)
 			},
@@ -3719,10 +3854,22 @@ func TestQueryResolver_Toys(t *testing.T) {
 		},
 		{
 			name: "use case error",
+			input: &graphqlapi.ToysInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("get toys error")).
 					Times(1)
 			},
@@ -3750,7 +3897,7 @@ func TestQueryResolver_Toys(t *testing.T) {
 				tc.setupMocks(useCases)
 			}
 
-			actual, err := resolver.Toys(testCtx)
+			actual, err := resolver.Toys(testCtx, tc.input)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -5368,6 +5515,132 @@ func TestQueryResolver_MasterByUserID(t *testing.T) {
 			}
 
 			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestPaginationResolver_Limit(t *testing.T) {
+	tests := []struct {
+		name     string
+		obj      *entities.Pagination
+		data     *int
+		expected *uint64
+	}{
+		{
+			name:     "nil obj and nil data",
+			obj:      nil,
+			data:     nil,
+			expected: nil,
+		},
+		{
+			name:     "nil obj with data",
+			obj:      nil,
+			data:     pointers.New(10),
+			expected: nil,
+		},
+		{
+			name:     "obj with nil data",
+			obj:      &entities.Pagination{},
+			data:     nil,
+			expected: nil,
+		},
+		{
+			name:     "set positive limit",
+			obj:      &entities.Pagination{},
+			data:     pointers.New(25),
+			expected: pointers.New(uint64(25)),
+		},
+		{
+			name:     "set zero limit",
+			obj:      &entities.Pagination{},
+			data:     pointers.New(0),
+			expected: pointers.New(uint64(0)),
+		},
+		{
+			name:     "overwrite existing limit",
+			obj:      &entities.Pagination{Limit: pointers.New(uint64(50))},
+			data:     pointers.New(30),
+			expected: pointers.New(uint64(30)),
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	mainResolver := NewResolver(useCases, logger, config.CookiesConfig{})
+	testedResolver := &paginationResolver{Resolver: mainResolver}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := testedResolver.Limit(context.Background(), tc.obj, tc.data)
+			require.NoError(t, err)
+
+			if tc.obj != nil {
+				require.Equal(t, tc.expected, tc.obj.Limit)
+			}
+		})
+	}
+}
+
+func TestPaginationResolver_Offset(t *testing.T) {
+	tests := []struct {
+		name     string
+		obj      *entities.Pagination
+		data     *int
+		expected *uint64
+	}{
+		{
+			name:     "nil obj and nil data",
+			obj:      nil,
+			data:     nil,
+			expected: nil,
+		},
+		{
+			name:     "nil obj with data",
+			obj:      nil,
+			data:     pointers.New(100),
+			expected: nil,
+		},
+		{
+			name:     "obj with nil data",
+			obj:      &entities.Pagination{},
+			data:     nil,
+			expected: nil,
+		},
+		{
+			name:     "set positive offset",
+			obj:      &entities.Pagination{},
+			data:     pointers.New(50),
+			expected: pointers.New(uint64(50)),
+		},
+		{
+			name:     "set zero offset",
+			obj:      &entities.Pagination{},
+			data:     pointers.New(0),
+			expected: pointers.New(uint64(0)),
+		},
+		{
+			name:     "overwrite existing offset",
+			obj:      &entities.Pagination{Offset: pointers.New(uint64(200))},
+			data:     pointers.New(150),
+			expected: pointers.New(uint64(150)),
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	mainResolver := NewResolver(useCases, logger, config.CookiesConfig{})
+	testedResolver := &paginationResolver{Resolver: mainResolver}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := testedResolver.Offset(context.Background(), tc.obj, tc.data)
+			require.NoError(t, err)
+
+			if tc.obj != nil {
+				require.Equal(t, tc.expected, tc.obj.Offset)
+			}
 		})
 	}
 }

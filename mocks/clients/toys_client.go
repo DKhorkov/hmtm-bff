@@ -204,7 +204,7 @@ func (mr *MockToysClientMockRecorder) GetMasterToys(ctx, in any, opts ...any) *g
 }
 
 // GetMasters mocks base method.
-func (m *MockToysClient) GetMasters(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*toys.GetMastersOut, error) {
+func (m *MockToysClient) GetMasters(ctx context.Context, in *toys.GetMastersIn, opts ...grpc.CallOption) (*toys.GetMastersOut, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, in}
 	for _, a := range opts {
@@ -284,7 +284,7 @@ func (mr *MockToysClientMockRecorder) GetToy(ctx, in any, opts ...any) *gomock.C
 }
 
 // GetToys mocks base method.
-func (m *MockToysClient) GetToys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*toys.GetToysOut, error) {
+func (m *MockToysClient) GetToys(ctx context.Context, in *toys.GetToysIn, opts ...grpc.CallOption) (*toys.GetToysOut, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, in}
 	for _, a := range opts {

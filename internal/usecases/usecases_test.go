@@ -2265,9 +2265,10 @@ func TestUseCases_createFilename(t *testing.T) {
 	}
 }
 
-func TestUseCases_GetAllToys(t *testing.T) {
+func TestUseCases_GetToys(t *testing.T) {
 	testCases := []struct {
 		name       string
+		pagination *entities.Pagination
 		setupMocks func(
 			ssoService *mockservices.MockSsoService,
 			toysService *mockservices.MockToysService,
@@ -2282,6 +2283,10 @@ func TestUseCases_GetAllToys(t *testing.T) {
 	}{
 		{
 			name: "success with toys",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
 				toysService *mockservices.MockToysService,
@@ -2312,7 +2317,13 @@ func TestUseCases_GetAllToys(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(toys, nil).
 					Times(1)
 			},
@@ -2338,6 +2349,10 @@ func TestUseCases_GetAllToys(t *testing.T) {
 		},
 		{
 			name: "success with empty list",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
 				toysService *mockservices.MockToysService,
@@ -2349,7 +2364,13 @@ func TestUseCases_GetAllToys(t *testing.T) {
 			) {
 				toysService.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.Toy{}, nil).
 					Times(1)
 			},
@@ -2358,6 +2379,10 @@ func TestUseCases_GetAllToys(t *testing.T) {
 		},
 		{
 			name: "error from service",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
 				toysService *mockservices.MockToysService,
@@ -2369,7 +2394,13 @@ func TestUseCases_GetAllToys(t *testing.T) {
 			) {
 				toysService.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("database error")).
 					Times(1)
 			},
@@ -2411,7 +2442,7 @@ func TestUseCases_GetAllToys(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetAllToys(ctx)
+			actual, err := useCases.GetToys(ctx, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -2426,6 +2457,7 @@ func TestUseCases_GetAllToys(t *testing.T) {
 func TestUseCases_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name       string
+		pagination *entities.Pagination
 		masterID   uint64
 		setupMocks func(
 			ssoService *mockservices.MockSsoService,
@@ -2440,7 +2472,11 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 		errorExpected bool
 	}{
 		{
-			name:     "success with toys",
+			name: "success with toys",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			masterID: 1,
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
@@ -2472,7 +2508,14 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterToys(gomock.Any(), uint64(1)).
+					GetMasterToys(
+						gomock.Any(),
+						uint64(1),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(toys, nil).
 					Times(1)
 			},
@@ -2497,7 +2540,11 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 			errorExpected: false,
 		},
 		{
-			name:     "success with empty list",
+			name: "success with empty list",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			masterID: 2,
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
@@ -2510,7 +2557,14 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 			) {
 				toysService.
 					EXPECT().
-					GetMasterToys(gomock.Any(), uint64(2)).
+					GetMasterToys(
+						gomock.Any(),
+						uint64(2),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.Toy{}, nil).
 					Times(1)
 			},
@@ -2518,7 +2572,11 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 			errorExpected: false,
 		},
 		{
-			name:     "error from service",
+			name: "error from service",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			masterID: 3,
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
@@ -2531,7 +2589,14 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 			) {
 				toysService.
 					EXPECT().
-					GetMasterToys(gomock.Any(), uint64(3)).
+					GetMasterToys(
+						gomock.Any(),
+						uint64(3),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("toys not found")).
 					Times(1)
 			},
@@ -2573,7 +2638,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetMasterToys(ctx, tc.masterID)
+			actual, err := useCases.GetMasterToys(ctx, tc.masterID, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -2588,6 +2653,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 func TestUseCases_GetMyToys(t *testing.T) {
 	testCases := []struct {
 		name        string
+		pagination  *entities.Pagination
 		accessToken string
 		setupMocks  func(
 			ssoService *mockservices.MockSsoService,
@@ -2602,7 +2668,11 @@ func TestUseCases_GetMyToys(t *testing.T) {
 		errorExpected bool
 	}{
 		{
-			name:        "success with toys",
+			name: "success with toys",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			accessToken: "valid_access_token",
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
@@ -2641,7 +2711,14 @@ func TestUseCases_GetMyToys(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetUserToys(gomock.Any(), uint64(1)).
+					GetUserToys(
+						gomock.Any(),
+						uint64(1),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(toys, nil).
 					Times(1)
 			},
@@ -2666,7 +2743,11 @@ func TestUseCases_GetMyToys(t *testing.T) {
 			errorExpected: false,
 		},
 		{
-			name:        "success with empty list",
+			name: "success with empty list",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			accessToken: "valid_access_token",
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
@@ -2686,7 +2767,14 @@ func TestUseCases_GetMyToys(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetUserToys(gomock.Any(), uint64(2)).
+					GetUserToys(
+						gomock.Any(),
+						uint64(2),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.Toy{}, nil).
 					Times(1)
 			},
@@ -2694,7 +2782,11 @@ func TestUseCases_GetMyToys(t *testing.T) {
 			errorExpected: false,
 		},
 		{
-			name:        "invalid access token",
+			name: "invalid access token",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			accessToken: "invalid_access_token",
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
@@ -2715,7 +2807,11 @@ func TestUseCases_GetMyToys(t *testing.T) {
 			errorExpected: true,
 		},
 		{
-			name:        "error from toys service",
+			name: "error from toys service",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			accessToken: "valid_access_token",
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
@@ -2735,7 +2831,14 @@ func TestUseCases_GetMyToys(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetUserToys(gomock.Any(), uint64(3)).
+					GetUserToys(
+						gomock.Any(),
+						uint64(3),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("database error")).
 					Times(1)
 			},
@@ -2777,7 +2880,7 @@ func TestUseCases_GetMyToys(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetMyToys(ctx, tc.accessToken)
+			actual, err := useCases.GetMyToys(ctx, tc.accessToken, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -4258,9 +4361,10 @@ func TestUseCases_GetMasterByID(t *testing.T) {
 	}
 }
 
-func TestUseCases_GetAllMasters(t *testing.T) {
+func TestUseCases_GetMasters(t *testing.T) {
 	testCases := []struct {
 		name       string
+		pagination *entities.Pagination
 		setupMocks func(
 			ssoService *mockservices.MockSsoService,
 			toysService *mockservices.MockToysService,
@@ -4275,6 +4379,10 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 	}{
 		{
 			name: "success with masters",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
 				toysService *mockservices.MockToysService,
@@ -4299,7 +4407,13 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(masters, nil).
 					Times(1)
 			},
@@ -4319,6 +4433,10 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 		},
 		{
 			name: "success with empty list",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
 				toysService *mockservices.MockToysService,
@@ -4330,7 +4448,13 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 			) {
 				toysService.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.Master{}, nil).
 					Times(1)
 			},
@@ -4339,6 +4463,10 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 		},
 		{
 			name: "error from service",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
 				toysService *mockservices.MockToysService,
@@ -4350,7 +4478,13 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 			) {
 				toysService.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("database error")).
 					Times(1)
 			},
@@ -4392,7 +4526,7 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetAllMasters(ctx)
+			actual, err := useCases.GetMasters(ctx, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {

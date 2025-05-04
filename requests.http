@@ -394,7 +394,7 @@ POST http://localhost:8080/query
 Content-Type: application/json
 
 {
-  "query": "query GetUsers($input: GetUsersInput) { users(input: $input) { id displayName email phone createdAt } }",
+  "query": "query GetUsers($input: UsersInput) { users(input: $input) { id displayName email phone createdAt } }",
   "variables": {
     "input": {
       "pagination": {
@@ -423,5 +423,75 @@ Content-Type: application/json
   "query": "query UserByEmail($email: String!) { userByEmail(email: $email) { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } }",
   "variables": {
     "email": "user@example.com"
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query GetMasters($input: MastersInput) { masters(input: $input) { id user { id displayName email } info createdAt updatedAt } }",
+  "variables": {
+    "input": {
+      "pagination": {
+        "limit": 1,
+        "offset": 1
+      }
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query GetMasterToys($input: MasterToysInput!) { masterToys(input: $input) { id name description price quantity category { id name } tags { id name } attachments { id link } createdAt } }",
+  "variables": {
+    "input": {
+      "masterId": "2",
+      "pagination": {
+        "limit": 10,
+        "offset": 0
+      }
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query GetToys($input: ToysInput) { toys(input: $input) { id name description price quantity category { id name } tags { id name } attachments { id link } createdAt } }",
+  "variables": {
+    "input": {
+      "pagination": {
+        "limit": 2,
+        "offset": 1
+      }
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDYzNDgwMzgsInZhbHVlIjozMX0.Nad1KVbfwzgXdPKZpV6_s5Ux2kHZosJatSnVt5WeIKA
+
+{
+  "query": "query GetMyToys($input: MyToysInput) { myToys(input: $input) { id name description price quantity category { id name } tags { id name } attachments { id link } createdAt } }",
+  "variables": {
+    "input": {
+      "pagination": {
+        "limit": 2,
+        "offset": 0
+      }
+    }
   }
 }

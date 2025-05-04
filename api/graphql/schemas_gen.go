@@ -49,16 +49,25 @@ type ForgetPasswordInput struct {
 	NewPassword         string `json:"newPassword"`
 }
 
-type GetUsersInput struct {
-	Pagination *entities.Pagination `json:"pagination,omitempty"`
-}
-
 type LoginUserInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
+type MasterToysInput struct {
+	MasterID   string               `json:"masterId"`
+	Pagination *entities.Pagination `json:"pagination,omitempty"`
+}
+
+type MastersInput struct {
+	Pagination *entities.Pagination `json:"pagination,omitempty"`
+}
+
 type Mutation struct {
+}
+
+type MyToysInput struct {
+	Pagination *entities.Pagination `json:"pagination,omitempty"`
 }
 
 type Query struct {
@@ -86,6 +95,10 @@ type SendForgetPasswordMessageInput struct {
 
 type SendVerifyEmailMessageInput struct {
 	Email string `json:"email"`
+}
+
+type ToysInput struct {
+	Pagination *entities.Pagination `json:"pagination,omitempty"`
 }
 
 type UpdateMasterInput struct {
@@ -126,6 +139,10 @@ type UpdateUserProfileInput struct {
 	Phone       *string         `json:"phone,omitempty"`
 	Telegram    *string         `json:"telegram,omitempty"`
 	Avatar      *graphql.Upload `json:"avatar,omitempty"`
+}
+
+type UsersInput struct {
+	Pagination *entities.Pagination `json:"pagination,omitempty"`
 }
 
 type VerifyUserEmailInput struct {

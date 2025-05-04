@@ -42,10 +42,18 @@ func (repo *ToysRepository) AddToy(
 	return response.GetToyID(), nil
 }
 
-func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
+func (repo *ToysRepository) GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error) {
+	in := &toys.GetToysIn{}
+	if pagination != nil {
+		in.Pagination = &toys.Pagination{
+			Limit:  pagination.Limit,
+			Offset: pagination.Offset,
+		}
+	}
+
 	response, err := repo.client.GetToys(
 		ctx,
-		&emptypb.Empty{},
+		in,
 	)
 	if err != nil {
 		return nil, err
@@ -62,12 +70,19 @@ func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, err
 func (repo *ToysRepository) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,
+	pagination *entities.Pagination,
 ) ([]entities.Toy, error) {
+	in := &toys.GetMasterToysIn{MasterID: masterID}
+	if pagination != nil {
+		in.Pagination = &toys.Pagination{
+			Limit:  pagination.Limit,
+			Offset: pagination.Offset,
+		}
+	}
+
 	response, err := repo.client.GetMasterToys(
 		ctx,
-		&toys.GetMasterToysIn{
-			MasterID: masterID,
-		},
+		in,
 	)
 	if err != nil {
 		return nil, err
@@ -84,12 +99,19 @@ func (repo *ToysRepository) GetMasterToys(
 func (repo *ToysRepository) GetUserToys(
 	ctx context.Context,
 	userID uint64,
+	pagination *entities.Pagination,
 ) ([]entities.Toy, error) {
+	in := &toys.GetUserToysIn{UserID: userID}
+	if pagination != nil {
+		in.Pagination = &toys.Pagination{
+			Limit:  pagination.Limit,
+			Offset: pagination.Offset,
+		}
+	}
+
 	response, err := repo.client.GetUserToys(
 		ctx,
-		&toys.GetUserToysIn{
-			UserID: userID,
-		},
+		in,
 	)
 	if err != nil {
 		return nil, err
@@ -117,10 +139,21 @@ func (repo *ToysRepository) GetToyByID(ctx context.Context, id uint64) (*entitie
 	return repo.processToyResponse(response), nil
 }
 
-func (repo *ToysRepository) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
+func (repo *ToysRepository) GetMasters(
+	ctx context.Context,
+	pagination *entities.Pagination,
+) ([]entities.Master, error) {
+	in := &toys.GetMastersIn{}
+	if pagination != nil {
+		in.Pagination = &toys.Pagination{
+			Limit:  pagination.Limit,
+			Offset: pagination.Offset,
+		}
+	}
+
 	response, err := repo.client.GetMasters(
 		ctx,
-		&emptypb.Empty{},
+		in,
 	)
 	if err != nil {
 		return nil, err
