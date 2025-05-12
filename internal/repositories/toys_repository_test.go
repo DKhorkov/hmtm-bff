@@ -106,10 +106,6 @@ func TestToysRepository_AddToy(t *testing.T) {
 }
 
 func TestToysRepository_GetToys(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	toysClient := mockclients.NewMockToysClient(ctrl)
-	repo := NewToysRepository(toysClient)
-
 	now := time.Now().UTC().Truncate(time.Second)
 
 	testCases := []struct {
@@ -197,6 +193,10 @@ func TestToysRepository_GetToys(t *testing.T) {
 		},
 	}
 
+	ctrl := gomock.NewController(t)
+	toysClient := mockclients.NewMockToysClient(ctrl)
+	repo := NewToysRepository(toysClient)
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
@@ -211,6 +211,71 @@ func TestToysRepository_GetToys(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, tc.expectedToys, toysList)
 			}
+		})
+	}
+}
+
+func TestToysRepository_CountToys(t *testing.T) {
+	testCases := []struct {
+		name          string
+		setupMocks    func(toysClient *mockclients.MockToysClient)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			setupMocks: func(toysClient *mockclients.MockToysClient) {
+				toysClient.
+					EXPECT().
+					CountToys(
+						gomock.Any(),
+						&toys.CountToysIn{},
+					).
+					Return(
+						&toys.CountOut{Count: 1},
+						nil,
+					).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name: "error",
+			setupMocks: func(toysClient *mockclients.MockToysClient) {
+				toysClient.
+					EXPECT().
+					CountToys(
+						gomock.Any(),
+						&toys.CountToysIn{},
+					).
+					Return(
+						&toys.CountOut{Count: 0},
+						errors.New("error"),
+					).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	toysClient := mockclients.NewMockToysClient(ctrl)
+	repo := NewToysRepository(toysClient)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(toysClient)
+			}
+
+			actual, err := repo.CountToys(context.Background())
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
 		})
 	}
 }

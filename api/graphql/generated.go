@@ -118,6 +118,7 @@ type ComplexityRoot struct {
 		Tickets               func(childComplexity int) int
 		Toy                   func(childComplexity int, id string) int
 		Toys                  func(childComplexity int, input *ToysInput) int
+		ToysCounter           func(childComplexity int) int
 		User                  func(childComplexity int, id string) int
 		UserByEmail           func(childComplexity int, email string) int
 		UserTickets           func(childComplexity int, userID string) int
@@ -238,6 +239,7 @@ type QueryResolver interface {
 	MasterToys(ctx context.Context, input MasterToysInput) ([]*entities.Toy, error)
 	Toy(ctx context.Context, id string) (*entities.Toy, error)
 	Toys(ctx context.Context, input *ToysInput) ([]*entities.Toy, error)
+	ToysCounter(ctx context.Context) (int, error)
 	MyToys(ctx context.Context, input *MyToysInput) ([]*entities.Toy, error)
 	Tag(ctx context.Context, id string) (*entities.Tag, error)
 	Tags(ctx context.Context) ([]*entities.Tag, error)
@@ -807,6 +809,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Toys(childComplexity, args["input"].(*ToysInput)), true
+
+	case "Query.toysCounter":
+		if e.complexity.Query.ToysCounter == nil {
+			break
+		}
+
+		return e.complexity.Query.ToysCounter(childComplexity), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -4982,6 +4991,50 @@ func (ec *executionContext) fieldContext_Query_toys(ctx context.Context, field g
 	if fc.Args, err = ec.field_Query_toys_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_toysCounter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_toysCounter(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ToysCounter(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_toysCounter(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -11690,6 +11743,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_toys(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "toysCounter":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_toysCounter(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 

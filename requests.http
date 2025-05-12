@@ -495,3 +495,13 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDYzNDgwMzg
     }
   }
 }
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query { toysCounter }"
+}
+

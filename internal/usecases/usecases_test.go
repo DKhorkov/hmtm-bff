@@ -2454,6 +2454,107 @@ func TestUseCases_GetToys(t *testing.T) {
 	}
 }
 
+func TestUseCases_CountToys(t *testing.T) {
+	testCases := []struct {
+		name       string
+		setupMocks func(
+			ssoService *mockservices.MockSsoService,
+			toysService *mockservices.MockToysService,
+			fileStorageService *mockservices.MockFileStorageService,
+			ticketsService *mockservices.MockTicketsService,
+			notificationsService *mockservices.MockNotificationsService,
+			logger *mocklogger.MockLogger,
+			traceProvider *tracingmock.MockProvider,
+		)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			setupMocks: func(
+				_ *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockFileStorageService,
+				_ *mockservices.MockTicketsService,
+				_ *mockservices.MockNotificationsService,
+				_ *mocklogger.MockLogger,
+				_ *tracingmock.MockProvider,
+			) {
+				toysService.
+					EXPECT().
+					CountToys(gomock.Any()).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected:      1,
+			errorExpected: false,
+		},
+		{
+			name: "error from service",
+			setupMocks: func(
+				_ *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockFileStorageService,
+				_ *mockservices.MockTicketsService,
+				_ *mockservices.MockNotificationsService,
+				_ *mocklogger.MockLogger,
+				_ *tracingmock.MockProvider,
+			) {
+				toysService.
+					EXPECT().
+					CountToys(gomock.Any()).
+					Return(uint64(0), errors.New("error")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ticketsService := mockservices.NewMockTicketsService(ctrl)
+	notificationsService := mockservices.NewMockNotificationsService(ctrl)
+	fileStorageService := mockservices.NewMockFileStorageService(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	traceProvider := tracingmock.NewMockProvider(ctrl)
+	useCases := New(
+		ssoService,
+		toysService,
+		fileStorageService,
+		ticketsService,
+		notificationsService,
+		validationConfig,
+		logger,
+		traceProvider,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					ssoService,
+					toysService,
+					fileStorageService,
+					ticketsService,
+					notificationsService,
+					logger,
+					traceProvider,
+				)
+			}
+
+			actual, err := useCases.CountToys(ctx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestUseCases_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name       string

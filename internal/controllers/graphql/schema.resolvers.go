@@ -694,6 +694,16 @@ func (r *queryResolver) Toys(ctx context.Context, input *graphqlapi.ToysInput) (
 	return response, nil
 }
 
+// ToysCounter is the resolver for the toysCounter field.
+func (r *queryResolver) ToysCounter(ctx context.Context) (int, error) {
+	count, err := r.useCases.CountToys(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
+}
+
 // MyToys is the resolver for the myToys field.
 func (r *queryResolver) MyToys(ctx context.Context, input *graphqlapi.MyToysInput) ([]*entities.Toy, error) {
 	var pagination *entities.Pagination
