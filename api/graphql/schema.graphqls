@@ -138,6 +138,7 @@ type Query {
     masterToys(input: MasterToysInput!): [Toy!]
     toy(id: ID!): Toy!
     toys(input: ToysInput): [Toy!]
+    toysCounter: Int!
     myToys(input: MyToysInput): [Toy!]
     tag(id: ID!): Tag!
     tags: [Tag!]

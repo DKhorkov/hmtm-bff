@@ -71,6 +71,21 @@ func (mr *MockUseCasesMockRecorder) ChangePassword(ctx, accessToken, oldPassword
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockUseCases)(nil).ChangePassword), ctx, accessToken, oldPassword, newPassword)
 }
 
+// CountToys mocks base method.
+func (m *MockUseCases) CountToys(ctx context.Context) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountToys", ctx)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountToys indicates an expected call of CountToys.
+func (mr *MockUseCasesMockRecorder) CountToys(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountToys", reflect.TypeOf((*MockUseCases)(nil).CountToys), ctx)
+}
+
 // CreateTicket mocks base method.
 func (m *MockUseCases) CreateTicket(ctx context.Context, rawTicketData entities.RawCreateTicketDTO) (uint64, error) {
 	m.ctrl.T.Helper()

@@ -67,6 +67,20 @@ func (repo *ToysRepository) GetToys(ctx context.Context, pagination *entities.Pa
 	return allToys, nil
 }
 
+func (repo *ToysRepository) CountToys(ctx context.Context) (uint64, error) {
+	in := &toys.CountToysIn{}
+
+	response, err := repo.client.CountToys(
+		ctx,
+		in,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.Count, nil
+}
+
 func (repo *ToysRepository) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,

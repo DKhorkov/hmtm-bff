@@ -53,6 +53,20 @@ func (service *ToysService) GetToys(ctx context.Context, pagination *entities.Pa
 	return toys, err
 }
 
+func (service *ToysService) CountToys(ctx context.Context) (uint64, error) {
+	count, err := service.toysRepository.CountToys(ctx)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			"Error occurred while trying to count all Toys",
+			err,
+		)
+	}
+
+	return count, err
+}
+
 func (service *ToysService) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,

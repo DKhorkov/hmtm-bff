@@ -3909,6 +3909,69 @@ func TestQueryResolver_Toys(t *testing.T) {
 	}
 }
 
+func TestQueryResolver_ToysCounter(t *testing.T) {
+	testCases := []struct {
+		name          string
+		setupMocks    func(useCases *mockusecases.MockUseCases)
+		expected      int
+		expectedError error
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					CountToys(gomock.Any()).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name: "use case error",
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					CountToys(gomock.Any()).
+					Return(uint64(0), errors.New("error")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	resolver := &queryResolver{
+		Resolver: NewResolver(
+			useCases,
+			logger,
+			config.CookiesConfig{},
+		),
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			testCtx := context.Background()
+
+			if tc.setupMocks != nil {
+				tc.setupMocks(useCases)
+			}
+
+			actual, err := resolver.ToysCounter(testCtx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestQueryResolver_Tag(t *testing.T) {
 	validTag := entities.Tag{
 		ID:   tagID,

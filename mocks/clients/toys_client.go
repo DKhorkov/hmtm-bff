@@ -63,6 +63,26 @@ func (mr *MockToysClientMockRecorder) AddToy(ctx, in any, opts ...any) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToy", reflect.TypeOf((*MockToysClient)(nil).AddToy), varargs...)
 }
 
+// CountToys mocks base method.
+func (m *MockToysClient) CountToys(ctx context.Context, in *toys.CountToysIn, opts ...grpc.CallOption) (*toys.CountOut, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CountToys", varargs...)
+	ret0, _ := ret[0].(*toys.CountOut)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountToys indicates an expected call of CountToys.
+func (mr *MockToysClientMockRecorder) CountToys(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountToys", reflect.TypeOf((*MockToysClient)(nil).CountToys), varargs...)
+}
+
 // CreateTags mocks base method.
 func (m *MockToysClient) CreateTags(ctx context.Context, in *toys.CreateTagsIn, opts ...grpc.CallOption) (*toys.CreateTagsOut, error) {
 	m.ctrl.T.Helper()

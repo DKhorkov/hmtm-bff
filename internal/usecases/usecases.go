@@ -165,6 +165,10 @@ func (useCases *UseCases) GetToys(ctx context.Context, pagination *entities.Pagi
 	return useCases.toysService.GetToys(ctx, pagination)
 }
 
+func (useCases *UseCases) CountToys(ctx context.Context) (uint64, error) {
+	return useCases.toysService.CountToys(ctx)
+}
+
 func (useCases *UseCases) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,

@@ -28,6 +28,7 @@ type SsoRepository interface {
 type ToysRepository interface {
 	AddToy(ctx context.Context, toyData entities.AddToyDTO) (toyID uint64, err error)
 	GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error)
+	CountToys(ctx context.Context) (uint64, error)
 	GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error)
 	GetMasterToys(ctx context.Context, masterID uint64, pagination *entities.Pagination) ([]entities.Toy, error)
 	GetUserToys(ctx context.Context, userID uint64, pagination *entities.Pagination) ([]entities.Toy, error)
