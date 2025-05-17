@@ -96,6 +96,7 @@ linters:
       - path: "internal/repositories/toys_repository.go"
         linters:
           - protogetter # to be able using optional fields like *string
+          - dupl
       - path: "internal/usecases/validators_test.go"
         linters:
           - testpackage

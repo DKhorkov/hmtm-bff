@@ -42,12 +42,28 @@ func (repo *ToysRepository) AddToy(
 	return response.GetToyID(), nil
 }
 
-func (repo *ToysRepository) GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error) {
+func (repo *ToysRepository) GetToys(
+	ctx context.Context,
+	pagination *entities.Pagination,
+	filters *entities.ToysFilters,
+) ([]entities.Toy, error) {
 	in := &toys.GetToysIn{}
 	if pagination != nil {
 		in.Pagination = &toys.Pagination{
 			Limit:  pagination.Limit,
 			Offset: pagination.Offset,
+		}
+	}
+
+	if filters != nil {
+		in.Filters = &toys.ToysFilters{
+			Search:              filters.Search,
+			PriceCeil:           filters.PriceCeil,
+			PriceFloor:          filters.PriceFloor,
+			QuantityFloor:       filters.QuantityFloor,
+			CategoryID:          filters.CategoryID,
+			TagIDs:              filters.TagIDs,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
 		}
 	}
 
@@ -67,8 +83,19 @@ func (repo *ToysRepository) GetToys(ctx context.Context, pagination *entities.Pa
 	return allToys, nil
 }
 
-func (repo *ToysRepository) CountToys(ctx context.Context) (uint64, error) {
+func (repo *ToysRepository) CountToys(ctx context.Context, filters *entities.ToysFilters) (uint64, error) {
 	in := &toys.CountToysIn{}
+	if filters != nil {
+		in.Filters = &toys.ToysFilters{
+			Search:              filters.Search,
+			PriceCeil:           filters.PriceCeil,
+			PriceFloor:          filters.PriceFloor,
+			QuantityFloor:       filters.QuantityFloor,
+			CategoryID:          filters.CategoryID,
+			TagIDs:              filters.TagIDs,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
+		}
+	}
 
 	response, err := repo.client.CountToys(
 		ctx,
@@ -85,12 +112,25 @@ func (repo *ToysRepository) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,
 	pagination *entities.Pagination,
+	filters *entities.ToysFilters,
 ) ([]entities.Toy, error) {
 	in := &toys.GetMasterToysIn{MasterID: masterID}
 	if pagination != nil {
 		in.Pagination = &toys.Pagination{
 			Limit:  pagination.Limit,
 			Offset: pagination.Offset,
+		}
+	}
+
+	if filters != nil {
+		in.Filters = &toys.ToysFilters{
+			Search:              filters.Search,
+			PriceCeil:           filters.PriceCeil,
+			PriceFloor:          filters.PriceFloor,
+			QuantityFloor:       filters.QuantityFloor,
+			CategoryID:          filters.CategoryID,
+			TagIDs:              filters.TagIDs,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
 		}
 	}
 
@@ -114,12 +154,25 @@ func (repo *ToysRepository) GetUserToys(
 	ctx context.Context,
 	userID uint64,
 	pagination *entities.Pagination,
+	filters *entities.ToysFilters,
 ) ([]entities.Toy, error) {
 	in := &toys.GetUserToysIn{UserID: userID}
 	if pagination != nil {
 		in.Pagination = &toys.Pagination{
 			Limit:  pagination.Limit,
 			Offset: pagination.Offset,
+		}
+	}
+
+	if filters != nil {
+		in.Filters = &toys.ToysFilters{
+			Search:              filters.Search,
+			PriceCeil:           filters.PriceCeil,
+			PriceFloor:          filters.PriceFloor,
+			QuantityFloor:       filters.QuantityFloor,
+			CategoryID:          filters.CategoryID,
+			TagIDs:              filters.TagIDs,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
 		}
 	}
 

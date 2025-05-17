@@ -121,6 +121,7 @@ func TestToysService_GetToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		pagination    *entities.Pagination
+		filters       *entities.ToysFilters
 		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger)
 		expectedToys  []entities.Toy
 		errorExpected bool
@@ -131,6 +132,15 @@ func TestToysService_GetToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
 					EXPECT().
@@ -140,22 +150,33 @@ func TestToysService_GetToys(t *testing.T) {
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
 						},
-					).
-					Return([]entities.Toy{
-						{
-							ID:          1,
-							MasterID:    1,
-							CategoryID:  1,
-							Name:        "Test Toy",
-							Description: "Test Description",
-							Price:       100.0,
-							Quantity:    10,
-							CreatedAt:   now,
-							UpdatedAt:   now,
-							Tags:        []entities.Tag{{ID: 1, Name: "tag1"}},
-							Attachments: []entities.ToyAttachment{{ID: 1, ToyID: 1, Link: "link1"}},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
-					}, nil).
+					).
+					Return(
+						[]entities.Toy{
+							{
+								ID:          1,
+								MasterID:    1,
+								CategoryID:  1,
+								Name:        "Test Toy",
+								Description: "Test Description",
+								Price:       100.0,
+								Quantity:    10,
+								CreatedAt:   now,
+								UpdatedAt:   now,
+								Tags:        []entities.Tag{{ID: 1, Name: "tag1"}},
+								Attachments: []entities.ToyAttachment{{ID: 1, ToyID: 1, Link: "link1"}},
+							},
+						},
+						nil).
 					Times(1)
 			},
 			expectedToys: []entities.Toy{
@@ -181,6 +202,15 @@ func TestToysService_GetToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
 					EXPECT().
@@ -189,6 +219,15 @@ func TestToysService_GetToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("fetch failed")).
@@ -210,7 +249,7 @@ func TestToysService_GetToys(t *testing.T) {
 				tc.setupMocks(toysRepository, logger)
 			}
 
-			toys, err := service.GetToys(context.Background(), tc.pagination)
+			toys, err := service.GetToys(context.Background(), tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, toys)
@@ -225,16 +264,37 @@ func TestToysService_GetToys(t *testing.T) {
 func TestToysService_CountToys(t *testing.T) {
 	testCases := []struct {
 		name          string
+		filters       *entities.ToysFilters
 		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger)
 		expected      uint64
 		errorExpected bool
 	}{
 		{
 			name: "success",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
 					EXPECT().
-					CountToys(gomock.Any()).
+					CountToys(
+						gomock.Any(),
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
 					Return(uint64(1), nil).
 					Times(1)
 			},
@@ -242,10 +302,30 @@ func TestToysService_CountToys(t *testing.T) {
 		},
 		{
 			name: "error",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
 					EXPECT().
-					CountToys(gomock.Any()).
+					CountToys(
+						gomock.Any(),
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
 					Return(uint64(0), errors.New("error")).
 					Times(1)
 
@@ -269,7 +349,7 @@ func TestToysService_CountToys(t *testing.T) {
 				tc.setupMocks(toysRepository, logger)
 			}
 
-			actual, err := service.CountToys(context.Background())
+			actual, err := service.CountToys(context.Background(), tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -290,6 +370,7 @@ func TestToysService_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		pagination    *entities.Pagination
+		filters       *entities.ToysFilters
 		masterID      uint64
 		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger)
 		expectedToys  []entities.Toy
@@ -300,6 +381,15 @@ func TestToysService_GetMasterToys(t *testing.T) {
 			pagination: &entities.Pagination{
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
 			},
 			masterID: 1,
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
@@ -312,21 +402,33 @@ func TestToysService_GetMasterToys(t *testing.T) {
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
 						},
-					).
-					Return([]entities.Toy{
-						{
-							ID:          1,
-							MasterID:    1,
-							CategoryID:  1,
-							Name:        "Test Toy",
-							Description: "Test Description",
-							Price:       100.0,
-							Quantity:    10,
-							CreatedAt:   now,
-							UpdatedAt:   now,
-							Tags:        []entities.Tag{{ID: 1, Name: "tag1"}},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
-					}, nil).
+					).
+					Return(
+						[]entities.Toy{
+							{
+								ID:          1,
+								MasterID:    1,
+								CategoryID:  1,
+								Name:        "Test Toy",
+								Description: "Test Description",
+								Price:       100.0,
+								Quantity:    10,
+								CreatedAt:   now,
+								UpdatedAt:   now,
+								Tags:        []entities.Tag{{ID: 1, Name: "tag1"}},
+							},
+						},
+						nil,
+					).
 					Times(1)
 			},
 			expectedToys: []entities.Toy{
@@ -351,6 +453,15 @@ func TestToysService_GetMasterToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			masterID: 1,
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
@@ -361,6 +472,15 @@ func TestToysService_GetMasterToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("fetch failed")).
@@ -382,7 +502,7 @@ func TestToysService_GetMasterToys(t *testing.T) {
 				tc.setupMocks(toysRepository, logger)
 			}
 
-			toys, err := service.GetMasterToys(context.Background(), tc.masterID, tc.pagination)
+			toys, err := service.GetMasterToys(context.Background(), tc.masterID, tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, toys)
@@ -403,6 +523,7 @@ func TestToysService_GetUserToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		pagination    *entities.Pagination
+		filters       *entities.ToysFilters
 		userID        uint64
 		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger)
 		expectedToys  []entities.Toy
@@ -414,6 +535,15 @@ func TestToysService_GetUserToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			userID: 1,
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
@@ -424,6 +554,15 @@ func TestToysService_GetUserToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return([]entities.Toy{
@@ -462,6 +601,15 @@ func TestToysService_GetUserToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			userID: 1,
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
@@ -472,6 +620,15 @@ func TestToysService_GetUserToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("fetch failed")).
@@ -493,7 +650,7 @@ func TestToysService_GetUserToys(t *testing.T) {
 				tc.setupMocks(toysRepository, logger)
 			}
 
-			toys, err := service.GetUserToys(context.Background(), tc.userID, tc.pagination)
+			toys, err := service.GetUserToys(context.Background(), tc.userID, tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, toys)

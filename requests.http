@@ -456,6 +456,17 @@ Content-Type: application/json
       "pagination": {
         "limit": 10,
         "offset": 0
+      },
+      "filters": {
+        "search": "toy",
+        "priceCeil": 220.00,
+        "priceFloor": 1.00,
+        "quantityFloor": 1,
+        "categoryID": "1",
+        "tagIDs": [
+          "1"
+        ],
+        "createdAtOrderByAsc": true
       }
     }
   }
@@ -472,7 +483,18 @@ Content-Type: application/json
     "input": {
       "pagination": {
         "limit": 2,
-        "offset": 1
+        "offset": 0
+      },
+      "filters": {
+        "search": "toy",
+        "priceCeil": 220.00,
+        "priceFloor": 1.00,
+        "quantityFloor": 1,
+        "categoryID": "1",
+        "tagIDs": [
+          "1"
+        ],
+        "createdAtOrderByAsc": true
       }
     }
   }
@@ -491,6 +513,17 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDYzNDgwMzg
       "pagination": {
         "limit": 2,
         "offset": 0
+      },
+      "filters": {
+        "search": "toy",
+        "priceCeil": 220.00,
+        "priceFloor": 1.00,
+        "quantityFloor": 1,
+        "categoryID": "1",
+        "tagIDs": [
+          "1"
+        ],
+        "createdAtOrderByAsc": true
       }
     }
   }
@@ -502,6 +535,18 @@ POST http://localhost:8080/query
 Content-Type: application/json
 
 {
-  "query": "query { toysCounter }"
+  "query": "query CountToys($filters: ToysFilters) { toysCounter(filters: $filters) }",
+  "variables": {
+    "filters": {
+      "search": "toy",
+      "priceCeil": 220.00,
+      "priceFloor": 1.00,
+      "quantityFloor": 1,
+      "categoryID": "1",
+      "tagIDs": [
+        "1"
+      ],
+      "createdAtOrderByAsc": true
+    }
+  }
 }
-

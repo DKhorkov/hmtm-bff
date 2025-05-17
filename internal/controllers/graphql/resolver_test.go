@@ -200,3 +200,24 @@ func TestResolver_Pagination(t *testing.T) {
 		})
 	}
 }
+
+func TestResolver_ToysFilters(t *testing.T) {
+	testCases := []struct {
+		name     string
+		resolver *Resolver
+		expected *toysFiltersResolver
+	}{
+		{
+			name:     "success",
+			resolver: &Resolver{},
+			expected: &toysFiltersResolver{Resolver: &Resolver{}},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := tc.resolver.ToysFilters()
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
