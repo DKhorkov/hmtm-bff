@@ -35,11 +35,21 @@ type UseCases interface {
 
 	// Toys cases:
 	AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (toyID uint64, err error)
-	GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error)
-	CountToys(ctx context.Context) (uint64, error)
+	GetToys(ctx context.Context, pagination *entities.Pagination, filters *entities.ToysFilters) ([]entities.Toy, error)
+	CountToys(ctx context.Context, filters *entities.ToysFilters) (uint64, error)
 	GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error)
-	GetMasterToys(ctx context.Context, masterID uint64, pagination *entities.Pagination) ([]entities.Toy, error)
-	GetMyToys(ctx context.Context, accessToken string, pagination *entities.Pagination) ([]entities.Toy, error)
+	GetMasterToys(
+		ctx context.Context,
+		masterID uint64,
+		pagination *entities.Pagination,
+		filters *entities.ToysFilters,
+	) ([]entities.Toy, error)
+	GetMyToys(
+		ctx context.Context,
+		accessToken string,
+		pagination *entities.Pagination,
+		filters *entities.ToysFilters,
+	) ([]entities.Toy, error)
 	GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error)
 	GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error)
 	GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error)

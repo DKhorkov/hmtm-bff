@@ -111,6 +111,7 @@ func TestToysRepository_GetToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		pagination    *entities.Pagination
+		filters       *entities.ToysFilters
 		setupMocks    func(toysClient *mockclients.MockToysClient)
 		expectedToys  []entities.Toy
 		errorExpected bool
@@ -121,6 +122,15 @@ func TestToysRepository_GetToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
@@ -130,6 +140,15 @@ func TestToysRepository_GetToys(t *testing.T) {
 							Pagination: &toys.Pagination{
 								Limit:  pointers.New[uint64](1),
 								Offset: pointers.New[uint64](1),
+							},
+							Filters: &toys.ToysFilters{
+								Search:              pointers.New("Toy"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryID:          pointers.New[uint32](1),
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
 							},
 						},
 					).
@@ -173,6 +192,15 @@ func TestToysRepository_GetToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
@@ -182,6 +210,15 @@ func TestToysRepository_GetToys(t *testing.T) {
 							Pagination: &toys.Pagination{
 								Limit:  pointers.New[uint64](1),
 								Offset: pointers.New[uint64](1),
+							},
+							Filters: &toys.ToysFilters{
+								Search:              pointers.New("Toy"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryID:          pointers.New[uint32](1),
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
 							},
 						},
 					).
@@ -203,7 +240,7 @@ func TestToysRepository_GetToys(t *testing.T) {
 				tc.setupMocks(toysClient)
 			}
 
-			toysList, err := repo.GetToys(context.Background(), tc.pagination)
+			toysList, err := repo.GetToys(context.Background(), tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, toysList)
@@ -218,18 +255,38 @@ func TestToysRepository_GetToys(t *testing.T) {
 func TestToysRepository_CountToys(t *testing.T) {
 	testCases := []struct {
 		name          string
+		filters       *entities.ToysFilters
 		setupMocks    func(toysClient *mockclients.MockToysClient)
 		expected      uint64
 		errorExpected bool
 	}{
 		{
 			name: "success",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
 					CountToys(
 						gomock.Any(),
-						&toys.CountToysIn{},
+						&toys.CountToysIn{
+							Filters: &toys.ToysFilters{
+								Search:              pointers.New("Toy"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryID:          pointers.New[uint32](1),
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
 					).
 					Return(
 						&toys.CountOut{Count: 1},
@@ -241,12 +298,31 @@ func TestToysRepository_CountToys(t *testing.T) {
 		},
 		{
 			name: "error",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
 					CountToys(
 						gomock.Any(),
-						&toys.CountToysIn{},
+						&toys.CountToysIn{
+							Filters: &toys.ToysFilters{
+								Search:              pointers.New("Toy"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryID:          pointers.New[uint32](1),
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
 					).
 					Return(
 						&toys.CountOut{Count: 0},
@@ -268,7 +344,7 @@ func TestToysRepository_CountToys(t *testing.T) {
 				tc.setupMocks(toysClient)
 			}
 
-			actual, err := repo.CountToys(context.Background())
+			actual, err := repo.CountToys(context.Background(), tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -290,6 +366,7 @@ func TestToysRepository_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		pagination    *entities.Pagination
+		filters       *entities.ToysFilters
 		masterID      uint64
 		setupMocks    func(toysClient *mockclients.MockToysClient)
 		expectedToys  []entities.Toy
@@ -300,6 +377,15 @@ func TestToysRepository_GetMasterToys(t *testing.T) {
 			pagination: &entities.Pagination{
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
 			},
 			masterID: 1,
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
@@ -312,6 +398,15 @@ func TestToysRepository_GetMasterToys(t *testing.T) {
 							Pagination: &toys.Pagination{
 								Limit:  pointers.New[uint64](1),
 								Offset: pointers.New[uint64](1),
+							},
+							Filters: &toys.ToysFilters{
+								Search:              pointers.New("Toy"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryID:          pointers.New[uint32](1),
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
 							},
 						},
 					).
@@ -355,6 +450,15 @@ func TestToysRepository_GetMasterToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			masterID: 1,
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
@@ -366,6 +470,15 @@ func TestToysRepository_GetMasterToys(t *testing.T) {
 							Pagination: &toys.Pagination{
 								Limit:  pointers.New[uint64](1),
 								Offset: pointers.New[uint64](1),
+							},
+							Filters: &toys.ToysFilters{
+								Search:              pointers.New("Toy"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryID:          pointers.New[uint32](1),
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
 							},
 						},
 					).
@@ -383,7 +496,7 @@ func TestToysRepository_GetMasterToys(t *testing.T) {
 				tc.setupMocks(toysClient)
 			}
 
-			toysList, err := repo.GetMasterToys(context.Background(), tc.masterID, tc.pagination)
+			toysList, err := repo.GetMasterToys(context.Background(), tc.masterID, tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, toysList)
@@ -405,6 +518,7 @@ func TestToysRepository_GetUserToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		pagination    *entities.Pagination
+		filters       *entities.ToysFilters
 		userID        uint64
 		setupMocks    func(toysClient *mockclients.MockToysClient)
 		expectedToys  []entities.Toy
@@ -415,6 +529,15 @@ func TestToysRepository_GetUserToys(t *testing.T) {
 			pagination: &entities.Pagination{
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
 			},
 			userID: 1,
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
@@ -427,6 +550,15 @@ func TestToysRepository_GetUserToys(t *testing.T) {
 							Pagination: &toys.Pagination{
 								Limit:  pointers.New[uint64](1),
 								Offset: pointers.New[uint64](1),
+							},
+							Filters: &toys.ToysFilters{
+								Search:              pointers.New("Toy"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryID:          pointers.New[uint32](1),
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
 							},
 						},
 					).
@@ -470,6 +602,15 @@ func TestToysRepository_GetUserToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			userID: 1,
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
@@ -481,6 +622,15 @@ func TestToysRepository_GetUserToys(t *testing.T) {
 							Pagination: &toys.Pagination{
 								Limit:  pointers.New[uint64](1),
 								Offset: pointers.New[uint64](1),
+							},
+							Filters: &toys.ToysFilters{
+								Search:              pointers.New("Toy"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryID:          pointers.New[uint32](1),
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
 							},
 						},
 					).
@@ -498,7 +648,7 @@ func TestToysRepository_GetUserToys(t *testing.T) {
 				tc.setupMocks(toysClient)
 			}
 
-			toysList, err := repo.GetUserToys(context.Background(), tc.userID, tc.pagination)
+			toysList, err := repo.GetUserToys(context.Background(), tc.userID, tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, toysList)

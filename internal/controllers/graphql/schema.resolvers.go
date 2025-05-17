@@ -651,7 +651,7 @@ func (r *queryResolver) MasterToys(ctx context.Context, input graphqlapi.MasterT
 		return nil, err
 	}
 
-	toys, err := r.useCases.GetMasterToys(ctx, uint64(processedMasterID), input.Pagination)
+	toys, err := r.useCases.GetMasterToys(ctx, uint64(processedMasterID), input.Pagination, input.Filters)
 	if err != nil {
 		return nil, err
 	}
@@ -681,7 +681,12 @@ func (r *queryResolver) Toys(ctx context.Context, input *graphqlapi.ToysInput) (
 		pagination = input.Pagination
 	}
 
-	toys, err := r.useCases.GetToys(ctx, pagination)
+	var filters *entities.ToysFilters
+	if input != nil {
+		filters = input.Filters
+	}
+
+	toys, err := r.useCases.GetToys(ctx, pagination, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -695,8 +700,8 @@ func (r *queryResolver) Toys(ctx context.Context, input *graphqlapi.ToysInput) (
 }
 
 // ToysCounter is the resolver for the toysCounter field.
-func (r *queryResolver) ToysCounter(ctx context.Context) (int, error) {
-	count, err := r.useCases.CountToys(ctx)
+func (r *queryResolver) ToysCounter(ctx context.Context, filters *entities.ToysFilters) (int, error) {
+	count, err := r.useCases.CountToys(ctx, filters)
 	if err != nil {
 		return 0, err
 	}
@@ -711,12 +716,17 @@ func (r *queryResolver) MyToys(ctx context.Context, input *graphqlapi.MyToysInpu
 		pagination = input.Pagination
 	}
 
+	var filters *entities.ToysFilters
+	if input != nil {
+		filters = input.Filters
+	}
+
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	toys, err := r.useCases.GetMyToys(ctx, accessToken.Value, pagination)
+	toys, err := r.useCases.GetMyToys(ctx, accessToken.Value, pagination, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -1106,6 +1116,33 @@ func (r *paginationResolver) Offset(ctx context.Context, obj *entities.Paginatio
 	return nil
 }
 
+// PriceCeil is the resolver for the priceCeil field.
+func (r *toysFiltersResolver) PriceCeil(ctx context.Context, obj *entities.ToysFilters, data *float64) error {
+	if obj != nil && data != nil {
+		obj.PriceCeil = pointers.New(float32(*data))
+	}
+
+	return nil
+}
+
+// PriceFloor is the resolver for the priceFloor field.
+func (r *toysFiltersResolver) PriceFloor(ctx context.Context, obj *entities.ToysFilters, data *float64) error {
+	if obj != nil && data != nil {
+		obj.PriceFloor = pointers.New(float32(*data))
+	}
+
+	return nil
+}
+
+// QuantityFloor is the resolver for the quantityFloor field.
+func (r *toysFiltersResolver) QuantityFloor(ctx context.Context, obj *entities.ToysFilters, data *int) error {
+	if obj != nil && data != nil {
+		obj.QuantityFloor = pointers.New(uint32(*data))
+	}
+
+	return nil
+}
+
 // Email returns graphqlapi.EmailResolver implementation.
 func (r *Resolver) Email() graphqlapi.EmailResolver { return &emailResolver{r} }
 
@@ -1130,13 +1167,17 @@ func (r *Resolver) Toy() graphqlapi.ToyResolver { return &toyResolver{r} }
 // Pagination returns graphqlapi.PaginationResolver implementation.
 func (r *Resolver) Pagination() graphqlapi.PaginationResolver { return &paginationResolver{r} }
 
+// ToysFilters returns graphqlapi.ToysFiltersResolver implementation.
+func (r *Resolver) ToysFilters() graphqlapi.ToysFiltersResolver { return &toysFiltersResolver{r} }
+
 type (
-	emailResolver      struct{ *Resolver }
-	masterResolver     struct{ *Resolver }
-	mutationResolver   struct{ *Resolver }
-	queryResolver      struct{ *Resolver }
-	respondResolver    struct{ *Resolver }
-	ticketResolver     struct{ *Resolver }
-	toyResolver        struct{ *Resolver }
-	paginationResolver struct{ *Resolver }
+	emailResolver       struct{ *Resolver }
+	masterResolver      struct{ *Resolver }
+	mutationResolver    struct{ *Resolver }
+	queryResolver       struct{ *Resolver }
+	respondResolver     struct{ *Resolver }
+	ticketResolver      struct{ *Resolver }
+	toyResolver         struct{ *Resolver }
+	paginationResolver  struct{ *Resolver }
+	toysFiltersResolver struct{ *Resolver }
 )

@@ -55,8 +55,9 @@ type LoginUserInput struct {
 }
 
 type MasterToysInput struct {
-	MasterID   string               `json:"masterId"`
-	Pagination *entities.Pagination `json:"pagination,omitempty"`
+	MasterID   string                `json:"masterId"`
+	Pagination *entities.Pagination  `json:"pagination,omitempty"`
+	Filters    *entities.ToysFilters `json:"filters,omitempty"`
 }
 
 type MastersInput struct {
@@ -67,7 +68,8 @@ type Mutation struct {
 }
 
 type MyToysInput struct {
-	Pagination *entities.Pagination `json:"pagination,omitempty"`
+	Pagination *entities.Pagination  `json:"pagination,omitempty"`
+	Filters    *entities.ToysFilters `json:"filters,omitempty"`
 }
 
 type Query struct {
@@ -98,7 +100,8 @@ type SendVerifyEmailMessageInput struct {
 }
 
 type ToysInput struct {
-	Pagination *entities.Pagination `json:"pagination,omitempty"`
+	Pagination *entities.Pagination  `json:"pagination,omitempty"`
+	Filters    *entities.ToysFilters `json:"filters,omitempty"`
 }
 
 type UpdateMasterInput struct {

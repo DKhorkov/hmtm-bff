@@ -2917,6 +2917,14 @@ func TestQueryResolver_MyToys(t *testing.T) {
 			Name:        "Toy 1",
 			Description: "Description 1",
 			Price:       19.99,
+			Quantity:    1,
+			CreatedAt:   now,
+			Tags: []entities.Tag{
+				{
+					ID:   1,
+					Name: "test",
+				},
+			},
 		},
 	}
 
@@ -2936,32 +2944,14 @@ func TestQueryResolver_MyToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
-			},
-			prepareContext: func(ctx context.Context) context.Context {
-				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
-			},
-			setupMocks: func(useCases *mockusecases.MockUseCases) {
-				useCases.
-					EXPECT().
-					GetMyToys(
-						gomock.Any(),
-						validAccessToken.Value,
-						&entities.Pagination{
-							Limit:  pointers.New[uint64](1),
-							Offset: pointers.New[uint64](1),
-						},
-					).
-					Return(mockToys, nil).
-					Times(1)
-			},
-			expected: []*entities.Toy{&mockToys[0]},
-		},
-		{
-			name: "empty toys list",
-			input: &graphqlapi.MyToysInput{
-				Pagination: &entities.Pagination{
-					Limit:  pointers.New[uint64](1),
-					Offset: pointers.New[uint64](1),
+				Filters: &entities.ToysFilters{
+					Search:              pointers.New("Toy"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
 			prepareContext: func(ctx context.Context) context.Context {
@@ -2976,6 +2966,60 @@ func TestQueryResolver_MyToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(mockToys, nil).
+					Times(1)
+			},
+			expected: []*entities.Toy{&mockToys[0]},
+		},
+		{
+			name: "empty toys list",
+			input: &graphqlapi.MyToysInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+				Filters: &entities.ToysFilters{
+					Search:              pointers.New("Toy"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
+			},
+			prepareContext: func(ctx context.Context) context.Context {
+				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					GetMyToys(
+						gomock.Any(),
+						validAccessToken.Value,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return([]entities.Toy{}, nil).
@@ -2995,6 +3039,15 @@ func TestQueryResolver_MyToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &entities.ToysFilters{
+					Search:              pointers.New("Toy"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			prepareContext: func(ctx context.Context) context.Context {
 				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
@@ -3008,6 +3061,15 @@ func TestQueryResolver_MyToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("error")).
@@ -3598,6 +3660,12 @@ func TestQueryResolver_MasterToys(t *testing.T) {
 			MasterID:    masterID,
 			CreatedAt:   now,
 			UpdatedAt:   now,
+			Tags: []entities.Tag{
+				{
+					ID:   1,
+					Name: "test",
+				},
+			},
 		},
 	}
 
@@ -3616,6 +3684,15 @@ func TestQueryResolver_MasterToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &entities.ToysFilters{
+					Search:              pointers.New("Toy"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
@@ -3626,6 +3703,15 @@ func TestQueryResolver_MasterToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(mockToys, nil).
@@ -3641,6 +3727,15 @@ func TestQueryResolver_MasterToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &entities.ToysFilters{
+					Search:              pointers.New("Toy"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
@@ -3651,6 +3746,15 @@ func TestQueryResolver_MasterToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return([]entities.Toy{}, nil).
@@ -3666,6 +3770,15 @@ func TestQueryResolver_MasterToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &entities.ToysFilters{
+					Search:              pointers.New("Toy"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks:    func(useCases *mockusecases.MockUseCases) {},
 			errorExpected: true,
@@ -3678,6 +3791,15 @@ func TestQueryResolver_MasterToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &entities.ToysFilters{
+					Search:              pointers.New("Toy"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
@@ -3688,6 +3810,15 @@ func TestQueryResolver_MasterToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("test")).
@@ -3815,7 +3946,14 @@ func TestQueryResolver_Toys(t *testing.T) {
 			Name:        "Toy1",
 			Description: "Description1",
 			Price:       19.99,
-			Quantity:    10,
+			Quantity:    1,
+			CreatedAt:   now,
+			Tags: []entities.Tag{
+				{
+					ID:   1,
+					Name: "test",
+				},
+			},
 		},
 	}
 
@@ -3834,6 +3972,15 @@ func TestQueryResolver_Toys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &entities.ToysFilters{
+					Search:              pointers.New("Toy"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
@@ -3843,6 +3990,15 @@ func TestQueryResolver_Toys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(testToys, nil).
@@ -3859,6 +4015,15 @@ func TestQueryResolver_Toys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &entities.ToysFilters{
+					Search:              pointers.New("Toy"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
@@ -3868,6 +4033,15 @@ func TestQueryResolver_Toys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("get toys error")).
@@ -3912,6 +4086,7 @@ func TestQueryResolver_Toys(t *testing.T) {
 func TestQueryResolver_ToysCounter(t *testing.T) {
 	testCases := []struct {
 		name          string
+		filters       *entities.ToysFilters
 		setupMocks    func(useCases *mockusecases.MockUseCases)
 		expected      int
 		expectedError error
@@ -3919,10 +4094,30 @@ func TestQueryResolver_ToysCounter(t *testing.T) {
 	}{
 		{
 			name: "success",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					CountToys(gomock.Any()).
+					CountToys(
+						gomock.Any(),
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
 					Return(uint64(1), nil).
 					Times(1)
 			},
@@ -3930,10 +4125,30 @@ func TestQueryResolver_ToysCounter(t *testing.T) {
 		},
 		{
 			name: "use case error",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					CountToys(gomock.Any()).
+					CountToys(
+						gomock.Any(),
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
 					Return(uint64(0), errors.New("error")).
 					Times(1)
 			},
@@ -3960,7 +4175,7 @@ func TestQueryResolver_ToysCounter(t *testing.T) {
 				tc.setupMocks(useCases)
 			}
 
-			actual, err := resolver.ToysCounter(testCtx)
+			actual, err := resolver.ToysCounter(testCtx, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -5703,6 +5918,177 @@ func TestPaginationResolver_Offset(t *testing.T) {
 
 			if tc.obj != nil {
 				require.Equal(t, tc.expected, tc.obj.Offset)
+			}
+		})
+	}
+}
+
+func TestPaginationResolver_PriceCeil(t *testing.T) {
+	tests := []struct {
+		name     string
+		obj      *entities.ToysFilters
+		data     *float64
+		expected *float32
+	}{
+		{
+			name:     "nil obj and nil data",
+			obj:      nil,
+			data:     nil,
+			expected: nil,
+		},
+		{
+			name:     "nil obj with data",
+			obj:      nil,
+			data:     pointers.New(float64(100)),
+			expected: nil,
+		},
+		{
+			name:     "obj with nil data",
+			obj:      &entities.ToysFilters{},
+			data:     nil,
+			expected: nil,
+		},
+		{
+			name:     "set positive PriceCeil",
+			obj:      &entities.ToysFilters{},
+			data:     pointers.New(float64(100)),
+			expected: pointers.New(float32(100)),
+		},
+		{
+			name:     "overwrite existing PriceCeil",
+			obj:      &entities.ToysFilters{PriceCeil: pointers.New(float32(200))},
+			data:     pointers.New(float64(100)),
+			expected: pointers.New(float32(100)),
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	mainResolver := NewResolver(useCases, logger, config.CookiesConfig{})
+	testedResolver := &toysFiltersResolver{Resolver: mainResolver}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := testedResolver.PriceCeil(context.Background(), tc.obj, tc.data)
+			require.NoError(t, err)
+
+			if tc.obj != nil {
+				require.Equal(t, tc.expected, tc.obj.PriceCeil)
+			}
+		})
+	}
+}
+
+func TestPaginationResolver_PriceFloor(t *testing.T) {
+	tests := []struct {
+		name     string
+		obj      *entities.ToysFilters
+		data     *float64
+		expected *float32
+	}{
+		{
+			name:     "nil obj and nil data",
+			obj:      nil,
+			data:     nil,
+			expected: nil,
+		},
+		{
+			name:     "nil obj with data",
+			obj:      nil,
+			data:     pointers.New(float64(100)),
+			expected: nil,
+		},
+		{
+			name:     "obj with nil data",
+			obj:      &entities.ToysFilters{},
+			data:     nil,
+			expected: nil,
+		},
+		{
+			name:     "set positive PriceFloor",
+			obj:      &entities.ToysFilters{},
+			data:     pointers.New(float64(100)),
+			expected: pointers.New(float32(100)),
+		},
+		{
+			name:     "overwrite existing PriceFloor",
+			obj:      &entities.ToysFilters{PriceFloor: pointers.New(float32(200))},
+			data:     pointers.New(float64(100)),
+			expected: pointers.New(float32(100)),
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	mainResolver := NewResolver(useCases, logger, config.CookiesConfig{})
+	testedResolver := &toysFiltersResolver{Resolver: mainResolver}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := testedResolver.PriceFloor(context.Background(), tc.obj, tc.data)
+			require.NoError(t, err)
+
+			if tc.obj != nil {
+				require.Equal(t, tc.expected, tc.obj.PriceFloor)
+			}
+		})
+	}
+}
+
+func TestPaginationResolver_QuantityFloor(t *testing.T) {
+	tests := []struct {
+		name     string
+		obj      *entities.ToysFilters
+		data     *int
+		expected *uint32
+	}{
+		{
+			name:     "nil obj and nil data",
+			obj:      nil,
+			data:     nil,
+			expected: nil,
+		},
+		{
+			name:     "nil obj with data",
+			obj:      nil,
+			data:     pointers.New(100),
+			expected: nil,
+		},
+		{
+			name:     "obj with nil data",
+			obj:      &entities.ToysFilters{},
+			data:     nil,
+			expected: nil,
+		},
+		{
+			name:     "set positive QuantityFloor",
+			obj:      &entities.ToysFilters{},
+			data:     pointers.New(100),
+			expected: pointers.New(uint32(100)),
+		},
+		{
+			name:     "overwrite existing QuantityFloor",
+			obj:      &entities.ToysFilters{QuantityFloor: pointers.New(uint32(200))},
+			data:     pointers.New(100),
+			expected: pointers.New(uint32(100)),
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	mainResolver := NewResolver(useCases, logger, config.CookiesConfig{})
+	testedResolver := &toysFiltersResolver{Resolver: mainResolver}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := testedResolver.QuantityFloor(context.Background(), tc.obj, tc.data)
+			require.NoError(t, err)
+
+			if tc.obj != nil {
+				require.Equal(t, tc.expected, tc.obj.QuantityFloor)
 			}
 		})
 	}

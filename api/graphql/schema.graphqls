@@ -107,17 +107,30 @@ input UsersInput {
     pagination: Pagination
 }
 
+input ToysFilters {
+    search: String
+    priceCeil: Float
+    priceFloor: Float
+    quantityFloor: Int
+    categoryID: ID
+    tagIDs: [ID]
+    createdAtOrderByAsc: Boolean
+}
+
 input ToysInput {
     pagination: Pagination
+    filters: ToysFilters
 }
 
 input MyToysInput {
     pagination: Pagination
+    filters: ToysFilters
 }
 
 input MasterToysInput {
     masterId: ID!
     pagination: Pagination
+    filters: ToysFilters
 }
 
 input MastersInput {
@@ -138,7 +151,7 @@ type Query {
     masterToys(input: MasterToysInput!): [Toy!]
     toy(id: ID!): Toy!
     toys(input: ToysInput): [Toy!]
-    toysCounter: Int!
+    toysCounter(filters: ToysFilters): Int!
     myToys(input: MyToysInput): [Toy!]
     tag(id: ID!): Tag!
     tags: [Tag!]
