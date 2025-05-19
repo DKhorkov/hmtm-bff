@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   hmtm_bff:
     container_name: hmtm_bff
@@ -26,3 +24,5 @@ services:
 
 networks:
   hmtm_network:
+    name: hmtm_network
+    external: true
