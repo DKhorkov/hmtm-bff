@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -11,3 +9,5 @@ services:
 
 networks:
   hmtm_network:
+    name: hmtm_network
+    external: true
