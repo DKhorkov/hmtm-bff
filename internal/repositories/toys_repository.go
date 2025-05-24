@@ -61,7 +61,7 @@ func (repo *ToysRepository) GetToys(
 			PriceCeil:           filters.PriceCeil,
 			PriceFloor:          filters.PriceFloor,
 			QuantityFloor:       filters.QuantityFloor,
-			CategoryID:          filters.CategoryID,
+			CategoryIDs:         filters.CategoryIDs,
 			TagIDs:              filters.TagIDs,
 			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
 		}
@@ -91,7 +91,7 @@ func (repo *ToysRepository) CountToys(ctx context.Context, filters *entities.Toy
 			PriceCeil:           filters.PriceCeil,
 			PriceFloor:          filters.PriceFloor,
 			QuantityFloor:       filters.QuantityFloor,
-			CategoryID:          filters.CategoryID,
+			CategoryIDs:         filters.CategoryIDs,
 			TagIDs:              filters.TagIDs,
 			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
 		}
@@ -128,7 +128,7 @@ func (repo *ToysRepository) GetMasterToys(
 			PriceCeil:           filters.PriceCeil,
 			PriceFloor:          filters.PriceFloor,
 			QuantityFloor:       filters.QuantityFloor,
-			CategoryID:          filters.CategoryID,
+			CategoryIDs:         filters.CategoryIDs,
 			TagIDs:              filters.TagIDs,
 			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
 		}
@@ -170,7 +170,7 @@ func (repo *ToysRepository) GetUserToys(
 			PriceCeil:           filters.PriceCeil,
 			PriceFloor:          filters.PriceFloor,
 			QuantityFloor:       filters.QuantityFloor,
-			CategoryID:          filters.CategoryID,
+			CategoryIDs:         filters.CategoryIDs,
 			TagIDs:              filters.TagIDs,
 			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
 		}

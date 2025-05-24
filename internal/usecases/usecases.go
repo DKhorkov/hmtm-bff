@@ -19,6 +19,12 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
+const (
+	tagsLimit              = 10
+	attachmentsLimit       = 5
+	searchQueryLengthLimit = 50
+)
+
 func New(
 	ssoService interfaces.SsoService,
 	toysService interfaces.ToysService,
@@ -125,6 +131,18 @@ func (useCases *UseCases) AddToy(
 	ctx context.Context,
 	rawToyData entities.RawAddToyDTO,
 ) (uint64, error) {
+	if len(rawToyData.Tags) > tagsLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
+	if len(rawToyData.Attachments) > attachmentsLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Attachments. Limit is %d", attachmentsLimit),
+		}
+	}
+
 	user, err := useCases.GetMe(ctx, rawToyData.AccessToken)
 	if err != nil {
 		return 0, err
@@ -135,14 +153,7 @@ func (useCases *UseCases) AddToy(
 		return 0, err
 	}
 
-	tagsData := make([]entities.CreateTagDTO, len(rawToyData.Tags))
-	for i, tag := range rawToyData.Tags {
-		tagsData[i] = entities.CreateTagDTO{
-			Name: tag,
-		}
-	}
-
-	tagIDs, err := useCases.toysService.CreateTags(ctx, tagsData)
+	tagIDs, err := useCases.toysService.CreateTags(ctx, useCases.prepareTagsForCreation(rawToyData.Tags))
 	if err != nil {
 		return 0, err
 	}
@@ -166,10 +177,34 @@ func (useCases *UseCases) GetToys(
 	pagination *entities.Pagination,
 	filters *entities.ToysFilters,
 ) ([]entities.Toy, error) {
+	if filters != nil && filters.Search != nil && len(*filters.Search) > searchQueryLengthLimit {
+		return nil, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too long search query. Limit is %d symbols", searchQueryLengthLimit),
+		}
+	}
+
+	if filters != nil && len(filters.TagIDs) > tagsLimit {
+		return nil, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
 	return useCases.toysService.GetToys(ctx, pagination, filters)
 }
 
 func (useCases *UseCases) CountToys(ctx context.Context, filters *entities.ToysFilters) (uint64, error) {
+	if filters != nil && filters.Search != nil && len(*filters.Search) > searchQueryLengthLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too long search query. Limit is %d symbols", searchQueryLengthLimit),
+		}
+	}
+
+	if filters != nil && len(filters.TagIDs) > tagsLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
 	return useCases.toysService.CountToys(ctx, filters)
 }
 
@@ -179,6 +214,18 @@ func (useCases *UseCases) GetMasterToys(
 	pagination *entities.Pagination,
 	filters *entities.ToysFilters,
 ) ([]entities.Toy, error) {
+	if filters != nil && filters.Search != nil && len(*filters.Search) > searchQueryLengthLimit {
+		return nil, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too long search query. Limit is %d symbols", searchQueryLengthLimit),
+		}
+	}
+
+	if filters != nil && len(filters.TagIDs) > tagsLimit {
+		return nil, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
 	return useCases.toysService.GetMasterToys(ctx, masterID, pagination, filters)
 }
 
@@ -188,6 +235,18 @@ func (useCases *UseCases) GetMyToys(
 	pagination *entities.Pagination,
 	filters *entities.ToysFilters,
 ) ([]entities.Toy, error) {
+	if filters != nil && filters.Search != nil && len(*filters.Search) > searchQueryLengthLimit {
+		return nil, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too long search query. Limit is %d symbols", searchQueryLengthLimit),
+		}
+	}
+
+	if filters != nil && len(filters.TagIDs) > tagsLimit {
+		return nil, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
 	user, err := useCases.GetMe(ctx, accessToken)
 	if err != nil {
 		return nil, err
@@ -313,6 +372,18 @@ func (useCases *UseCases) CreateTicket(
 	ctx context.Context,
 	rawTicketData entities.RawCreateTicketDTO,
 ) (uint64, error) {
+	if len(rawTicketData.Tags) > tagsLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
+	if len(rawTicketData.Attachments) > attachmentsLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Attachments. Limit is %d", attachmentsLimit),
+		}
+	}
+
 	user, err := useCases.GetMe(ctx, rawTicketData.AccessToken)
 	if err != nil {
 		return 0, err
@@ -323,14 +394,7 @@ func (useCases *UseCases) CreateTicket(
 		return 0, err
 	}
 
-	tagsData := make([]entities.CreateTagDTO, len(rawTicketData.Tags))
-	for i, tag := range rawTicketData.Tags {
-		tagsData[i] = entities.CreateTagDTO{
-			Name: tag,
-		}
-	}
-
-	tagIDs, err := useCases.toysService.CreateTags(ctx, tagsData)
+	tagIDs, err := useCases.toysService.CreateTags(ctx, useCases.prepareTagsForCreation(rawTicketData.Tags))
 	if err != nil {
 		return 0, err
 	}
@@ -583,6 +647,18 @@ func (useCases *UseCases) UpdateToy(
 	ctx context.Context,
 	rawToyData entities.RawUpdateToyDTO,
 ) error {
+	if len(rawToyData.Tags) > tagsLimit {
+		return &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
+	if len(rawToyData.Attachments) > attachmentsLimit {
+		return &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Attachments. Limit is %d", attachmentsLimit),
+		}
+	}
+
 	user, err := useCases.GetMe(ctx, rawToyData.AccessToken)
 	if err != nil {
 		return err
@@ -609,14 +685,7 @@ func (useCases *UseCases) UpdateToy(
 		}
 	}
 
-	tagsData := make([]entities.CreateTagDTO, len(rawToyData.Tags))
-	for i, tag := range rawToyData.Tags {
-		tagsData[i] = entities.CreateTagDTO{
-			Name: tag,
-		}
-	}
-
-	tagIDs, err := useCases.toysService.CreateTags(ctx, tagsData)
+	tagIDs, err := useCases.toysService.CreateTags(ctx, useCases.prepareTagsForCreation(rawToyData.Tags))
 	if err != nil {
 		return err
 	}
@@ -889,6 +958,18 @@ func (useCases *UseCases) UpdateTicket(
 	ctx context.Context,
 	rawTicketData entities.RawUpdateTicketDTO,
 ) error {
+	if len(rawTicketData.Tags) > tagsLimit {
+		return &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
+	if len(rawTicketData.Attachments) > attachmentsLimit {
+		return &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Attachments. Limit is %d", attachmentsLimit),
+		}
+	}
+
 	user, err := useCases.GetMe(ctx, rawTicketData.AccessToken)
 	if err != nil {
 		return err
@@ -910,14 +991,7 @@ func (useCases *UseCases) UpdateTicket(
 		}
 	}
 
-	tagsData := make([]entities.CreateTagDTO, len(rawTicketData.Tags))
-	for i, tag := range rawTicketData.Tags {
-		tagsData[i] = entities.CreateTagDTO{
-			Name: tag,
-		}
-	}
-
-	tagIDs, err := useCases.toysService.CreateTags(ctx, tagsData)
+	tagIDs, err := useCases.toysService.CreateTags(ctx, useCases.prepareTagsForCreation(rawTicketData.Tags))
 	if err != nil {
 		return err
 	}
@@ -1131,4 +1205,13 @@ func (useCases *UseCases) processRawTicket(
 		Tags:        processedTags,
 		Attachments: ticket.Attachments,
 	}
+}
+
+func (useCases *UseCases) prepareTagsForCreation(tags []string) []entities.CreateTagDTO {
+	tagsData := make([]entities.CreateTagDTO, len(tags))
+	for i, tag := range tags {
+		tagsData[i] = entities.CreateTagDTO{Name: tag}
+	}
+
+	return tagsData
 }

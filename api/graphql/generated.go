@@ -10832,7 +10832,7 @@ func (ec *executionContext) unmarshalInputToysFilters(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"search", "priceCeil", "priceFloor", "quantityFloor", "categoryID", "tagIDs", "createdAtOrderByAsc"}
+	fieldsInOrder := [...]string{"search", "priceCeil", "priceFloor", "quantityFloor", "categoryIDs", "tagIDs", "createdAtOrderByAsc"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10873,13 +10873,13 @@ func (ec *executionContext) unmarshalInputToysFilters(ctx context.Context, obj i
 			if err = ec.resolvers.ToysFilters().QuantityFloor(ctx, &it, data); err != nil {
 				return it, err
 			}
-		case "categoryID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
-			data, err := ec.unmarshalOID2ᚖuint32(ctx, v)
+		case "categoryIDs":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryIDs"))
+			data, err := ec.unmarshalOID2ᚕuint32(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.CategoryID = data
+			it.CategoryIDs = data
 		case "tagIDs":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tagIDs"))
 			data, err := ec.unmarshalOID2ᚕuint32(ctx, v)
@@ -14154,22 +14154,6 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 	res := graphql.MarshalID(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOID2ᚖuint32(ctx context.Context, v interface{}) (*uint32, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalUint32(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOID2ᚖuint32(ctx context.Context, sel ast.SelectionSet, v *uint32) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalUint32(*v)
 	return res
 }
 
