@@ -8,6 +8,7 @@ import (
 	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/libs/pointers"
 	"github.com/DKhorkov/libs/security"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -1827,6 +1828,41 @@ func TestUseCases_AddToy(t *testing.T) {
 			expected:      0,
 			errorExpected: true,
 		},
+		{
+			name: "too many tags error",
+			rawToyData: entities.RawAddToyDTO{
+				Tags: []string{
+					"tag1",
+					"tag2",
+					"tag3",
+					"tag4",
+					"tag5",
+					"tag6",
+					"tag7",
+					"tag8",
+					"tag9",
+					"tag10",
+					"tag11",
+				},
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name: "too many attachments error",
+			rawToyData: entities.RawAddToyDTO{
+				Attachments: []*graphql.Upload{
+					{File: strings.NewReader("test content"), Filename: "file1.jpg"},
+					{File: strings.NewReader("test content"), Filename: "file2.jpg"},
+					{File: strings.NewReader("test content"), Filename: "file3.jpg"},
+					{File: strings.NewReader("test content"), Filename: "file4.jpg"},
+					{File: strings.NewReader("test content"), Filename: "file5.jpg"},
+					{File: strings.NewReader("test content"), Filename: "file6.jpg"},
+				},
+			},
+			expected:      0,
+			errorExpected: true,
+		},
 	}
 
 	ctrl := gomock.NewController(t)
@@ -2293,7 +2329,7 @@ func TestUseCases_GetToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -2338,7 +2374,7 @@ func TestUseCases_GetToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -2377,7 +2413,7 @@ func TestUseCases_GetToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -2403,7 +2439,7 @@ func TestUseCases_GetToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -2425,7 +2461,7 @@ func TestUseCases_GetToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -2451,13 +2487,33 @@ func TestUseCases_GetToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("database error")).
 					Times(1)
+			},
+			expected:      nil,
+			errorExpected: true,
+		},
+		{
+			name: "too long search query",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.ToysFilters{
+				Search: pointers.New("Toy is very interesting and some more information so there is too much symbols"),
+			},
+			expected:      nil,
+			errorExpected: true,
+		},
+		{
+			name: "too many tags",
+			filters: &entities.ToysFilters{
+				TagIDs: []uint32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
 			},
 			expected:      nil,
 			errorExpected: true,
@@ -2532,7 +2588,7 @@ func TestUseCases_CountToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -2554,7 +2610,7 @@ func TestUseCases_CountToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -2572,7 +2628,7 @@ func TestUseCases_CountToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -2594,7 +2650,7 @@ func TestUseCases_CountToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -2602,6 +2658,22 @@ func TestUseCases_CountToys(t *testing.T) {
 					Return(uint64(0), errors.New("error")).
 					Times(1)
 			},
+			errorExpected: true,
+		},
+		{
+			name: "too long search query",
+			filters: &entities.ToysFilters{
+				Search: pointers.New("Toy is very interesting and some more information so there is too much symbols"),
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name: "too many tags",
+			filters: &entities.ToysFilters{
+				TagIDs: []uint32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
+			},
+			expected:      0,
 			errorExpected: true,
 		},
 	}
@@ -2680,7 +2752,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -2727,7 +2799,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -2766,7 +2838,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -2794,7 +2866,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -2816,7 +2888,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -2844,13 +2916,33 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("toys not found")).
 					Times(1)
+			},
+			expected:      nil,
+			errorExpected: true,
+		},
+		{
+			name: "too long search query",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.ToysFilters{
+				Search: pointers.New("Toy is very interesting and some more information so there is too much symbols"),
+			},
+			expected:      nil,
+			errorExpected: true,
+		},
+		{
+			name: "too many tags",
+			filters: &entities.ToysFilters{
+				TagIDs: []uint32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
 			},
 			expected:      nil,
 			errorExpected: true,
@@ -2931,7 +3023,7 @@ func TestUseCases_GetMyToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -2985,7 +3077,7 @@ func TestUseCases_GetMyToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -3024,7 +3116,7 @@ func TestUseCases_GetMyToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -3059,7 +3151,7 @@ func TestUseCases_GetMyToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -3081,7 +3173,7 @@ func TestUseCases_GetMyToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -3115,7 +3207,7 @@ func TestUseCases_GetMyToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -3150,13 +3242,33 @@ func TestUseCases_GetMyToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("database error")).
 					Times(1)
+			},
+			expected:      nil,
+			errorExpected: true,
+		},
+		{
+			name: "too long search query",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.ToysFilters{
+				Search: pointers.New("Toy is very interesting and some more information so there is too much symbols"),
+			},
+			expected:      nil,
+			errorExpected: true,
+		},
+		{
+			name: "too many tags",
+			filters: &entities.ToysFilters{
+				TagIDs: []uint32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
 			},
 			expected:      nil,
 			errorExpected: true,
@@ -4509,6 +4621,49 @@ func TestUseCases_UpdateTicket(t *testing.T) {
 			},
 			errorExpected: true,
 		},
+		{
+			name: "too many tags",
+			args: args{
+				ctx: context.Background(),
+				rawTicketData: entities.RawUpdateTicketDTO{
+					ID:          testRawTicket.ID,
+					AccessToken: "valid_token",
+					Tags: []string{
+						"tag1",
+						"tag2",
+						"tag3",
+						"tag4",
+						"tag5",
+						"tag6",
+						"tag7",
+						"tag8",
+						"tag9",
+						"tag10",
+						"tag11",
+					},
+				},
+			},
+			errorExpected: true,
+		},
+		{
+			name: "too many attachments",
+			args: args{
+				ctx: context.Background(),
+				rawTicketData: entities.RawUpdateTicketDTO{
+					ID:          testRawTicket.ID,
+					AccessToken: "valid_token",
+					Attachments: []*graphql.Upload{
+						{Filename: "1"},
+						{Filename: "2"},
+						{Filename: "3"},
+						{Filename: "4"},
+						{Filename: "5"},
+						{Filename: "6"},
+					},
+				},
+			},
+			errorExpected: true,
+		},
 	}
 
 	ctrl := gomock.NewController(t)
@@ -5246,6 +5401,41 @@ func TestUseCases_CreateTicket(t *testing.T) {
 					Times(1)
 			},
 			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name: "too many tags",
+			rawTicketData: entities.RawCreateTicketDTO{
+				AccessToken: "valid_token",
+				Tags: []string{
+					"tag1",
+					"tag2",
+					"tag3",
+					"tag4",
+					"tag5",
+					"tag6",
+					"tag7",
+					"tag8",
+					"tag9",
+					"tag10",
+					"tag11",
+				},
+			},
+			errorExpected: true,
+		},
+		{
+			name: "too many attachments",
+			rawTicketData: entities.RawCreateTicketDTO{
+				AccessToken: "valid_token",
+				Attachments: []*graphql.Upload{
+					{Filename: "1"},
+					{Filename: "2"},
+					{Filename: "3"},
+					{Filename: "4"},
+					{Filename: "5"},
+					{Filename: "6"},
+				},
+			},
 			errorExpected: true,
 		},
 	}
@@ -6564,6 +6754,43 @@ func TestUseCases_UpdateToy(t *testing.T) {
 					}).
 					Return(errors.New("update failed")).
 					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name: "too many tags",
+			rawToyData: entities.RawUpdateToyDTO{
+				AccessToken: "valid_access_token",
+				ID:          1,
+				Tags: []string{
+					"tag1",
+					"tag2",
+					"tag3",
+					"tag4",
+					"tag5",
+					"tag6",
+					"tag7",
+					"tag8",
+					"tag9",
+					"tag10",
+					"tag11",
+				},
+			},
+			errorExpected: true,
+		},
+		{
+			name: "too many attachments",
+			rawToyData: entities.RawUpdateToyDTO{
+				AccessToken: "valid_access_token",
+				ID:          1,
+				Attachments: []*graphql.Upload{
+					{Filename: "1"},
+					{Filename: "2"},
+					{Filename: "3"},
+					{Filename: "4"},
+					{Filename: "5"},
+					{Filename: "6"},
+				},
 			},
 			errorExpected: true,
 		},
@@ -9987,6 +10214,41 @@ func TestUseCases_GetMasterByUserID(t *testing.T) {
 			}
 
 			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_PrepareTagsForCreation(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []string
+		expected []entities.CreateTagDTO
+	}{
+		{
+			name:     "EmptyTags",
+			input:    []string{},
+			expected: []entities.CreateTagDTO{},
+		},
+		{
+			name:     "SingleTag",
+			input:    []string{"tag1"},
+			expected: []entities.CreateTagDTO{{Name: "tag1"}},
+		},
+		{
+			name:     "MultipleTags",
+			input:    []string{"tag1", "tag2"},
+			expected: []entities.CreateTagDTO{{Name: "tag1"}, {Name: "tag2"}},
+		},
+	}
+
+	uc := &UseCases{}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := uc.prepareTagsForCreation(tc.input)
+			if !reflect.DeepEqual(actual, tc.expected) {
+				t.Errorf("prepareTagsForCreation(%v) = %v; want %v", tc.input, actual, tc.expected)
+			}
 		})
 	}
 }

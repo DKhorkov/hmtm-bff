@@ -112,7 +112,7 @@ input ToysFilters {
     priceCeil: Float
     priceFloor: Float
     quantityFloor: Int
-    categoryID: ID
+    categoryIDs: [ID]
     tagIDs: [ID]
     createdAtOrderByAsc: Boolean
 }

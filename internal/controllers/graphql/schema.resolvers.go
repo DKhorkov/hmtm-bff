@@ -10,15 +10,14 @@ import (
 	"net/http"
 	"strconv"
 
+	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
 	"github.com/DKhorkov/libs/pointers"
-
-	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 )
 
 // User is the resolver for the user field.
@@ -1170,14 +1169,12 @@ func (r *Resolver) Pagination() graphqlapi.PaginationResolver { return &paginati
 // ToysFilters returns graphqlapi.ToysFiltersResolver implementation.
 func (r *Resolver) ToysFilters() graphqlapi.ToysFiltersResolver { return &toysFiltersResolver{r} }
 
-type (
-	emailResolver       struct{ *Resolver }
-	masterResolver      struct{ *Resolver }
-	mutationResolver    struct{ *Resolver }
-	queryResolver       struct{ *Resolver }
-	respondResolver     struct{ *Resolver }
-	ticketResolver      struct{ *Resolver }
-	toyResolver         struct{ *Resolver }
-	paginationResolver  struct{ *Resolver }
-	toysFiltersResolver struct{ *Resolver }
-)
+type emailResolver struct{ *Resolver }
+type masterResolver struct{ *Resolver }
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
+type respondResolver struct{ *Resolver }
+type ticketResolver struct{ *Resolver }
+type toyResolver struct{ *Resolver }
+type paginationResolver struct{ *Resolver }
+type toysFiltersResolver struct{ *Resolver }
