@@ -2723,6 +2723,381 @@ func TestUseCases_CountToys(t *testing.T) {
 	}
 }
 
+func TestUseCases_CountMasterToys(t *testing.T) {
+	testCases := []struct {
+		name       string
+		masterID   uint64
+		filters    *entities.ToysFilters
+		setupMocks func(
+			ssoService *mockservices.MockSsoService,
+			toysService *mockservices.MockToysService,
+			fileStorageService *mockservices.MockFileStorageService,
+			ticketsService *mockservices.MockTicketsService,
+			notificationsService *mockservices.MockNotificationsService,
+			logger *mocklogger.MockLogger,
+			traceProvider *tracingmock.MockProvider,
+		)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name:     "success",
+			masterID: 1,
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				_ *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockFileStorageService,
+				_ *mockservices.MockTicketsService,
+				_ *mockservices.MockNotificationsService,
+				_ *mocklogger.MockLogger,
+				_ *tracingmock.MockProvider,
+			) {
+				toysService.
+					EXPECT().
+					CountMasterToys(
+						gomock.Any(),
+						uint64(1),
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected:      1,
+			errorExpected: false,
+		},
+		{
+			name:     "error from service",
+			masterID: 1,
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				_ *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockFileStorageService,
+				_ *mockservices.MockTicketsService,
+				_ *mockservices.MockNotificationsService,
+				_ *mocklogger.MockLogger,
+				_ *tracingmock.MockProvider,
+			) {
+				toysService.
+					EXPECT().
+					CountMasterToys(
+						gomock.Any(),
+						uint64(1),
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("error")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name:     "too long search query",
+			masterID: 1,
+			filters: &entities.ToysFilters{
+				Search: pointers.New("Toy is very interesting and some more information so there is too much symbols"),
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name:     "too many tags",
+			masterID: 1,
+			filters: &entities.ToysFilters{
+				TagIDs: []uint32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ticketsService := mockservices.NewMockTicketsService(ctrl)
+	notificationsService := mockservices.NewMockNotificationsService(ctrl)
+	fileStorageService := mockservices.NewMockFileStorageService(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	traceProvider := tracingmock.NewMockProvider(ctrl)
+	useCases := New(
+		ssoService,
+		toysService,
+		fileStorageService,
+		ticketsService,
+		notificationsService,
+		validationConfig,
+		logger,
+		traceProvider,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					ssoService,
+					toysService,
+					fileStorageService,
+					ticketsService,
+					notificationsService,
+					logger,
+					traceProvider,
+				)
+			}
+
+			actual, err := useCases.CountMasterToys(ctx, tc.masterID, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_CountMyToys(t *testing.T) {
+	testCases := []struct {
+		name        string
+		accessToken string
+		filters     *entities.ToysFilters
+		setupMocks  func(
+			ssoService *mockservices.MockSsoService,
+			toysService *mockservices.MockToysService,
+			fileStorageService *mockservices.MockFileStorageService,
+			ticketsService *mockservices.MockTicketsService,
+			notificationsService *mockservices.MockNotificationsService,
+			logger *mocklogger.MockLogger,
+			traceProvider *tracingmock.MockProvider,
+		)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name:        "success",
+			accessToken: "test",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				ssoService *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockFileStorageService,
+				_ *mockservices.MockTicketsService,
+				_ *mockservices.MockNotificationsService,
+				_ *mocklogger.MockLogger,
+				_ *tracingmock.MockProvider,
+			) {
+				user := &entities.User{ID: 1}
+
+				ssoService.
+					EXPECT().
+					GetMe(gomock.Any(), "test").
+					Return(user, nil).
+					Times(1)
+
+				toysService.
+					EXPECT().
+					CountUserToys(
+						gomock.Any(),
+						user.ID,
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected:      1,
+			errorExpected: false,
+		},
+		{
+			name:        "error from service",
+			accessToken: "test",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				ssoService *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockFileStorageService,
+				_ *mockservices.MockTicketsService,
+				_ *mockservices.MockNotificationsService,
+				_ *mocklogger.MockLogger,
+				_ *tracingmock.MockProvider,
+			) {
+				user := &entities.User{ID: 1}
+
+				ssoService.
+					EXPECT().
+					GetMe(gomock.Any(), "test").
+					Return(user, nil).
+					Times(1)
+
+				toysService.
+					EXPECT().
+					CountUserToys(
+						gomock.Any(),
+						user.ID,
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("error")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name:        "get me error",
+			accessToken: "test",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				ssoService *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockFileStorageService,
+				_ *mockservices.MockTicketsService,
+				_ *mockservices.MockNotificationsService,
+				_ *mocklogger.MockLogger,
+				_ *tracingmock.MockProvider,
+			) {
+				ssoService.
+					EXPECT().
+					GetMe(gomock.Any(), "test").
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name:        "too long search query",
+			accessToken: "test",
+			filters: &entities.ToysFilters{
+				Search: pointers.New("Toy is very interesting and some more information so there is too much symbols"),
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name:        "too many tags",
+			accessToken: "test",
+			filters: &entities.ToysFilters{
+				TagIDs: []uint32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ticketsService := mockservices.NewMockTicketsService(ctrl)
+	notificationsService := mockservices.NewMockNotificationsService(ctrl)
+	fileStorageService := mockservices.NewMockFileStorageService(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	traceProvider := tracingmock.NewMockProvider(ctrl)
+	useCases := New(
+		ssoService,
+		toysService,
+		fileStorageService,
+		ticketsService,
+		notificationsService,
+		validationConfig,
+		logger,
+		traceProvider,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					ssoService,
+					toysService,
+					fileStorageService,
+					ticketsService,
+					notificationsService,
+					logger,
+					traceProvider,
+				)
+			}
+
+			actual, err := useCases.CountMyToys(ctx, tc.accessToken, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestUseCases_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name       string

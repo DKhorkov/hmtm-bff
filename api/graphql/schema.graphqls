@@ -149,10 +149,12 @@ type Query {
     masterByUser(userId: ID!): Master!
     masters(input: MastersInput): [Master!]
     masterToys(input: MasterToysInput!): [Toy!]
+    masterToysCounter(masterId: ID!, filters: ToysFilters): Int!
     toy(id: ID!): Toy!
     toys(input: ToysInput): [Toy!]
     toysCounter(filters: ToysFilters): Int!
     myToys(input: MyToysInput): [Toy!]
+    myToysCounter(filters: ToysFilters): Int!
     tag(id: ID!): Tag!
     tags: [Tag!]
     category(id: ID!): Category!

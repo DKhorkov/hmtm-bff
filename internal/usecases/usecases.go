@@ -208,6 +208,51 @@ func (useCases *UseCases) CountToys(ctx context.Context, filters *entities.ToysF
 	return useCases.toysService.CountToys(ctx, filters)
 }
 
+func (useCases *UseCases) CountMasterToys(
+	ctx context.Context,
+	masterID uint64,
+	filters *entities.ToysFilters,
+) (uint64, error) {
+	if filters != nil && filters.Search != nil && len(*filters.Search) > searchQueryLengthLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too long search query. Limit is %d symbols", searchQueryLengthLimit),
+		}
+	}
+
+	if filters != nil && len(filters.TagIDs) > tagsLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
+	return useCases.toysService.CountMasterToys(ctx, masterID, filters)
+}
+
+func (useCases *UseCases) CountMyToys(
+	ctx context.Context,
+	accessToken string,
+	filters *entities.ToysFilters,
+) (uint64, error) {
+	if filters != nil && filters.Search != nil && len(*filters.Search) > searchQueryLengthLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too long search query. Limit is %d symbols", searchQueryLengthLimit),
+		}
+	}
+
+	if filters != nil && len(filters.TagIDs) > tagsLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
+	user, err := useCases.GetMe(ctx, accessToken)
+	if err != nil {
+		return 0, err
+	}
+
+	return useCases.toysService.CountUserToys(ctx, user.ID, filters)
+}
+
 func (useCases *UseCases) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,

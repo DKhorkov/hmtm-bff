@@ -10,14 +10,15 @@ import (
 	"net/http"
 	"strconv"
 
-	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
-	"github.com/DKhorkov/hmtm-bff/internal/entities"
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/cookies"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
 	"github.com/DKhorkov/libs/pointers"
+
+	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
+	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 )
 
 // User is the resolver for the user field.
@@ -645,12 +646,12 @@ func (r *queryResolver) Masters(ctx context.Context, input *graphqlapi.MastersIn
 
 // MasterToys is the resolver for the masterToys field.
 func (r *queryResolver) MasterToys(ctx context.Context, input graphqlapi.MasterToysInput) ([]*entities.Toy, error) {
-	processedMasterID, err := strconv.Atoi(input.MasterID)
+	intMasterID, err := strconv.Atoi(input.MasterID)
 	if err != nil {
 		return nil, err
 	}
 
-	toys, err := r.useCases.GetMasterToys(ctx, uint64(processedMasterID), input.Pagination, input.Filters)
+	toys, err := r.useCases.GetMasterToys(ctx, uint64(intMasterID), input.Pagination, input.Filters)
 	if err != nil {
 		return nil, err
 	}
@@ -661,6 +662,21 @@ func (r *queryResolver) MasterToys(ctx context.Context, input graphqlapi.MasterT
 	}
 
 	return response, nil
+}
+
+// MasterToysCounter is the resolver for the masterToysCounter field.
+func (r *queryResolver) MasterToysCounter(ctx context.Context, masterID string, filters *entities.ToysFilters) (int, error) {
+	intMasterID, err := strconv.Atoi(masterID)
+	if err != nil {
+		return 0, err
+	}
+
+	count, err := r.useCases.CountMasterToys(ctx, uint64(intMasterID), filters)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }
 
 // Toy is the resolver for the toy field.
@@ -736,6 +752,21 @@ func (r *queryResolver) MyToys(ctx context.Context, input *graphqlapi.MyToysInpu
 	}
 
 	return response, nil
+}
+
+// MyToysCounter is the resolver for the myToysCounter field.
+func (r *queryResolver) MyToysCounter(ctx context.Context, filters *entities.ToysFilters) (int, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return 0, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	count, err := r.useCases.CountMyToys(ctx, accessToken.Value, filters)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }
 
 // Tag is the resolver for the tag field.
@@ -1169,12 +1200,14 @@ func (r *Resolver) Pagination() graphqlapi.PaginationResolver { return &paginati
 // ToysFilters returns graphqlapi.ToysFiltersResolver implementation.
 func (r *Resolver) ToysFilters() graphqlapi.ToysFiltersResolver { return &toysFiltersResolver{r} }
 
-type emailResolver struct{ *Resolver }
-type masterResolver struct{ *Resolver }
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
-type respondResolver struct{ *Resolver }
-type ticketResolver struct{ *Resolver }
-type toyResolver struct{ *Resolver }
-type paginationResolver struct{ *Resolver }
-type toysFiltersResolver struct{ *Resolver }
+type (
+	emailResolver       struct{ *Resolver }
+	masterResolver      struct{ *Resolver }
+	mutationResolver    struct{ *Resolver }
+	queryResolver       struct{ *Resolver }
+	respondResolver     struct{ *Resolver }
+	ticketResolver      struct{ *Resolver }
+	toyResolver         struct{ *Resolver }
+	paginationResolver  struct{ *Resolver }
+	toysFiltersResolver struct{ *Resolver }
+)

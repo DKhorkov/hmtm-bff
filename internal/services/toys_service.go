@@ -71,6 +71,42 @@ func (service *ToysService) CountToys(ctx context.Context, filters *entities.Toy
 	return count, err
 }
 
+func (service *ToysService) CountMasterToys(
+	ctx context.Context,
+	masterID uint64,
+	filters *entities.ToysFilters,
+) (uint64, error) {
+	count, err := service.toysRepository.CountMasterToys(ctx, masterID, filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to count Toys for Master with ID=%d", masterID),
+			err,
+		)
+	}
+
+	return count, err
+}
+
+func (service *ToysService) CountUserToys(
+	ctx context.Context,
+	userID uint64,
+	filters *entities.ToysFilters,
+) (uint64, error) {
+	count, err := service.toysRepository.CountUserToys(ctx, userID, filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to count Toys for User with ID=%d", userID),
+			err,
+		)
+	}
+
+	return count, err
+}
+
 func (service *ToysService) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,

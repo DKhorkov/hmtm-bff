@@ -71,6 +71,36 @@ func (mr *MockUseCasesMockRecorder) ChangePassword(ctx, accessToken, oldPassword
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockUseCases)(nil).ChangePassword), ctx, accessToken, oldPassword, newPassword)
 }
 
+// CountMasterToys mocks base method.
+func (m *MockUseCases) CountMasterToys(ctx context.Context, masterID uint64, filters *entities.ToysFilters) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountMasterToys", ctx, masterID, filters)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountMasterToys indicates an expected call of CountMasterToys.
+func (mr *MockUseCasesMockRecorder) CountMasterToys(ctx, masterID, filters any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMasterToys", reflect.TypeOf((*MockUseCases)(nil).CountMasterToys), ctx, masterID, filters)
+}
+
+// CountMyToys mocks base method.
+func (m *MockUseCases) CountMyToys(ctx context.Context, accessToken string, filters *entities.ToysFilters) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountMyToys", ctx, accessToken, filters)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountMyToys indicates an expected call of CountMyToys.
+func (mr *MockUseCasesMockRecorder) CountMyToys(ctx, accessToken, filters any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMyToys", reflect.TypeOf((*MockUseCases)(nil).CountMyToys), ctx, accessToken, filters)
+}
+
 // CountToys mocks base method.
 func (m *MockUseCases) CountToys(ctx context.Context, filters *entities.ToysFilters) (uint64, error) {
 	m.ctrl.T.Helper()
