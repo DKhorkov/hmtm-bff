@@ -44,12 +44,14 @@ type UseCases interface {
 		pagination *entities.Pagination,
 		filters *entities.ToysFilters,
 	) ([]entities.Toy, error)
+	CountMasterToys(ctx context.Context, masterID uint64, filters *entities.ToysFilters) (uint64, error)
 	GetMyToys(
 		ctx context.Context,
 		accessToken string,
 		pagination *entities.Pagination,
 		filters *entities.ToysFilters,
 	) ([]entities.Toy, error)
+	CountMyToys(ctx context.Context, accessToken string, filters *entities.ToysFilters) (uint64, error)
 	GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error)
 	GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error)
 	GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error)

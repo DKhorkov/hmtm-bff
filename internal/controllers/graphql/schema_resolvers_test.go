@@ -4187,6 +4187,263 @@ func TestQueryResolver_ToysCounter(t *testing.T) {
 	}
 }
 
+func TestQueryResolver_MasterToysCounter(t *testing.T) {
+	testCases := []struct {
+		name          string
+		masterID      string
+		filters       *entities.ToysFilters
+		setupMocks    func(useCases *mockusecases.MockUseCases)
+		expected      int
+		expectedError error
+		errorExpected bool
+	}{
+		{
+			name:     "success",
+			masterID: "1",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					CountMasterToys(
+						gomock.Any(),
+						uint64(1),
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name:     "use case error",
+			masterID: "1",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					CountMasterToys(
+						gomock.Any(),
+						uint64(1),
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("error")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name:     "invalid masterID",
+			masterID: "invalid",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	resolver := &queryResolver{
+		Resolver: NewResolver(
+			useCases,
+			logger,
+			config.CookiesConfig{},
+		),
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			testCtx := context.Background()
+
+			if tc.setupMocks != nil {
+				tc.setupMocks(useCases)
+			}
+
+			actual, err := resolver.MasterToysCounter(testCtx, tc.masterID, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestQueryResolver_MyToysCounter(t *testing.T) {
+	validAccessToken := &http.Cookie{
+		Name:  accessTokenCookieName,
+		Value: "valid_access_token",
+	}
+
+	testCases := []struct {
+		name           string
+		filters        *entities.ToysFilters
+		prepareContext func(ctx context.Context) context.Context
+		setupMocks     func(useCases *mockusecases.MockUseCases)
+		expected       int
+		expectedError  error
+		errorExpected  bool
+	}{
+		{
+			name: "success",
+			prepareContext: func(ctx context.Context) context.Context {
+				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
+			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					CountMyToys(
+						gomock.Any(),
+						validAccessToken.Value,
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name: "use case error",
+			prepareContext: func(ctx context.Context) context.Context {
+				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
+			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					CountMyToys(
+						gomock.Any(),
+						validAccessToken.Value,
+						&entities.ToysFilters{
+							Search:              pointers.New("Toy"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("error")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name: "no access token",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("Toy"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	resolver := &queryResolver{
+		Resolver: NewResolver(
+			useCases,
+			logger,
+			config.CookiesConfig{},
+		),
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			testCtx := ctx
+			if tc.prepareContext != nil {
+				testCtx = tc.prepareContext(testCtx)
+			}
+
+			if tc.setupMocks != nil {
+				tc.setupMocks(useCases)
+			}
+
+			actual, err := resolver.MyToysCounter(testCtx, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestQueryResolver_Tag(t *testing.T) {
 	validTag := entities.Tag{
 		ID:   tagID,

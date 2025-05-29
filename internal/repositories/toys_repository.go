@@ -108,6 +108,64 @@ func (repo *ToysRepository) CountToys(ctx context.Context, filters *entities.Toy
 	return response.Count, nil
 }
 
+func (repo *ToysRepository) CountMasterToys(
+	ctx context.Context,
+	masterID uint64,
+	filters *entities.ToysFilters,
+) (uint64, error) {
+	in := &toys.CountMasterToysIn{MasterID: masterID}
+	if filters != nil {
+		in.Filters = &toys.ToysFilters{
+			Search:              filters.Search,
+			PriceCeil:           filters.PriceCeil,
+			PriceFloor:          filters.PriceFloor,
+			QuantityFloor:       filters.QuantityFloor,
+			CategoryIDs:         filters.CategoryIDs,
+			TagIDs:              filters.TagIDs,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
+		}
+	}
+
+	response, err := repo.client.CountMasterToys(
+		ctx,
+		in,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.Count, nil
+}
+
+func (repo *ToysRepository) CountUserToys(
+	ctx context.Context,
+	userID uint64,
+	filters *entities.ToysFilters,
+) (uint64, error) {
+	in := &toys.CountUserToysIn{UserID: userID}
+	if filters != nil {
+		in.Filters = &toys.ToysFilters{
+			Search:              filters.Search,
+			PriceCeil:           filters.PriceCeil,
+			PriceFloor:          filters.PriceFloor,
+			QuantityFloor:       filters.QuantityFloor,
+			CategoryIDs:         filters.CategoryIDs,
+			TagIDs:              filters.TagIDs,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
+		}
+	}
+
+	response, err := repo.client.CountUserToys(
+		ctx,
+		in,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.Count, nil
+}
+
 func (repo *ToysRepository) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,
