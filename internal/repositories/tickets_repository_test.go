@@ -205,7 +205,7 @@ func TestTicketsRepository_GetTicketByID(t *testing.T) {
 	}
 }
 
-func TestTicketsRepository_GetAllTickets(t *testing.T) {
+func TestTicketsRepository_GetTickets(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	ticketsClient := mockclients.NewMockTicketsClient(ctrl)
 	repo := NewTicketsRepository(ticketsClient)
@@ -214,18 +214,47 @@ func TestTicketsRepository_GetAllTickets(t *testing.T) {
 
 	testCases := []struct {
 		name            string
+		pagination      *entities.Pagination
+		filters         *entities.TicketsFilters
 		setupMocks      func(ticketsClient *mockclients.MockTicketsClient)
 		expectedTickets []entities.RawTicket
 		errorExpected   bool
 	}{
 		{
 			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.TicketsFilters{
+				Search:              pointers.New("Ticket"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(ticketsClient *mockclients.MockTicketsClient) {
 				ticketsClient.
 					EXPECT().
 					GetTickets(
 						gomock.Any(),
-						&emptypb.Empty{},
+						&tickets.GetTicketsIn{
+							Pagination: &tickets.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+							Filters: &tickets.TicketsFilters{
+								Search:              pointers.New("Ticket"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryIDs:         []uint32{1},
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
 					).
 					Return(&tickets.GetTicketsOut{
 						Tickets: []*tickets.GetTicketOut{
@@ -285,12 +314,39 @@ func TestTicketsRepository_GetAllTickets(t *testing.T) {
 		},
 		{
 			name: "error",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.TicketsFilters{
+				Search:              pointers.New("Ticket"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(ticketsClient *mockclients.MockTicketsClient) {
 				ticketsClient.
 					EXPECT().
 					GetTickets(
 						gomock.Any(),
-						&emptypb.Empty{},
+						&tickets.GetTicketsIn{
+							Pagination: &tickets.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+							Filters: &tickets.TicketsFilters{
+								Search:              pointers.New("Ticket"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryIDs:         []uint32{1},
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
 					).
 					Return(nil, errors.New("fetch failed")).
 					Times(1)
@@ -306,7 +362,7 @@ func TestTicketsRepository_GetAllTickets(t *testing.T) {
 				tc.setupMocks(ticketsClient)
 			}
 
-			ticketsList, err := repo.GetAllTickets(context.Background())
+			ticketsList, err := repo.GetTickets(context.Background(), tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, ticketsList)
@@ -327,20 +383,50 @@ func TestTicketsRepository_GetUserTickets(t *testing.T) {
 
 	testCases := []struct {
 		name            string
+		pagination      *entities.Pagination
+		filters         *entities.TicketsFilters
 		userID          uint64
 		setupMocks      func(ticketsClient *mockclients.MockTicketsClient)
 		expectedTickets []entities.RawTicket
 		errorExpected   bool
 	}{
 		{
-			name:   "success",
+			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.TicketsFilters{
+				Search:              pointers.New("Ticket"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			userID: 1,
 			setupMocks: func(ticketsClient *mockclients.MockTicketsClient) {
 				ticketsClient.
 					EXPECT().
 					GetUserTickets(
 						gomock.Any(),
-						&tickets.GetUserTicketsIn{UserID: 1},
+						&tickets.GetUserTicketsIn{
+							UserID: 1,
+							Pagination: &tickets.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+							Filters: &tickets.TicketsFilters{
+								Search:              pointers.New("Ticket"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryIDs:         []uint32{1},
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
 					).
 					Return(
 						&tickets.GetTicketsOut{
@@ -379,14 +465,42 @@ func TestTicketsRepository_GetUserTickets(t *testing.T) {
 			errorExpected: false,
 		},
 		{
-			name:   "error",
+			name: "error",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.TicketsFilters{
+				Search:              pointers.New("Ticket"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			userID: 1,
 			setupMocks: func(ticketsClient *mockclients.MockTicketsClient) {
 				ticketsClient.
 					EXPECT().
 					GetUserTickets(
 						gomock.Any(),
-						&tickets.GetUserTicketsIn{UserID: 1},
+						&tickets.GetUserTicketsIn{
+							UserID: 1,
+							Pagination: &tickets.Pagination{
+								Limit:  pointers.New[uint64](1),
+								Offset: pointers.New[uint64](1),
+							},
+							Filters: &tickets.TicketsFilters{
+								Search:              pointers.New("Ticket"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryIDs:         []uint32{1},
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
 					).
 					Return(nil, errors.New("fetch failed")).
 					Times(1)
@@ -402,7 +516,7 @@ func TestTicketsRepository_GetUserTickets(t *testing.T) {
 				tc.setupMocks(ticketsClient)
 			}
 
-			ticketsList, err := repo.GetUserTickets(context.Background(), tc.userID)
+			ticketsList, err := repo.GetUserTickets(context.Background(), tc.userID, tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, ticketsList)
@@ -1021,6 +1135,219 @@ func TestTicketsRepository_DeleteTicket(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
+		})
+	}
+}
+
+func TestTicketsRepository_CountTickets(t *testing.T) {
+	testCases := []struct {
+		name          string
+		filters       *entities.TicketsFilters
+		setupMocks    func(ticketsClient *mockclients.MockTicketsClient)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			filters: &entities.TicketsFilters{
+				Search:              pointers.New("Ticket"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(ticketsClient *mockclients.MockTicketsClient) {
+				ticketsClient.
+					EXPECT().
+					CountTickets(
+						gomock.Any(),
+						&tickets.CountTicketsIn{
+							Filters: &tickets.TicketsFilters{
+								Search:              pointers.New("Ticket"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryIDs:         []uint32{1},
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
+					).
+					Return(
+						&tickets.CountOut{Count: 1},
+						nil,
+					).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name: "error",
+			filters: &entities.TicketsFilters{
+				Search:              pointers.New("Ticket"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(ticketsClient *mockclients.MockTicketsClient) {
+				ticketsClient.
+					EXPECT().
+					CountTickets(
+						gomock.Any(),
+						&tickets.CountTicketsIn{
+							Filters: &tickets.TicketsFilters{
+								Search:              pointers.New("Ticket"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryIDs:         []uint32{1},
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
+					).
+					Return(
+						&tickets.CountOut{Count: 0},
+						errors.New("error"),
+					).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	ticketsClient := mockclients.NewMockTicketsClient(ctrl)
+	repo := NewTicketsRepository(ticketsClient)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(ticketsClient)
+			}
+
+			actual, err := repo.CountTickets(context.Background(), tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestTicketsRepository_CountUserTickets(t *testing.T) {
+	testCases := []struct {
+		name          string
+		userID        uint64
+		filters       *entities.TicketsFilters
+		setupMocks    func(ticketsClient *mockclients.MockTicketsClient)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name:   "success",
+			userID: 1,
+			filters: &entities.TicketsFilters{
+				Search:              pointers.New("Ticket"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(ticketsClient *mockclients.MockTicketsClient) {
+				ticketsClient.
+					EXPECT().
+					CountUserTickets(
+						gomock.Any(),
+						&tickets.CountUserTicketsIn{
+							UserID: 1,
+							Filters: &tickets.TicketsFilters{
+								Search:              pointers.New("Ticket"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryIDs:         []uint32{1},
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
+					).
+					Return(
+						&tickets.CountOut{Count: 1},
+						nil,
+					).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name:   "error",
+			userID: 1,
+			filters: &entities.TicketsFilters{
+				Search:              pointers.New("Ticket"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(ticketsClient *mockclients.MockTicketsClient) {
+				ticketsClient.
+					EXPECT().
+					CountUserTickets(
+						gomock.Any(),
+						&tickets.CountUserTicketsIn{
+							UserID: 1,
+							Filters: &tickets.TicketsFilters{
+								Search:              pointers.New("Ticket"),
+								PriceCeil:           pointers.New[float32](1000),
+								PriceFloor:          pointers.New[float32](10),
+								QuantityFloor:       pointers.New[uint32](1),
+								CategoryIDs:         []uint32{1},
+								TagIDs:              []uint32{1},
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
+					).
+					Return(
+						&tickets.CountOut{Count: 0},
+						errors.New("error"),
+					).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	ticketsClient := mockclients.NewMockTicketsClient(ctrl)
+	repo := NewTicketsRepository(ticketsClient)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(ticketsClient)
+			}
+
+			actual, err := repo.CountUserTickets(context.Background(), tc.userID, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
 		})
 	}
 }

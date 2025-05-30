@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/DKhorkov/hmtm-tickets/api/protobuf/generated/go/tickets"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
@@ -59,10 +58,34 @@ func (repo *TicketsRepository) GetTicketByID(
 	return repo.processTicketResponse(response), nil
 }
 
-func (repo *TicketsRepository) GetAllTickets(ctx context.Context) ([]entities.RawTicket, error) {
+func (repo *TicketsRepository) GetTickets(
+	ctx context.Context,
+	pagination *entities.Pagination,
+	filters *entities.TicketsFilters,
+) ([]entities.RawTicket, error) {
+	in := &tickets.GetTicketsIn{}
+	if pagination != nil {
+		in.Pagination = &tickets.Pagination{
+			Limit:  pagination.Limit,
+			Offset: pagination.Offset,
+		}
+	}
+
+	if filters != nil {
+		in.Filters = &tickets.TicketsFilters{
+			Search:              filters.Search,
+			PriceCeil:           filters.PriceCeil,
+			PriceFloor:          filters.PriceFloor,
+			QuantityFloor:       filters.QuantityFloor,
+			CategoryIDs:         filters.CategoryIDs,
+			TagIDs:              filters.TagIDs,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
+		}
+	}
+
 	response, err := repo.client.GetTickets(
 		ctx,
-		&emptypb.Empty{},
+		in,
 	)
 	if err != nil {
 		return nil, err
@@ -79,12 +102,32 @@ func (repo *TicketsRepository) GetAllTickets(ctx context.Context) ([]entities.Ra
 func (repo *TicketsRepository) GetUserTickets(
 	ctx context.Context,
 	userID uint64,
+	pagination *entities.Pagination,
+	filters *entities.TicketsFilters,
 ) ([]entities.RawTicket, error) {
+	in := &tickets.GetUserTicketsIn{UserID: userID}
+	if pagination != nil {
+		in.Pagination = &tickets.Pagination{
+			Limit:  pagination.Limit,
+			Offset: pagination.Offset,
+		}
+	}
+
+	if filters != nil {
+		in.Filters = &tickets.TicketsFilters{
+			Search:              filters.Search,
+			PriceCeil:           filters.PriceCeil,
+			PriceFloor:          filters.PriceFloor,
+			QuantityFloor:       filters.QuantityFloor,
+			CategoryIDs:         filters.CategoryIDs,
+			TagIDs:              filters.TagIDs,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
+		}
+	}
+
 	response, err := repo.client.GetUserTickets(
 		ctx,
-		&tickets.GetUserTicketsIn{
-			UserID: userID,
-		},
+		in,
 	)
 	if err != nil {
 		return nil, err
@@ -96,6 +139,60 @@ func (repo *TicketsRepository) GetUserTickets(
 	}
 
 	return userTickets, nil
+}
+
+func (repo *TicketsRepository) CountTickets(ctx context.Context, filters *entities.TicketsFilters) (uint64, error) {
+	in := &tickets.CountTicketsIn{}
+	if filters != nil {
+		in.Filters = &tickets.TicketsFilters{
+			Search:              filters.Search,
+			PriceCeil:           filters.PriceCeil,
+			PriceFloor:          filters.PriceFloor,
+			QuantityFloor:       filters.QuantityFloor,
+			CategoryIDs:         filters.CategoryIDs,
+			TagIDs:              filters.TagIDs,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
+		}
+	}
+
+	response, err := repo.client.CountTickets(
+		ctx,
+		in,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.Count, nil
+}
+
+func (repo *TicketsRepository) CountUserTickets(
+	ctx context.Context,
+	userID uint64,
+	filters *entities.TicketsFilters,
+) (uint64, error) {
+	in := &tickets.CountUserTicketsIn{UserID: userID}
+	if filters != nil {
+		in.Filters = &tickets.TicketsFilters{
+			Search:              filters.Search,
+			PriceCeil:           filters.PriceCeil,
+			PriceFloor:          filters.PriceFloor,
+			QuantityFloor:       filters.QuantityFloor,
+			CategoryIDs:         filters.CategoryIDs,
+			TagIDs:              filters.TagIDs,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
+		}
+	}
+
+	response, err := repo.client.CountUserTickets(
+		ctx,
+		in,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.Count, nil
 }
 
 func (repo *TicketsRepository) RespondToTicket(

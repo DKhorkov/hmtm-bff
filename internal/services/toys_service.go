@@ -63,7 +63,7 @@ func (service *ToysService) CountToys(ctx context.Context, filters *entities.Toy
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			"Error occurred while trying to count all Toys",
+			"Error occurred while trying to count Toys",
 			err,
 		)
 	}

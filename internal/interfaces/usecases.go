@@ -73,9 +73,26 @@ type UseCases interface {
 		rawTicketData entities.RawCreateTicketDTO,
 	) (ticketID uint64, err error)
 	GetTicketByID(ctx context.Context, id uint64) (*entities.Ticket, error)
-	GetAllTickets(ctx context.Context) ([]entities.Ticket, error)
-	GetUserTickets(ctx context.Context, userID uint64) ([]entities.Ticket, error)
-	GetMyTickets(ctx context.Context, accessToken string) ([]entities.Ticket, error)
+	GetTickets(
+		ctx context.Context,
+		pagination *entities.Pagination,
+		filters *entities.TicketsFilters,
+	) ([]entities.Ticket, error)
+	CountTickets(ctx context.Context, filters *entities.TicketsFilters) (uint64, error)
+	GetUserTickets(
+		ctx context.Context,
+		userID uint64,
+		pagination *entities.Pagination,
+		filters *entities.TicketsFilters,
+	) ([]entities.Ticket, error)
+	CountUserTickets(ctx context.Context, userID uint64, filters *entities.TicketsFilters) (uint64, error)
+	GetMyTickets(
+		ctx context.Context,
+		accessToken string,
+		pagination *entities.Pagination,
+		filters *entities.TicketsFilters,
+	) ([]entities.Ticket, error)
+	CountMyTickets(ctx context.Context, accessToken string, filters *entities.TicketsFilters) (uint64, error)
 	RespondToTicket(
 		ctx context.Context,
 		rawRespondData entities.RawRespondToTicketDTO,
