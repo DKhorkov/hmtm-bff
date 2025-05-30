@@ -470,8 +470,12 @@ func (useCases *UseCases) GetTicketByID(ctx context.Context, id uint64) (*entiti
 	return useCases.processRawTicket(*rawTicket, tags), nil
 }
 
-func (useCases *UseCases) GetAllTickets(ctx context.Context) ([]entities.Ticket, error) {
-	rawTickets, err := useCases.ticketsService.GetAllTickets(ctx)
+func (useCases *UseCases) GetTickets(
+	ctx context.Context,
+	pagination *entities.Pagination,
+	filters *entities.TicketsFilters,
+) ([]entities.Ticket, error) {
+	rawTickets, err := useCases.ticketsService.GetTickets(ctx, pagination, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -490,8 +494,10 @@ func (useCases *UseCases) GetAllTickets(ctx context.Context) ([]entities.Ticket,
 func (useCases *UseCases) GetUserTickets(
 	ctx context.Context,
 	userID uint64,
+	pagination *entities.Pagination,
+	filters *entities.TicketsFilters,
 ) ([]entities.Ticket, error) {
-	rawTickets, err := useCases.ticketsService.GetUserTickets(ctx, userID)
+	rawTickets, err := useCases.ticketsService.GetUserTickets(ctx, userID, pagination, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -510,13 +516,76 @@ func (useCases *UseCases) GetUserTickets(
 func (useCases *UseCases) GetMyTickets(
 	ctx context.Context,
 	accessToken string,
+	pagination *entities.Pagination,
+	filters *entities.TicketsFilters,
 ) ([]entities.Ticket, error) {
 	user, err := useCases.GetMe(ctx, accessToken)
 	if err != nil {
 		return nil, err
 	}
 
-	return useCases.GetUserTickets(ctx, user.ID)
+	return useCases.GetUserTickets(ctx, user.ID, pagination, filters)
+}
+
+func (useCases *UseCases) CountTickets(ctx context.Context, filters *entities.TicketsFilters) (uint64, error) {
+	if filters != nil && filters.Search != nil && len(*filters.Search) > searchQueryLengthLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too long search query. Limit is %d symbols", searchQueryLengthLimit),
+		}
+	}
+
+	if filters != nil && len(filters.TagIDs) > tagsLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
+	return useCases.ticketsService.CountTickets(ctx, filters)
+}
+
+func (useCases *UseCases) CountUserTickets(
+	ctx context.Context,
+	userID uint64,
+	filters *entities.TicketsFilters,
+) (uint64, error) {
+	if filters != nil && filters.Search != nil && len(*filters.Search) > searchQueryLengthLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too long search query. Limit is %d symbols", searchQueryLengthLimit),
+		}
+	}
+
+	if filters != nil && len(filters.TagIDs) > tagsLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
+	return useCases.ticketsService.CountUserTickets(ctx, userID, filters)
+}
+
+func (useCases *UseCases) CountMyTickets(
+	ctx context.Context,
+	accessToken string,
+	filters *entities.TicketsFilters,
+) (uint64, error) {
+	if filters != nil && filters.Search != nil && len(*filters.Search) > searchQueryLengthLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too long search query. Limit is %d symbols", searchQueryLengthLimit),
+		}
+	}
+
+	if filters != nil && len(filters.TagIDs) > tagsLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too many Tags. Limit is %d", tagsLimit),
+		}
+	}
+
+	user, err := useCases.GetMe(ctx, accessToken)
+	if err != nil {
+		return 0, err
+	}
+
+	return useCases.ticketsService.CountUserTickets(ctx, user.ID, filters)
 }
 
 func (useCases *UseCases) RespondToTicket(

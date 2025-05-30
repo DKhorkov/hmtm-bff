@@ -93,6 +93,7 @@ linters:
       - path: "internal/repositories/tickets_repository.go"
         linters:
           - protogetter # to be able using optional fields like *string
+          - dupl
       - path: "internal/repositories/toys_repository.go"
         linters:
           - protogetter # to be able using optional fields like *string

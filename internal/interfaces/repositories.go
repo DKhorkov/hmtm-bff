@@ -75,8 +75,19 @@ type TicketsRepository interface {
 		ticketData entities.CreateTicketDTO,
 	) (ticketID uint64, err error)
 	GetTicketByID(ctx context.Context, id uint64) (*entities.RawTicket, error)
-	GetAllTickets(ctx context.Context) ([]entities.RawTicket, error)
-	GetUserTickets(ctx context.Context, userID uint64) ([]entities.RawTicket, error)
+	GetTickets(
+		ctx context.Context,
+		pagination *entities.Pagination,
+		filters *entities.TicketsFilters,
+	) ([]entities.RawTicket, error)
+	CountTickets(ctx context.Context, filters *entities.TicketsFilters) (uint64, error)
+	GetUserTickets(
+		ctx context.Context,
+		userID uint64,
+		pagination *entities.Pagination,
+		filters *entities.TicketsFilters,
+	) ([]entities.RawTicket, error)
+	CountUserTickets(ctx context.Context, userID uint64, filters *entities.TicketsFilters) (uint64, error)
 	RespondToTicket(
 		ctx context.Context,
 		respondData entities.RespondToTicketDTO,

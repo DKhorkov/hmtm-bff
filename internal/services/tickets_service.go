@@ -59,8 +59,45 @@ func (service *TicketsService) GetTicketByID(
 	return ticket, err
 }
 
-func (service *TicketsService) GetAllTickets(ctx context.Context) ([]entities.RawTicket, error) {
-	tickets, err := service.ticketsRepository.GetAllTickets(ctx)
+func (service *TicketsService) GetTickets(
+	ctx context.Context,
+	pagination *entities.Pagination,
+	filters *entities.TicketsFilters,
+) ([]entities.RawTicket, error) {
+	tickets, err := service.ticketsRepository.GetTickets(ctx, pagination, filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			"Error occurred while trying to get Tickets",
+			err,
+		)
+	}
+
+	return tickets, err
+}
+
+func (service *TicketsService) GetUserTickets(
+	ctx context.Context,
+	userID uint64,
+	pagination *entities.Pagination,
+	filters *entities.TicketsFilters,
+) ([]entities.RawTicket, error) {
+	tickets, err := service.ticketsRepository.GetUserTickets(ctx, userID, pagination, filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to get Tickets for User with ID=%d", userID),
+			err,
+		)
+	}
+
+	return tickets, err
+}
+
+func (service *TicketsService) CountTickets(ctx context.Context, filters *entities.TicketsFilters) (uint64, error) {
+	tickets, err := service.ticketsRepository.CountTickets(ctx, filters)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -73,21 +110,22 @@ func (service *TicketsService) GetAllTickets(ctx context.Context) ([]entities.Ra
 	return tickets, err
 }
 
-func (service *TicketsService) GetUserTickets(
+func (service *TicketsService) CountUserTickets(
 	ctx context.Context,
 	userID uint64,
-) ([]entities.RawTicket, error) {
-	tickets, err := service.ticketsRepository.GetUserTickets(ctx, userID)
+	filters *entities.TicketsFilters,
+) (uint64, error) {
+	count, err := service.ticketsRepository.CountUserTickets(ctx, userID, filters)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			service.logger,
-			fmt.Sprintf("Error occurred while trying to get Tickets for User with ID=%d", userID),
+			fmt.Sprintf("Error occurred while trying to count Tickets for User with ID=%d", userID),
 			err,
 		)
 	}
 
-	return tickets, err
+	return count, err
 }
 
 func (service *TicketsService) RespondToTicket(

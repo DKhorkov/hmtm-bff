@@ -43,6 +43,46 @@ func (m *MockTicketsClient) EXPECT() *MockTicketsClientMockRecorder {
 	return m.recorder
 }
 
+// CountTickets mocks base method.
+func (m *MockTicketsClient) CountTickets(ctx context.Context, in *tickets.CountTicketsIn, opts ...grpc.CallOption) (*tickets.CountOut, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CountTickets", varargs...)
+	ret0, _ := ret[0].(*tickets.CountOut)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountTickets indicates an expected call of CountTickets.
+func (mr *MockTicketsClientMockRecorder) CountTickets(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountTickets", reflect.TypeOf((*MockTicketsClient)(nil).CountTickets), varargs...)
+}
+
+// CountUserTickets mocks base method.
+func (m *MockTicketsClient) CountUserTickets(ctx context.Context, in *tickets.CountUserTicketsIn, opts ...grpc.CallOption) (*tickets.CountOut, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CountUserTickets", varargs...)
+	ret0, _ := ret[0].(*tickets.CountOut)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountUserTickets indicates an expected call of CountUserTickets.
+func (mr *MockTicketsClientMockRecorder) CountUserTickets(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountUserTickets", reflect.TypeOf((*MockTicketsClient)(nil).CountUserTickets), varargs...)
+}
+
 // CreateTicket mocks base method.
 func (m *MockTicketsClient) CreateTicket(ctx context.Context, in *tickets.CreateTicketIn, opts ...grpc.CallOption) (*tickets.CreateTicketOut, error) {
 	m.ctrl.T.Helper()
@@ -164,7 +204,7 @@ func (mr *MockTicketsClientMockRecorder) GetTicketResponds(ctx, in any, opts ...
 }
 
 // GetTickets mocks base method.
-func (m *MockTicketsClient) GetTickets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*tickets.GetTicketsOut, error) {
+func (m *MockTicketsClient) GetTickets(ctx context.Context, in *tickets.GetTicketsIn, opts ...grpc.CallOption) (*tickets.GetTicketsOut, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, in}
 	for _, a := range opts {

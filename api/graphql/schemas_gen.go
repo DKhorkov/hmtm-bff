@@ -67,6 +67,11 @@ type MastersInput struct {
 type Mutation struct {
 }
 
+type MyTicketsInput struct {
+	Pagination *entities.Pagination     `json:"pagination,omitempty"`
+	Filters    *entities.TicketsFilters `json:"filters,omitempty"`
+}
+
 type MyToysInput struct {
 	Pagination *entities.Pagination  `json:"pagination,omitempty"`
 	Filters    *entities.ToysFilters `json:"filters,omitempty"`
@@ -97,6 +102,11 @@ type SendForgetPasswordMessageInput struct {
 
 type SendVerifyEmailMessageInput struct {
 	Email string `json:"email"`
+}
+
+type TicketsInput struct {
+	Pagination *entities.Pagination     `json:"pagination,omitempty"`
+	Filters    *entities.TicketsFilters `json:"filters,omitempty"`
 }
 
 type ToysInput struct {
@@ -142,6 +152,12 @@ type UpdateUserProfileInput struct {
 	Phone       *string         `json:"phone,omitempty"`
 	Telegram    *string         `json:"telegram,omitempty"`
 	Avatar      *graphql.Upload `json:"avatar,omitempty"`
+}
+
+type UserTicketsInput struct {
+	UserID     string                   `json:"userId"`
+	Pagination *entities.Pagination     `json:"pagination,omitempty"`
+	Filters    *entities.TicketsFilters `json:"filters,omitempty"`
 }
 
 type UsersInput struct {

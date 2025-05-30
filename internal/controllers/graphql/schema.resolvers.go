@@ -830,8 +830,18 @@ func (r *queryResolver) Ticket(ctx context.Context, id string) (*entities.Ticket
 }
 
 // Tickets is the resolver for the tickets field.
-func (r *queryResolver) Tickets(ctx context.Context) ([]*entities.Ticket, error) {
-	tickets, err := r.useCases.GetAllTickets(ctx)
+func (r *queryResolver) Tickets(ctx context.Context, input *graphqlapi.TicketsInput) ([]*entities.Ticket, error) {
+	var pagination *entities.Pagination
+	if input != nil {
+		pagination = input.Pagination
+	}
+
+	var filters *entities.TicketsFilters
+	if input != nil {
+		filters = input.Filters
+	}
+
+	tickets, err := r.useCases.GetTickets(ctx, pagination, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -842,16 +852,26 @@ func (r *queryResolver) Tickets(ctx context.Context) ([]*entities.Ticket, error)
 	}
 
 	return response, nil
+}
+
+// TicketsCounter is the resolver for the ticketsCounter field.
+func (r *queryResolver) TicketsCounter(ctx context.Context, filters *entities.TicketsFilters) (int, error) {
+	count, err := r.useCases.CountTickets(ctx, filters)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }
 
 // UserTickets is the resolver for the userTickets field.
-func (r *queryResolver) UserTickets(ctx context.Context, userID string) ([]*entities.Ticket, error) {
-	intUserID, err := strconv.Atoi(userID)
+func (r *queryResolver) UserTickets(ctx context.Context, input graphqlapi.UserTicketsInput) ([]*entities.Ticket, error) {
+	intUserID, err := strconv.Atoi(input.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	tickets, err := r.useCases.GetUserTickets(ctx, uint64(intUserID))
+	tickets, err := r.useCases.GetUserTickets(ctx, uint64(intUserID), input.Pagination, input.Filters)
 	if err != nil {
 		return nil, err
 	}
@@ -864,14 +884,39 @@ func (r *queryResolver) UserTickets(ctx context.Context, userID string) ([]*enti
 	return response, nil
 }
 
+// UserTicketsCounter is the resolver for the userTicketsCounter field.
+func (r *queryResolver) UserTicketsCounter(ctx context.Context, userID string, filters *entities.TicketsFilters) (int, error) {
+	intUserID, err := strconv.Atoi(userID)
+	if err != nil {
+		return 0, err
+	}
+
+	count, err := r.useCases.CountUserTickets(ctx, uint64(intUserID), filters)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
+}
+
 // MyTickets is the resolver for the myTickets field.
-func (r *queryResolver) MyTickets(ctx context.Context) ([]*entities.Ticket, error) {
+func (r *queryResolver) MyTickets(ctx context.Context, input *graphqlapi.MyTicketsInput) ([]*entities.Ticket, error) {
+	var pagination *entities.Pagination
+	if input != nil {
+		pagination = input.Pagination
+	}
+
+	var filters *entities.TicketsFilters
+	if input != nil {
+		filters = input.Filters
+	}
+
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	tickets, err := r.useCases.GetMyTickets(ctx, accessToken.Value)
+	tickets, err := r.useCases.GetMyTickets(ctx, accessToken.Value, pagination, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -882,6 +927,21 @@ func (r *queryResolver) MyTickets(ctx context.Context) ([]*entities.Ticket, erro
 	}
 
 	return response, nil
+}
+
+// MyTicketsCounter is the resolver for the myTicketsCounter field.
+func (r *queryResolver) MyTicketsCounter(ctx context.Context, filters *entities.TicketsFilters) (int, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return 0, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	count, err := r.useCases.CountMyTickets(ctx, accessToken.Value, filters)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }
 
 // Respond is the resolver for the respond field.
@@ -1147,6 +1207,33 @@ func (r *paginationResolver) Offset(ctx context.Context, obj *entities.Paginatio
 }
 
 // PriceCeil is the resolver for the priceCeil field.
+func (r *ticketsFiltersResolver) PriceCeil(ctx context.Context, obj *entities.TicketsFilters, data *float64) error {
+	if obj != nil && data != nil {
+		obj.PriceCeil = pointers.New(float32(*data))
+	}
+
+	return nil
+}
+
+// PriceFloor is the resolver for the priceFloor field.
+func (r *ticketsFiltersResolver) PriceFloor(ctx context.Context, obj *entities.TicketsFilters, data *float64) error {
+	if obj != nil && data != nil {
+		obj.PriceFloor = pointers.New(float32(*data))
+	}
+
+	return nil
+}
+
+// QuantityFloor is the resolver for the quantityFloor field.
+func (r *ticketsFiltersResolver) QuantityFloor(ctx context.Context, obj *entities.TicketsFilters, data *int) error {
+	if obj != nil && data != nil {
+		obj.QuantityFloor = pointers.New(uint32(*data))
+	}
+
+	return nil
+}
+
+// PriceCeil is the resolver for the priceCeil field.
 func (r *toysFiltersResolver) PriceCeil(ctx context.Context, obj *entities.ToysFilters, data *float64) error {
 	if obj != nil && data != nil {
 		obj.PriceCeil = pointers.New(float32(*data))
@@ -1197,17 +1284,23 @@ func (r *Resolver) Toy() graphqlapi.ToyResolver { return &toyResolver{r} }
 // Pagination returns graphqlapi.PaginationResolver implementation.
 func (r *Resolver) Pagination() graphqlapi.PaginationResolver { return &paginationResolver{r} }
 
+// TicketsFilters returns graphqlapi.TicketsFiltersResolver implementation.
+func (r *Resolver) TicketsFilters() graphqlapi.TicketsFiltersResolver {
+	return &ticketsFiltersResolver{r}
+}
+
 // ToysFilters returns graphqlapi.ToysFiltersResolver implementation.
 func (r *Resolver) ToysFilters() graphqlapi.ToysFiltersResolver { return &toysFiltersResolver{r} }
 
 type (
-	emailResolver       struct{ *Resolver }
-	masterResolver      struct{ *Resolver }
-	mutationResolver    struct{ *Resolver }
-	queryResolver       struct{ *Resolver }
-	respondResolver     struct{ *Resolver }
-	ticketResolver      struct{ *Resolver }
-	toyResolver         struct{ *Resolver }
-	paginationResolver  struct{ *Resolver }
-	toysFiltersResolver struct{ *Resolver }
+	emailResolver          struct{ *Resolver }
+	masterResolver         struct{ *Resolver }
+	mutationResolver       struct{ *Resolver }
+	queryResolver          struct{ *Resolver }
+	respondResolver        struct{ *Resolver }
+	ticketResolver         struct{ *Resolver }
+	toyResolver            struct{ *Resolver }
+	paginationResolver     struct{ *Resolver }
+	ticketsFiltersResolver struct{ *Resolver }
+	toysFiltersResolver    struct{ *Resolver }
 )

@@ -221,3 +221,24 @@ func TestResolver_ToysFilters(t *testing.T) {
 		})
 	}
 }
+
+func TestResolver_TicketsFilters(t *testing.T) {
+	testCases := []struct {
+		name     string
+		resolver *Resolver
+		expected *ticketsFiltersResolver
+	}{
+		{
+			name:     "success",
+			resolver: &Resolver{},
+			expected: &ticketsFiltersResolver{Resolver: &Resolver{}},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := tc.resolver.TicketsFilters()
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
