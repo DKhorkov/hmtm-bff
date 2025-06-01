@@ -41,17 +41,32 @@ func (m *MockNotificationsRepository) EXPECT() *MockNotificationsRepositoryMockR
 	return m.recorder
 }
 
-// GetUserEmailCommunications mocks base method.
-func (m *MockNotificationsRepository) GetUserEmailCommunications(ctx context.Context, userID uint64) ([]entities.Email, error) {
+// CountUserEmailCommunications mocks base method.
+func (m *MockNotificationsRepository) CountUserEmailCommunications(ctx context.Context, userID uint64) (uint64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserEmailCommunications", ctx, userID)
+	ret := m.ctrl.Call(m, "CountUserEmailCommunications", ctx, userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountUserEmailCommunications indicates an expected call of CountUserEmailCommunications.
+func (mr *MockNotificationsRepositoryMockRecorder) CountUserEmailCommunications(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountUserEmailCommunications", reflect.TypeOf((*MockNotificationsRepository)(nil).CountUserEmailCommunications), ctx, userID)
+}
+
+// GetUserEmailCommunications mocks base method.
+func (m *MockNotificationsRepository) GetUserEmailCommunications(ctx context.Context, userID uint64, pagination *entities.Pagination) ([]entities.Email, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserEmailCommunications", ctx, userID, pagination)
 	ret0, _ := ret[0].([]entities.Email)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserEmailCommunications indicates an expected call of GetUserEmailCommunications.
-func (mr *MockNotificationsRepositoryMockRecorder) GetUserEmailCommunications(ctx, userID any) *gomock.Call {
+func (mr *MockNotificationsRepositoryMockRecorder) GetUserEmailCommunications(ctx, userID, pagination any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserEmailCommunications", reflect.TypeOf((*MockNotificationsRepository)(nil).GetUserEmailCommunications), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserEmailCommunications", reflect.TypeOf((*MockNotificationsRepository)(nil).GetUserEmailCommunications), ctx, userID, pagination)
 }

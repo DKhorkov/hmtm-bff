@@ -4,24 +4,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/99designs/gqlgen/graphql"
-	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
-	"github.com/DKhorkov/libs/pointers"
-	"github.com/DKhorkov/libs/security"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	mockservices "github.com/DKhorkov/hmtm-bff/mocks/services"
+	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	mocklogger "github.com/DKhorkov/libs/logging/mocks"
+	"github.com/DKhorkov/libs/pointers"
+	"github.com/DKhorkov/libs/security"
 	tracingmock "github.com/DKhorkov/libs/tracing/mocks"
 
 	"github.com/DKhorkov/hmtm-bff/internal/config"
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
+	mockservices "github.com/DKhorkov/hmtm-bff/mocks/services"
 )
 
 var (
@@ -8479,6 +8479,7 @@ func TestUseCases_GetMyEmailCommunications(t *testing.T) {
 	type args struct {
 		ctx         context.Context
 		accessToken string
+		pagination  *entities.Pagination
 	}
 
 	// Test data
@@ -8519,6 +8520,10 @@ func TestUseCases_GetMyEmailCommunications(t *testing.T) {
 			args: args{
 				ctx:         context.Background(),
 				accessToken: "valid_token",
+				pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
 			},
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
@@ -8532,7 +8537,14 @@ func TestUseCases_GetMyEmailCommunications(t *testing.T) {
 
 				notificationsService.
 					EXPECT().
-					GetUserEmailCommunications(gomock.Any(), testUser.ID).
+					GetUserEmailCommunications(
+						gomock.Any(),
+						testUser.ID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(testEmails, nil).
 					Times(1)
 			},
@@ -8544,6 +8556,10 @@ func TestUseCases_GetMyEmailCommunications(t *testing.T) {
 			args: args{
 				ctx:         context.Background(),
 				accessToken: "invalid_token",
+				pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
 			},
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
@@ -8564,6 +8580,10 @@ func TestUseCases_GetMyEmailCommunications(t *testing.T) {
 			args: args{
 				ctx:         context.Background(),
 				accessToken: "valid_token",
+				pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
 			},
 			setupMocks: func(
 				ssoService *mockservices.MockSsoService,
@@ -8577,7 +8597,14 @@ func TestUseCases_GetMyEmailCommunications(t *testing.T) {
 
 				notificationsService.
 					EXPECT().
-					GetUserEmailCommunications(gomock.Any(), testUser.ID).
+					GetUserEmailCommunications(
+						gomock.Any(),
+						testUser.ID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("service unavailable")).
 					Times(1)
 			},
@@ -8602,7 +8629,132 @@ func TestUseCases_GetMyEmailCommunications(t *testing.T) {
 				tc.setupMocks(ssoService, notificationsService)
 			}
 
-			actual, err := useCases.GetMyEmailCommunications(tc.args.ctx, tc.args.accessToken)
+			actual, err := useCases.GetMyEmailCommunications(tc.args.ctx, tc.args.accessToken, tc.args.pagination)
+
+			if tc.errorExpected {
+				require.Error(t, err)
+				if tc.expectedError != nil {
+					require.EqualError(t, err, tc.expectedError.Error())
+				}
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_CountMyEmailCommunications(t *testing.T) {
+	type args struct {
+		ctx         context.Context
+		accessToken string
+	}
+
+	testUser := &entities.User{
+		ID:          1,
+		DisplayName: "Test User",
+		Email:       "test@example.com",
+	}
+
+	testCases := []struct {
+		name       string
+		args       args
+		setupMocks func(
+			ssoService *mockservices.MockSsoService,
+			notificationsService *mockservices.MockNotificationsService,
+		)
+		expected      uint64
+		errorExpected bool
+		expectedError error
+	}{
+		{
+			name: "successful get emails",
+			args: args{
+				ctx:         context.Background(),
+				accessToken: "valid_token",
+			},
+			setupMocks: func(
+				ssoService *mockservices.MockSsoService,
+				notificationsService *mockservices.MockNotificationsService,
+			) {
+				ssoService.
+					EXPECT().
+					GetMe(gomock.Any(), "valid_token").
+					Return(testUser, nil).
+					Times(1)
+
+				notificationsService.
+					EXPECT().
+					CountUserEmailCommunications(gomock.Any(), testUser.ID).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected:      1,
+			errorExpected: false,
+		},
+		{
+			name: "invalid access token",
+			args: args{
+				ctx:         context.Background(),
+				accessToken: "invalid_token",
+			},
+			setupMocks: func(
+				ssoService *mockservices.MockSsoService,
+				_ *mockservices.MockNotificationsService,
+			) {
+				ssoService.
+					EXPECT().
+					GetMe(gomock.Any(), "invalid_token").
+					Return(nil, errors.New("invalid token")).
+					Times(1)
+			},
+			errorExpected: true,
+			expectedError: errors.New("invalid token"),
+		},
+		{
+			name: "failed to get emails",
+			args: args{
+				ctx:         context.Background(),
+				accessToken: "valid_token",
+			},
+			setupMocks: func(
+				ssoService *mockservices.MockSsoService,
+				notificationsService *mockservices.MockNotificationsService,
+			) {
+				ssoService.
+					EXPECT().
+					GetMe(gomock.Any(), "valid_token").
+					Return(testUser, nil).
+					Times(1)
+
+				notificationsService.
+					EXPECT().
+					CountUserEmailCommunications(gomock.Any(), testUser.ID).
+					Return(uint64(0), errors.New("service unavailable")).
+					Times(1)
+			},
+			errorExpected: true,
+			expectedError: errors.New("service unavailable"),
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	notificationsService := mockservices.NewMockNotificationsService(ctrl)
+	// Other services not needed for this test
+	useCases := &UseCases{
+		ssoService:           ssoService,
+		notificationsService: notificationsService,
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(ssoService, notificationsService)
+			}
+
+			actual, err := useCases.CountMyEmailCommunications(tc.args.ctx, tc.args.accessToken)
 
 			if tc.errorExpected {
 				require.Error(t, err)

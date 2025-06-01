@@ -110,5 +110,10 @@ type UseCases interface {
 	DeleteTicket(ctx context.Context, accessToken string, id uint64) error
 
 	// Notifications cases:
-	GetMyEmailCommunications(ctx context.Context, accessToken string) ([]entities.Email, error)
+	GetMyEmailCommunications(
+		ctx context.Context,
+		accessToken string,
+		pagination *entities.Pagination,
+	) ([]entities.Email, error)
+	CountMyEmailCommunications(ctx context.Context, accessToken string) (uint64, error)
 }

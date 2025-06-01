@@ -86,6 +86,21 @@ func (mr *MockUseCasesMockRecorder) CountMasterToys(ctx, masterID, filters any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMasterToys", reflect.TypeOf((*MockUseCases)(nil).CountMasterToys), ctx, masterID, filters)
 }
 
+// CountMyEmailCommunications mocks base method.
+func (m *MockUseCases) CountMyEmailCommunications(ctx context.Context, accessToken string) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountMyEmailCommunications", ctx, accessToken)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountMyEmailCommunications indicates an expected call of CountMyEmailCommunications.
+func (mr *MockUseCasesMockRecorder) CountMyEmailCommunications(ctx, accessToken any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMyEmailCommunications", reflect.TypeOf((*MockUseCases)(nil).CountMyEmailCommunications), ctx, accessToken)
+}
+
 // CountMyTickets mocks base method.
 func (m *MockUseCases) CountMyTickets(ctx context.Context, accessToken string, filters *entities.TicketsFilters) (uint64, error) {
 	m.ctrl.T.Helper()
@@ -353,18 +368,18 @@ func (mr *MockUseCasesMockRecorder) GetMe(ctx, accessToken any) *gomock.Call {
 }
 
 // GetMyEmailCommunications mocks base method.
-func (m *MockUseCases) GetMyEmailCommunications(ctx context.Context, accessToken string) ([]entities.Email, error) {
+func (m *MockUseCases) GetMyEmailCommunications(ctx context.Context, accessToken string, pagination *entities.Pagination) ([]entities.Email, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMyEmailCommunications", ctx, accessToken)
+	ret := m.ctrl.Call(m, "GetMyEmailCommunications", ctx, accessToken, pagination)
 	ret0, _ := ret[0].([]entities.Email)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMyEmailCommunications indicates an expected call of GetMyEmailCommunications.
-func (mr *MockUseCasesMockRecorder) GetMyEmailCommunications(ctx, accessToken any) *gomock.Call {
+func (mr *MockUseCasesMockRecorder) GetMyEmailCommunications(ctx, accessToken, pagination any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMyEmailCommunications", reflect.TypeOf((*MockUseCases)(nil).GetMyEmailCommunications), ctx, accessToken)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMyEmailCommunications", reflect.TypeOf((*MockUseCases)(nil).GetMyEmailCommunications), ctx, accessToken, pagination)
 }
 
 // GetMyResponds mocks base method.

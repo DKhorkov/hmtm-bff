@@ -57,7 +57,7 @@ Cookie: refreshToken=ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmxlSEF
 
 POST http://localhost:8080/query
 Content-Type: application/json
-Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDEyOTMxMTUsInZhbHVlIjozMX0.7YTO84thnGVDalv-w_24hksTneL0NnVBGiG5oUMOMWQ
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDg4MDg2ODYsInZhbHVlIjozMX0.eUGO-KdZJ8RnWRTISZdQPTt4NKg7y0hJmibyqt2aF1g
 
 {
   "query": "query { me { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } }"
@@ -549,4 +549,32 @@ Content-Type: application/json
       "createdAtOrderByAsc": true
     }
   }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDg4MDg2ODYsInZhbHVlIjozMX0.eUGO-KdZJ8RnWRTISZdQPTt4NKg7y0hJmibyqt2aF1g
+
+{
+  "query": "query GetMyEmailCommunications($input: MyEmailCommunicationsInput) { myEmailCommunications(input: $input) { id user { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } content sentAt } }",
+  "variables": {
+    "input": {
+      "pagination": {
+        "limit": 1,
+        "offset": 1
+      }
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDg4MDg2ODYsInZhbHVlIjozMX0.eUGO-KdZJ8RnWRTISZdQPTt4NKg7y0hJmibyqt2aF1g
+
+{
+  "query": "query { myEmailCommunicationsCounter }"
 }

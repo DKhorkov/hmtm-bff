@@ -67,6 +67,10 @@ type MastersInput struct {
 type Mutation struct {
 }
 
+type MyEmailCommunicationsInput struct {
+	Pagination *entities.Pagination `json:"pagination,omitempty"`
+}
+
 type MyTicketsInput struct {
 	Pagination *entities.Pagination     `json:"pagination,omitempty"`
 	Filters    *entities.TicketsFilters `json:"filters,omitempty"`
