@@ -163,6 +163,10 @@ input UserTicketsInput {
     filters: TicketsFilters
 }
 
+input MyEmailCommunicationsInput {
+    pagination: Pagination
+}
+
 type Query {
     # SSO queries:
     users(input: UsersInput): [User!]
@@ -199,7 +203,8 @@ type Query {
     myResponds: [Respond!]
 
     # Notifications queries:
-    myEmailCommunications: [Email!]
+    myEmailCommunications(input: MyEmailCommunicationsInput): [Email!]
+    myEmailCommunicationsCounter: Int!
 }
 
 input LoginUserInput {

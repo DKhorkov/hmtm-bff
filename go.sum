@@ -1,7 +1,7 @@
 github.com/99designs/gqlgen v0.17.55 h1:3vzrNWYyzSZjGDFo68e5j9sSauLxfKvLp+6ioRokVtM=
 github.com/99designs/gqlgen v0.17.55/go.mod h1:3Bq768f8hgVPGZxL8aY9MaYmbxa6llPM/qu1IGH1EJo=
-github.com/DKhorkov/hmtm-notifications v1.3.0 h1:ku17EfHsuiQaDWSWX/sTcIQJNnwpf/BZd3lmVvHY92s=
-github.com/DKhorkov/hmtm-notifications v1.3.0/go.mod h1:QAI08oFktzYQ6EXdw+yLncdKP72t7H3A2iYxATs7vyI=
+github.com/DKhorkov/hmtm-notifications v1.3.1 h1:yozm/lEpbw+ow/viKq/HHdWQ89RF4SOOaP00VD2uPcs=
+github.com/DKhorkov/hmtm-notifications v1.3.1/go.mod h1:QAI08oFktzYQ6EXdw+yLncdKP72t7H3A2iYxATs7vyI=
 github.com/DKhorkov/hmtm-sso v1.6.0 h1:YF8EUDzl1pzoP2H+N0kCzaWE48luCg8Nb6HoCEDMTaE=
 github.com/DKhorkov/hmtm-sso v1.6.0/go.mod h1:ZMDhaoSQztRN+3vUICy8MZbkAVqp4yuW5DfuKCiav6M=
 github.com/DKhorkov/hmtm-tickets v1.3.0 h1:lDA7l2KSGkrjtzBBITWhd8SShEcx/ydJLyd3xb36q4M=

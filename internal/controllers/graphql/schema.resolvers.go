@@ -1005,13 +1005,13 @@ func (r *queryResolver) MyResponds(ctx context.Context) ([]*entities.Respond, er
 }
 
 // MyEmailCommunications is the resolver for the myEmailCommunications field.
-func (r *queryResolver) MyEmailCommunications(ctx context.Context) ([]*entities.Email, error) {
+func (r *queryResolver) MyEmailCommunications(ctx context.Context, input *graphqlapi.MyEmailCommunicationsInput) ([]*entities.Email, error) {
 	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
 	if err != nil {
 		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	emailCommunications, err := r.useCases.GetMyEmailCommunications(ctx, accessToken.Value)
+	emailCommunications, err := r.useCases.GetMyEmailCommunications(ctx, accessToken.Value, input.Pagination)
 	if err != nil {
 		return nil, err
 	}
@@ -1022,6 +1022,21 @@ func (r *queryResolver) MyEmailCommunications(ctx context.Context) ([]*entities.
 	}
 
 	return response, nil
+}
+
+// MyEmailCommunicationsCounter is the resolver for the myEmailCommunicationsCounter field.
+func (r *queryResolver) MyEmailCommunicationsCounter(ctx context.Context) (int, error) {
+	accessToken, err := contextlib.ValueFromContext[*http.Cookie](ctx, accessTokenCookieName)
+	if err != nil {
+		return 0, &cookies.NotFoundError{Message: accessTokenCookieName}
+	}
+
+	count, err := r.useCases.CountMyEmailCommunications(ctx, accessToken.Value)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }
 
 // Ticket is the resolver for the ticket field.

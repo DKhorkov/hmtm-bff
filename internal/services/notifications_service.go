@@ -28,10 +28,12 @@ func NewNotificationsService(
 func (service *NotificationsService) GetUserEmailCommunications(
 	ctx context.Context,
 	userID uint64,
+	pagination *entities.Pagination,
 ) ([]entities.Email, error) {
 	emailCommunications, err := service.notificationsRepository.GetUserEmailCommunications(
 		ctx,
 		userID,
+		pagination,
 	)
 	if err != nil {
 		logging.LogErrorContext(
@@ -39,6 +41,23 @@ func (service *NotificationsService) GetUserEmailCommunications(
 			service.logger,
 			fmt.Sprintf(
 				"Error occurred while trying to get Email Communications for User with ID=%d",
+				userID,
+			),
+			err,
+		)
+	}
+
+	return emailCommunications, err
+}
+
+func (service *NotificationsService) CountUserEmailCommunications(ctx context.Context, userID uint64) (uint64, error) {
+	emailCommunications, err := service.notificationsRepository.CountUserEmailCommunications(ctx, userID)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf(
+				"Error occurred while trying to count Email Communications for User with ID=%d",
 				userID,
 			),
 			err,

@@ -20,12 +20,19 @@ func NewNotificationsRepository(client interfaces.NotificationsClient) *Notifica
 func (repo *NotificationsRepository) GetUserEmailCommunications(
 	ctx context.Context,
 	userID uint64,
+	pagination *entities.Pagination,
 ) ([]entities.Email, error) {
+	in := &notifications.GetUserEmailCommunicationsIn{UserID: userID}
+	if pagination != nil {
+		in.Pagination = &notifications.Pagination{
+			Limit:  pagination.Limit,
+			Offset: pagination.Offset,
+		}
+	}
+
 	response, err := repo.client.GetUserEmailCommunications(
 		ctx,
-		&notifications.GetUserEmailCommunicationsIn{
-			UserID: userID,
-		},
+		in,
 	)
 	if err != nil {
 		return nil, err
@@ -37,6 +44,20 @@ func (repo *NotificationsRepository) GetUserEmailCommunications(
 	}
 
 	return emailCommunications, nil
+}
+
+func (repo *NotificationsRepository) CountUserEmailCommunications(ctx context.Context, userID uint64) (uint64, error) {
+	response, err := repo.client.CountUserEmailCommunications(
+		ctx,
+		&notifications.CountUserEmailCommunicationsIn{
+			UserID: userID,
+		},
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.GetCount(), nil
 }
 
 func (repo *NotificationsRepository) processEmailCommunicationResponse(

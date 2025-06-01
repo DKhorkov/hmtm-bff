@@ -3463,6 +3463,7 @@ func TestQueryResolver_MyEmailCommunications(t *testing.T) {
 
 	testCases := []struct {
 		name           string
+		input          *graphqlapi.MyEmailCommunicationsInput
 		prepareContext func(ctx context.Context) context.Context
 		setupMocks     func(useCases *mockusecases.MockUseCases)
 		expected       []*entities.Email
@@ -3471,13 +3472,26 @@ func TestQueryResolver_MyEmailCommunications(t *testing.T) {
 	}{
 		{
 			name: "successful get email communications",
+			input: &graphqlapi.MyEmailCommunicationsInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			prepareContext: func(ctx context.Context) context.Context {
 				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMyEmailCommunications(gomock.Any(), validAccessToken.Value).
+					GetMyEmailCommunications(
+						gomock.Any(),
+						validAccessToken.Value,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(mockEmails, nil).
 					Times(1)
 			},
@@ -3485,32 +3499,64 @@ func TestQueryResolver_MyEmailCommunications(t *testing.T) {
 		},
 		{
 			name: "empty email communications list",
+			input: &graphqlapi.MyEmailCommunicationsInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			prepareContext: func(ctx context.Context) context.Context {
 				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMyEmailCommunications(gomock.Any(), validAccessToken.Value).
+					GetMyEmailCommunications(
+						gomock.Any(),
+						validAccessToken.Value,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.Email{}, nil).
 					Times(1)
 			},
 			expected: []*entities.Email{},
 		},
 		{
-			name:          "access token not found",
+			name: "access token not found",
+			input: &graphqlapi.MyEmailCommunicationsInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			expectedError: &cookies.NotFoundError{Message: accessTokenCookieName},
 			errorExpected: true,
 		},
 		{
 			name: "use case error",
+			input: &graphqlapi.MyEmailCommunicationsInput{
+				Pagination: &entities.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			prepareContext: func(ctx context.Context) context.Context {
 				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
 					EXPECT().
-					GetMyEmailCommunications(gomock.Any(), validAccessToken.Value).
+					GetMyEmailCommunications(
+						gomock.Any(),
+						validAccessToken.Value,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("test")).
 					Times(1)
 			},
@@ -3540,7 +3586,7 @@ func TestQueryResolver_MyEmailCommunications(t *testing.T) {
 				tc.setupMocks(useCases)
 			}
 
-			actual, err := resolver.MyEmailCommunications(testCtx)
+			actual, err := resolver.MyEmailCommunications(testCtx, tc.input)
 
 			if tc.errorExpected {
 				require.Error(t, err)
@@ -3552,6 +3598,93 @@ func TestQueryResolver_MyEmailCommunications(t *testing.T) {
 			}
 
 			require.Len(t, actual, len(tc.expected))
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestQueryResolver_MyEmailCommunicationsCounter(t *testing.T) {
+	validAccessToken := &http.Cookie{
+		Name:  accessTokenCookieName,
+		Value: "valid_access_token",
+	}
+
+	testCases := []struct {
+		name           string
+		prepareContext func(ctx context.Context) context.Context
+		setupMocks     func(useCases *mockusecases.MockUseCases)
+		expected       int
+		expectedError  error
+		errorExpected  bool
+	}{
+		{
+			name: "success",
+			prepareContext: func(ctx context.Context) context.Context {
+				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					CountMyEmailCommunications(gomock.Any(), validAccessToken.Value).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name:          "access token not found",
+			expectedError: &cookies.NotFoundError{Message: accessTokenCookieName},
+			errorExpected: true,
+		},
+		{
+			name: "use case error",
+			prepareContext: func(ctx context.Context) context.Context {
+				return contextlib.WithValue(ctx, accessTokenCookieName, validAccessToken)
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					CountMyEmailCommunications(gomock.Any(), validAccessToken.Value).
+					Return(uint64(0), errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	resolver := &queryResolver{
+		Resolver: NewResolver(
+			useCases,
+			logger,
+			config.CookiesConfig{},
+		),
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			testCtx := ctx
+			if tc.prepareContext != nil {
+				testCtx = tc.prepareContext(testCtx)
+			}
+
+			if tc.setupMocks != nil {
+				tc.setupMocks(useCases)
+			}
+
+			actual, err := resolver.MyEmailCommunicationsCounter(testCtx)
+
+			if tc.errorExpected {
+				require.Error(t, err)
+				if tc.expectedError != nil {
+					require.IsType(t, err, tc.expectedError)
+				}
+			} else {
+				require.NoError(t, err)
+			}
+
 			require.Equal(t, tc.expected, actual)
 		})
 	}

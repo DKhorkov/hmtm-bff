@@ -42,6 +42,26 @@ func (m *MockNotificationsClient) EXPECT() *MockNotificationsClientMockRecorder 
 	return m.recorder
 }
 
+// CountUserEmailCommunications mocks base method.
+func (m *MockNotificationsClient) CountUserEmailCommunications(ctx context.Context, in *notifications.CountUserEmailCommunicationsIn, opts ...grpc.CallOption) (*notifications.CountOut, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CountUserEmailCommunications", varargs...)
+	ret0, _ := ret[0].(*notifications.CountOut)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountUserEmailCommunications indicates an expected call of CountUserEmailCommunications.
+func (mr *MockNotificationsClientMockRecorder) CountUserEmailCommunications(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountUserEmailCommunications", reflect.TypeOf((*MockNotificationsClient)(nil).CountUserEmailCommunications), varargs...)
+}
+
 // GetUserEmailCommunications mocks base method.
 func (m *MockNotificationsClient) GetUserEmailCommunications(ctx context.Context, in *notifications.GetUserEmailCommunicationsIn, opts ...grpc.CallOption) (*notifications.GetUserEmailCommunicationsOut, error) {
 	m.ctrl.T.Helper()

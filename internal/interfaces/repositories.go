@@ -103,5 +103,10 @@ type TicketsRepository interface {
 
 //go:generate mockgen -source=repositories.go -destination=../../mocks/repositories/notifications_repository.go -package=mockrepositories -exclude_interfaces=ToysRepository,FileStorageRepository,TicketsRepository,SsoRepository
 type NotificationsRepository interface {
-	GetUserEmailCommunications(ctx context.Context, userID uint64) ([]entities.Email, error)
+	GetUserEmailCommunications(
+		ctx context.Context,
+		userID uint64,
+		pagination *entities.Pagination,
+	) ([]entities.Email, error)
+	CountUserEmailCommunications(ctx context.Context, userID uint64) (uint64, error)
 }

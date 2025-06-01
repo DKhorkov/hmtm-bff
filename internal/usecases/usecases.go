@@ -691,13 +691,23 @@ func (useCases *UseCases) GetMyResponds(
 func (useCases *UseCases) GetMyEmailCommunications(
 	ctx context.Context,
 	accessToken string,
+	pagination *entities.Pagination,
 ) ([]entities.Email, error) {
 	user, err := useCases.GetMe(ctx, accessToken)
 	if err != nil {
 		return nil, err
 	}
 
-	return useCases.notificationsService.GetUserEmailCommunications(ctx, user.ID)
+	return useCases.notificationsService.GetUserEmailCommunications(ctx, user.ID, pagination)
+}
+
+func (useCases *UseCases) CountMyEmailCommunications(ctx context.Context, accessToken string) (uint64, error) {
+	user, err := useCases.GetMe(ctx, accessToken)
+	if err != nil {
+		return 0, err
+	}
+
+	return useCases.notificationsService.CountUserEmailCommunications(ctx, user.ID)
 }
 
 func (useCases *UseCases) UpdateUserProfile(
