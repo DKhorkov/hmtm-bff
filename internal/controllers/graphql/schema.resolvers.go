@@ -692,12 +692,9 @@ func (r *queryResolver) Toy(ctx context.Context, id string) (*entities.Toy, erro
 // Toys is the resolver for the toys field.
 func (r *queryResolver) Toys(ctx context.Context, input *graphqlapi.ToysInput) ([]*entities.Toy, error) {
 	var pagination *entities.Pagination
-	if input != nil {
-		pagination = input.Pagination
-	}
-
 	var filters *entities.ToysFilters
 	if input != nil {
+		pagination = input.Pagination
 		filters = input.Filters
 	}
 
@@ -727,12 +724,9 @@ func (r *queryResolver) ToysCounter(ctx context.Context, filters *entities.ToysF
 // MyToys is the resolver for the myToys field.
 func (r *queryResolver) MyToys(ctx context.Context, input *graphqlapi.MyToysInput) ([]*entities.Toy, error) {
 	var pagination *entities.Pagination
-	if input != nil {
-		pagination = input.Pagination
-	}
-
 	var filters *entities.ToysFilters
 	if input != nil {
+		pagination = input.Pagination
 		filters = input.Filters
 	}
 
@@ -832,12 +826,9 @@ func (r *queryResolver) Ticket(ctx context.Context, id string) (*entities.Ticket
 // Tickets is the resolver for the tickets field.
 func (r *queryResolver) Tickets(ctx context.Context, input *graphqlapi.TicketsInput) ([]*entities.Ticket, error) {
 	var pagination *entities.Pagination
-	if input != nil {
-		pagination = input.Pagination
-	}
-
 	var filters *entities.TicketsFilters
 	if input != nil {
+		pagination = input.Pagination
 		filters = input.Filters
 	}
 
@@ -902,12 +893,9 @@ func (r *queryResolver) UserTicketsCounter(ctx context.Context, userID string, f
 // MyTickets is the resolver for the myTickets field.
 func (r *queryResolver) MyTickets(ctx context.Context, input *graphqlapi.MyTicketsInput) ([]*entities.Ticket, error) {
 	var pagination *entities.Pagination
-	if input != nil {
-		pagination = input.Pagination
-	}
-
 	var filters *entities.TicketsFilters
 	if input != nil {
+		pagination = input.Pagination
 		filters = input.Filters
 	}
 
@@ -1011,7 +999,12 @@ func (r *queryResolver) MyEmailCommunications(ctx context.Context, input *graphq
 		return nil, &cookies.NotFoundError{Message: accessTokenCookieName}
 	}
 
-	emailCommunications, err := r.useCases.GetMyEmailCommunications(ctx, accessToken.Value, input.Pagination)
+	var pagination *entities.Pagination
+	if input != nil {
+		pagination = input.Pagination
+	}
+
+	emailCommunications, err := r.useCases.GetMyEmailCommunications(ctx, accessToken.Value, pagination)
 	if err != nil {
 		return nil, err
 	}
