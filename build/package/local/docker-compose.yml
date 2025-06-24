@@ -1,11 +1,44 @@
 services:
   jaeger:
     image: jaegertracing/all-in-one:latest
+    env_file:
+      - ../../../.env
     ports:
       - "${TRACING_OUTER_API_TRACES_PORT}:${TRACING_INNER_API_TRACES_PORT}"
       - "${TRACING_OUTER_WEB_PORT}:${TRACING_INNER_WEB_PORT}"
     networks:
       - hmtm_network
+    restart: unless-stopped
+
+  # Prometheus для сбора метрик
+  prometheus:
+    image: prom/prometheus
+    env_file:
+      - ../../../.env
+    ports:
+      - "${PROMETHEUS_OUTER_PORT}:${PROMETHEUS_INNER_PORT}"
+    volumes:
+      - ../../../prometheus.yml:/etc/prometheus/prometheus.yml  # Конфиг Prometheus
+    networks:
+      - hmtm_network
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Автоматическое определение IP хоста
+
+  # Grafana для визуализации
+  grafana:
+    image: grafana/grafana
+    env_file:
+      - ../../../.env
+    ports:
+      - "${GRAFANA_OUTER_PORT}:${GRAFANA_INNER_PORT}"
+    volumes:
+      - ../../../grafana:/var/lib/grafana  # Сохраняет данные Grafana
+    networks:
+      - hmtm_network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
 
 networks:
   hmtm_network:
