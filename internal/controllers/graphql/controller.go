@@ -10,6 +10,7 @@ import (
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
 	"github.com/DKhorkov/libs/tracing"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
@@ -44,9 +45,10 @@ func New(
 	mux := http.NewServeMux()
 	mux.Handle(
 		"/",
-		playground.Handler("GraphQL playground", "/query"),
-	) // TODO should be deleted on prod
-	mux.Handle("/query", graphqlServer)
+		playground.Handler("GraphQL playground", "/query"), // TODO should be deleted on prod
+	)
+	mux.Handle("/query", graphqlServer)        // for graphql queries
+	mux.Handle("/metrics", promhttp.Handler()) // for prometheus metrics
 
 	httpHandler := cors.New(
 		cors.Options{
@@ -66,10 +68,16 @@ func New(
 		tracingConfig.Spans.Root,
 	)
 
+	// Configures metrics:
+	httpHandler = middlewares.MetricsMiddleware(httpHandler, logger)
+
 	// Read cookies for auth purposes:
 	httpHandler = middlewares.CookiesMiddleware(
 		httpHandler,
-		[]string{"accessToken", "refreshToken"},
+		[]string{
+			accessTokenCookieName,
+			refreshTokenCookieName,
+		},
 	)
 
 	// Create request ID for request for later logging:

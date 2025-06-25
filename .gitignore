@@ -32,6 +32,8 @@ go.work.sum
 logs/
 *.db
 bench.txt
+grafana/
+prometheus.yml
 
 # Environments
 .venv

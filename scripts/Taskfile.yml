@@ -35,7 +35,7 @@ tasks:
     desc: "Stop all docker containers."
     aliases:
       - stop
-    cmd:  sudo docker stop $(sudo docker ps -a -q)
+    cmd: sudo docker stop $(sudo docker ps -a -q)
 
   docker_clean:
     desc: "Clean docker containers, images and volumes."
@@ -49,6 +49,8 @@ tasks:
     cmds:
       - sudo rm -rf logs/
       - sudo rm -rf coverage/
+      - sudo rm -rf grafana/
+      - sudo rm -rf prometheus.yml
       - sudo rm -rf build/package/prod/.env
       - sudo rm -rf build/package/local/.env
       - task: docker_clean
@@ -57,7 +59,9 @@ tasks:
     desc: "Run application and it's dependencies for production."
     cmds:
       - task: create_logs_folder
+      - task: create_grafana_folder
       - task: prepare_env_file_prod
+      - task: prepare_prometheus
       - task: docker_build_prod
       - task: docker_run_prod
 
@@ -65,7 +69,9 @@ tasks:
     desc: "Run application dependencies for local launch."
     cmds:
       - task: create_logs_folder
+      - task: create_grafana_folder
       - task: prepare_env_file_local
+      - task: prepare_prometheus
       - task: docker_build_local
       - task: docker_run_local
 
@@ -74,6 +80,21 @@ tasks:
     internal: true
     dir: ../
     cmd: mkdir -p logs
+
+  create_grafana_folder:
+    desc: "Create Grafana folder for docker volume purposes."
+    internal: true
+    dir: ../
+    cmds:
+      - mkdir -p grafana
+      - sudo chmod -R 777 grafana
+
+  prepare_prometheus:
+    desc: "Prepares Prometheus config."
+    internal: true
+    dir: ../
+    cmds:
+      - export $(cat .env | xargs) && envsubst < prometheus.template.yml > prometheus.yml
 
   prepare_env_file_prod:
     desc: "Prepare .env file for production."
