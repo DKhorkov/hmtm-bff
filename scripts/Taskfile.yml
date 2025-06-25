@@ -93,7 +93,7 @@ tasks:
     internal: true
     dir: ../
     cmds:
-      - source .env && envsubst < prometheus.template.yml > prometheus.yml
+      - export $(cat .env | xargs) && envsubst < prometheus.template.yml > prometheus.yml
 
   prepare_env_file_prod:
     desc: "Prepare .env file for production."

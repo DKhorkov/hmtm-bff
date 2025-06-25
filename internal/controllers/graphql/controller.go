@@ -4,60 +4,22 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
 
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/cors"
+
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/middlewares"
 	"github.com/DKhorkov/libs/tracing"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/rs/cors"
 
 	graphqlapi "github.com/DKhorkov/hmtm-bff/api/graphql"
 	"github.com/DKhorkov/hmtm-bff/internal/config"
 	customerrors "github.com/DKhorkov/hmtm-bff/internal/errors"
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
-
-var (
-	HttpRequestCountWithPath = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "http_requests_total_with_path",
-			Help: "Number of HTTP requests by path.",
-		},
-		[]string{"url"},
-	)
-
-	// PROMQL => rate(http_request_duration_seconds_sum{}[5m]) / rate(http_request_duration_seconds_count{}[5m])
-	HttpRequestDuration = prometheus.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Name: "http_request_duration_seconds",
-			Help: "Response time of HTTP request.",
-		},
-		[]string{"path"},
-	)
-)
-
-func Init() {
-	prometheus.MustRegister(HttpRequestCountWithPath)
-	prometheus.MustRegister(HttpRequestDuration)
-}
-
-func MetricsMiddleware(next http.Handler) http.Handler {
-	Init()
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Длительность ответа на HTTP-запрос
-		timer := prometheus.NewTimer(HttpRequestDuration.WithLabelValues("test"))
-		defer timer.ObserveDuration()
-
-		next.ServeHTTP(w, r)
-
-		// Тот же счетчик пути HTTP-запроса
-		HttpRequestCountWithPath.WithLabelValues("test").Inc()
-	})
-}
 
 func New(
 	httpConfig config.HTTPConfig,
@@ -106,12 +68,16 @@ func New(
 		tracingConfig.Spans.Root,
 	)
 
-	httpHandler = MetricsMiddleware(httpHandler)
+	// Configures metrics:
+	httpHandler = middlewares.MetricsMiddleware(httpHandler, logger)
 
 	// Read cookies for auth purposes:
 	httpHandler = middlewares.CookiesMiddleware(
 		httpHandler,
-		[]string{"accessToken", "refreshToken"},
+		[]string{
+			accessTokenCookieName,
+			refreshTokenCookieName,
+		},
 	)
 
 	// Create request ID for request for later logging:

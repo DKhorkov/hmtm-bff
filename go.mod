@@ -8,18 +8,17 @@ require (
 	github.com/DKhorkov/hmtm-sso v1.6.0
 	github.com/DKhorkov/hmtm-tickets v1.3.0
 	github.com/DKhorkov/hmtm-toys v1.5.1
-	github.com/DKhorkov/libs v1.8.2
+	github.com/DKhorkov/libs v1.10.0
 	github.com/aws/aws-sdk-go-v2 v1.32.6
 	github.com/aws/aws-sdk-go-v2/config v1.28.6
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.47
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.71.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.2.0
+	github.com/prometheus/client_golang v1.22.0
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.10.0
 	github.com/vektah/gqlparser/v2 v2.5.17
 	go.opentelemetry.io/otel v1.36.0
-	go.opentelemetry.io/otel/exporters/prometheus v0.58.0
-	go.opentelemetry.io/otel/sdk/metric v1.36.0
 	go.opentelemetry.io/otel/trace v1.36.0
 	go.uber.org/mock v0.5.0
 	google.golang.org/grpc v1.71.0
@@ -57,7 +56,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.22.0 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.64.0 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
@@ -69,6 +67,7 @@ require (
 	go.opentelemetry.io/otel/exporters/jaeger v1.17.0 // indirect
 	go.opentelemetry.io/otel/metric v1.36.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.36.0 // indirect
+	go.opentelemetry.io/otel/sdk/metric v1.36.0 // indirect
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/net v0.40.0 // indirect

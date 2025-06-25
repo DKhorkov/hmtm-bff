@@ -462,7 +462,9 @@ Content-Type: application/json
         "priceCeil": 220.00,
         "priceFloor": 1.00,
         "quantityFloor": 1,
-        "categoryID": "1",
+        "categoryIDs": [
+          "1"
+        ],
         "tagIDs": [
           "1"
         ],
@@ -490,7 +492,9 @@ Content-Type: application/json
         "priceCeil": 220.00,
         "priceFloor": 1.00,
         "quantityFloor": 1,
-        "categoryID": "1",
+        "categoryIDs": [
+          "1"
+        ],
         "tagIDs": [
           "1"
         ],
@@ -519,7 +523,9 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDYzNDgwMzg
         "priceCeil": 220.00,
         "priceFloor": 1.00,
         "quantityFloor": 1,
-        "categoryID": "1",
+        "categoryIDs": [
+          "1"
+        ],
         "tagIDs": [
           "1"
         ],
@@ -542,7 +548,9 @@ Content-Type: application/json
       "priceCeil": 220.00,
       "priceFloor": 1.00,
       "quantityFloor": 1,
-      "categoryID": "1",
+      "categoryIDs": [
+        "1"
+      ],
       "tagIDs": [
         "1"
       ],
