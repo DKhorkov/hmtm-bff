@@ -35,7 +35,7 @@ tasks:
     desc: "Stop all docker containers."
     aliases:
       - stop
-    cmd:  sudo docker stop $(sudo docker ps -a -q)
+    cmd: sudo docker stop $(sudo docker ps -a -q)
 
   docker_clean:
     desc: "Clean docker containers, images and volumes."
@@ -50,6 +50,7 @@ tasks:
       - sudo rm -rf logs/
       - sudo rm -rf coverage/
       - sudo rm -rf grafana/
+      - sudo rm -rf prometheus.yml
       - sudo rm -rf build/package/prod/.env
       - sudo rm -rf build/package/local/.env
       - task: docker_clean
@@ -81,7 +82,7 @@ tasks:
     cmd: mkdir -p logs
 
   create_grafana_folder:
-    desc: "Create logs folder for docker volume purposes."
+    desc: "Create Grafana folder for docker volume purposes."
     internal: true
     dir: ../
     cmds:
@@ -89,7 +90,7 @@ tasks:
       - sudo chmod -R 777 grafana
 
   prepare_prometheus:
-    desc: "Create logs folder for docker volume purposes."
+    desc: "Prepares Prometheus config."
     internal: true
     dir: ../
     cmds:
