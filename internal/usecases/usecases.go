@@ -2,20 +2,16 @@ package usecases
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"path"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/DKhorkov/libs/cache"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/security"
 	"github.com/DKhorkov/libs/tracing"
-	"github.com/rxwycdh/rxhash"
 
 	"github.com/DKhorkov/hmtm-bff/internal/config"
 	"github.com/DKhorkov/hmtm-bff/internal/entities"
@@ -23,23 +19,10 @@ import (
 	"github.com/DKhorkov/hmtm-bff/internal/interfaces"
 )
 
-// Limits:
 const (
 	tagsLimit              = 10
 	attachmentsLimit       = 5
 	searchQueryLengthLimit = 50
-)
-
-// Cache:
-const (
-	getUserByIDPrefix    = "get_user_by_id"
-	getUserByIDTTL       = time.Hour * 24
-	getUserByEmailPrefix = "get_user_by_email"
-	getUserByEmailTTL    = time.Hour * 24
-	getToysPrefix        = "toys"
-	getToysTTL           = time.Minute * 5
-	getUsersPrefix       = "users"
-	getUsersTTL          = time.Hour
 )
 
 func New(
@@ -51,7 +34,6 @@ func New(
 	validationConfig config.ValidationConfig,
 	logger logging.Logger,
 	traceProvider tracing.Provider,
-	cacheProvider cache.Provider,
 ) *UseCases {
 	return &UseCases{
 		ssoService:           ssoService,
@@ -62,7 +44,6 @@ func New(
 		validationConfig:     validationConfig,
 		logger:               logger,
 		traceProvider:        traceProvider,
-		cacheProvider:        cacheProvider,
 	}
 }
 
@@ -75,7 +56,6 @@ type UseCases struct {
 	validationConfig     config.ValidationConfig
 	logger               logging.Logger
 	traceProvider        tracing.Provider
-	cacheProvider        cache.Provider
 }
 
 func (useCases *UseCases) RegisterUser(
@@ -133,195 +113,18 @@ func (useCases *UseCases) RefreshTokens(
 }
 
 func (useCases *UseCases) GetUserByID(ctx context.Context, id uint64) (*entities.User, error) {
-	cacheKey := fmt.Sprintf("%s:%d", getUserByIDPrefix, id)
-	if _, err := useCases.cacheProvider.Ping(ctx); err == nil {
-		encodedUser, err := useCases.cacheProvider.Get(ctx, cacheKey)
-		if err != nil {
-			logging.LogErrorContext(
-				ctx,
-				useCases.logger,
-				fmt.Sprintf("Failed to get cached User with id=%d", id),
-				err,
-			)
-
-			return useCases.ssoService.GetUserByID(ctx, id)
-		}
-
-		var user *entities.User
-		if err = json.Unmarshal([]byte(encodedUser), user); err != nil {
-			logging.LogErrorContext(
-				ctx,
-				useCases.logger,
-				fmt.Sprintf("Failed to get cached User with id=%d", id),
-				err,
-			)
-
-			return useCases.ssoService.GetUserByID(ctx, id)
-		}
-
-		return user, nil
-	}
-
-	user, err := useCases.ssoService.GetUserByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	encodedUser, err := json.Marshal(user)
-	if err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			fmt.Sprintf("Failed to cache User with id=%d", id),
-			err,
-		)
-
-		return user, nil
-	}
-
-	if err = useCases.cacheProvider.Set(ctx, cacheKey, encodedUser, getUserByIDTTL); err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			fmt.Sprintf("Failed to cache User with id=%d", id),
-			err,
-		)
-	}
-
-	return user, nil
+	return useCases.ssoService.GetUserByID(ctx, id)
 }
 
 func (useCases *UseCases) GetUserByEmail(
 	ctx context.Context,
 	email string,
 ) (*entities.User, error) {
-	cacheKey := fmt.Sprintf("%s:%s", getUserByEmailPrefix, email)
-	if _, err := useCases.cacheProvider.Ping(ctx); err == nil {
-		encodedUser, err := useCases.cacheProvider.Get(ctx, cacheKey)
-		if err != nil {
-			logging.LogErrorContext(
-				ctx,
-				useCases.logger,
-				fmt.Sprintf("Failed to get cached User with email=%s", email),
-				err,
-			)
-
-			return useCases.ssoService.GetUserByEmail(ctx, email)
-		}
-
-		var user *entities.User
-		if err = json.Unmarshal([]byte(encodedUser), user); err != nil {
-			logging.LogErrorContext(
-				ctx,
-				useCases.logger,
-				fmt.Sprintf("Failed to get cached User with email=%s", email),
-				err,
-			)
-
-			return useCases.ssoService.GetUserByEmail(ctx, email)
-		}
-
-		return user, nil
-	}
-
-	user, err := useCases.ssoService.GetUserByEmail(ctx, email)
-	if err != nil {
-		return nil, err
-	}
-
-	encodedUser, err := json.Marshal(user)
-	if err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			fmt.Sprintf("Failed to cache User with email=%s", email),
-			err,
-		)
-
-		return user, nil
-	}
-
-	if err = useCases.cacheProvider.Set(ctx, cacheKey, encodedUser, getUserByEmailTTL); err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			fmt.Sprintf("Failed to cache User with email=%s", email),
-			err,
-		)
-	}
-
-	return user, nil
+	return useCases.ssoService.GetUserByEmail(ctx, email)
 }
 
 func (useCases *UseCases) GetUsers(ctx context.Context, pagination *entities.Pagination) ([]entities.User, error) {
-	paginationHash, err := rxhash.HashStruct(pagination)
-	if err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			"Failed to get cached Users",
-			err,
-		)
-
-		return useCases.ssoService.GetUsers(ctx, pagination)
-	}
-
-	cacheKey := fmt.Sprintf("%s:%s", getUsersPrefix, paginationHash)
-	if _, err := useCases.cacheProvider.Ping(ctx); err == nil {
-		encodedUser, err := useCases.cacheProvider.Get(ctx, cacheKey)
-		if err != nil {
-			logging.LogErrorContext(
-				ctx,
-				useCases.logger,
-				"Failed to get cached Users",
-				err,
-			)
-
-			return useCases.ssoService.GetUsers(ctx, pagination)
-		}
-
-		var users []entities.User
-		if err = json.Unmarshal([]byte(encodedUser), &users); err != nil {
-			logging.LogErrorContext(
-				ctx,
-				useCases.logger,
-				"Failed to get cached Users",
-				err,
-			)
-
-			return useCases.ssoService.GetUsers(ctx, pagination)
-		}
-
-		return users, nil
-	}
-
-	users, err := useCases.ssoService.GetUsers(ctx, pagination)
-	if err != nil {
-		return nil, err
-	}
-
-	encodedUsers, err := json.Marshal(users)
-	if err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			"Failed to cache Users",
-			err,
-		)
-
-		return users, nil
-	}
-
-	if err = useCases.cacheProvider.Set(ctx, cacheKey, encodedUsers, getUsersTTL); err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			"Failed to cache Users",
-			err,
-		)
-	}
-
-	return users, nil
+	return useCases.ssoService.GetUsers(ctx, pagination)
 }
 
 func (useCases *UseCases) AddToy(
@@ -386,95 +189,7 @@ func (useCases *UseCases) GetToys(
 		}
 	}
 
-	paginationHash, err := rxhash.HashStruct(pagination)
-	if err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			"Failed to get cached Toys",
-			err,
-		)
-
-		return useCases.toysService.GetToys(ctx, pagination, filters)
-	}
-
-	filtersHash, err := rxhash.HashStruct(filters)
-	if err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			"Failed to get cached Toys",
-			err,
-		)
-
-		return useCases.toysService.GetToys(ctx, pagination, filters)
-	}
-
-	cacheKey := fmt.Sprintf(
-		"%s:%s",
-		getToysPrefix,
-		fmt.Sprintf(
-			"%s_%s",
-			paginationHash,
-			filtersHash,
-		),
-	)
-
-	if _, err = useCases.cacheProvider.Ping(ctx); err == nil {
-		encodedToys, err := useCases.cacheProvider.Get(ctx, cacheKey)
-		if err != nil {
-			logging.LogErrorContext(
-				ctx,
-				useCases.logger,
-				"Failed to get cached Toys",
-				err,
-			)
-
-			return useCases.toysService.GetToys(ctx, pagination, filters)
-		}
-
-		var toys []entities.Toy
-		if err = json.Unmarshal([]byte(encodedToys), &toys); err != nil {
-			logging.LogErrorContext(
-				ctx,
-				useCases.logger,
-				"Failed to get cached Toys",
-				err,
-			)
-
-			return useCases.toysService.GetToys(ctx, pagination, filters)
-		}
-
-		return toys, nil
-	}
-
-	toys, err := useCases.toysService.GetToys(ctx, pagination, filters)
-	if err != nil {
-		return nil, err
-	}
-
-	encodedToys, err := json.Marshal(toys)
-	if err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			"Failed to cache Toys",
-			err,
-		)
-
-		return toys, nil
-	}
-
-	if err = useCases.cacheProvider.Set(ctx, cacheKey, encodedToys, getToysTTL); err != nil {
-		logging.LogErrorContext(
-			ctx,
-			useCases.logger,
-			"Failed to cache Toys",
-			err,
-		)
-	}
-
-	return toys, nil
+	return useCases.toysService.GetToys(ctx, pagination, filters)
 }
 
 func (useCases *UseCases) CountToys(ctx context.Context, filters *entities.ToysFilters) (uint64, error) {

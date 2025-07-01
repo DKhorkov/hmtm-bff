@@ -121,16 +121,19 @@ func main() {
 		panic(err)
 	}
 
-	useCases := usecases.New(
-		ssoService,
-		toysService,
-		fileStorageService,
-		ticketsService,
-		notificationsService,
-		settings.Validation,
-		logger,
-		traceProvider,
+	useCases := usecases.NewCacheDecorator(
+		usecases.New(
+			ssoService,
+			toysService,
+			fileStorageService,
+			ticketsService,
+			notificationsService,
+			settings.Validation,
+			logger,
+			traceProvider,
+		),
 		cacheProvider,
+		logger,
 	)
 
 	controller := graphqlcontroller.New(
