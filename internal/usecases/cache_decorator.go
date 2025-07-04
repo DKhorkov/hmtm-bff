@@ -41,6 +41,16 @@ const (
 	getCategoriesTTL        = time.Hour * 24
 	getCategoryByIDPrefix   = "get_category_by_id"
 	getCategoryByIDTTL      = time.Hour * 24
+	getTagsPrefix           = "get_tags"
+	getTagsTTL              = time.Hour * 24
+	getTagByIDPrefix        = "get_tag_by_id"
+	getTagByIDTTL           = time.Hour * 24
+	getTicketByIDPrefix     = "get_ticket_by_id"
+	getTicketByIDTTL        = time.Hour * 24
+	getTicketsPrefix        = "get_tickets"
+	getTicketsTTL           = time.Minute * 5
+	getUserTicketsPrefix    = "get_user_tickets"
+	getUserTicketsTTL       = time.Minute * 5
 )
 
 func NewCacheDecorator(
@@ -913,35 +923,371 @@ func (c *CacheDecorator) GetCategoryByID(ctx context.Context, id uint32) (*entit
 	return category, nil
 }
 
-//func (c *CacheDecorator) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
-//
-//}
-//
-//func (c *CacheDecorator) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
-//
-//}
-//
-//func (c *CacheDecorator) GetTicketByID(ctx context.Context, id uint64) (*entities.Ticket, error) {
-//
-//}
-//
-//func (c *CacheDecorator) GetTickets(
-//	ctx context.Context,
-//	pagination *entities.Pagination,
-//	filters *entities.TicketsFilters,
-//) ([]entities.Ticket, error) {
-//
-//}
-//
-//func (c *CacheDecorator) GetUserTickets(
-//	ctx context.Context,
-//	userID uint64,
-//	pagination *entities.Pagination,
-//	filters *entities.TicketsFilters,
-//) ([]entities.Ticket, error) {
-//
-//}
-//
+func (c *CacheDecorator) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
+	cacheKey := getTagsPrefix
+	if _, err := c.cacheProvider.Ping(ctx); err == nil {
+		encodedTags, err := c.cacheProvider.Get(ctx, cacheKey)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				"Failed to get cached Tags",
+				err,
+			)
+
+			return c.UseCases.GetAllTags(ctx)
+		}
+
+		var tags []entities.Tag
+		if err = json.Unmarshal([]byte(encodedTags), &tags); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				"Failed to get cached Tags",
+				err,
+			)
+
+			return c.UseCases.GetAllTags(ctx)
+		}
+
+		return tags, nil
+	}
+
+	tags, err := c.UseCases.GetAllTags(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	encodedTags, err := json.Marshal(tags)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to cache Tags",
+			err,
+		)
+
+		return tags, nil
+	}
+
+	if err = c.cacheProvider.Set(ctx, cacheKey, encodedTags, getTagsTTL); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to cache Tags",
+			err,
+		)
+	}
+
+	return tags, nil
+}
+
+func (c *CacheDecorator) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
+	cacheKey := fmt.Sprintf("%s:%d", getTagByIDPrefix, id)
+	if _, err := c.cacheProvider.Ping(ctx); err == nil {
+		encodedTag, err := c.cacheProvider.Get(ctx, cacheKey)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get cached Tag with id=%d", id),
+				err,
+			)
+
+			return c.UseCases.GetTagByID(ctx, id)
+		}
+
+		var tag *entities.Tag
+		if err = json.Unmarshal([]byte(encodedTag), tag); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get cached Tag with id=%d", id),
+				err,
+			)
+
+			return c.UseCases.GetTagByID(ctx, id)
+		}
+
+		return tag, nil
+	}
+
+	tag, err := c.UseCases.GetTagByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	encodedTag, err := json.Marshal(tag)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			fmt.Sprintf("Failed to cache Tag with id=%d", id),
+			err,
+		)
+
+		return tag, nil
+	}
+
+	if err = c.cacheProvider.Set(ctx, cacheKey, encodedTag, getTagByIDTTL); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			fmt.Sprintf("Failed to cache Tag with id=%d", id),
+			err,
+		)
+	}
+
+	return tag, nil
+}
+
+func (c *CacheDecorator) GetTicketByID(ctx context.Context, id uint64) (*entities.Ticket, error) {
+	cacheKey := fmt.Sprintf("%s:%d", getTicketByIDPrefix, id)
+	if _, err := c.cacheProvider.Ping(ctx); err == nil {
+		encodedTicket, err := c.cacheProvider.Get(ctx, cacheKey)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get cached Ticket with id=%d", id),
+				err,
+			)
+
+			return c.UseCases.GetTicketByID(ctx, id)
+		}
+
+		var ticket *entities.Ticket
+		if err = json.Unmarshal([]byte(encodedTicket), ticket); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get cached Ticket with id=%d", id),
+				err,
+			)
+
+			return c.UseCases.GetTicketByID(ctx, id)
+		}
+
+		return ticket, nil
+	}
+
+	ticket, err := c.UseCases.GetTicketByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	encodedTicket, err := json.Marshal(ticket)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			fmt.Sprintf("Failed to cache Ticket with id=%d", id),
+			err,
+		)
+
+		return ticket, nil
+	}
+
+	if err = c.cacheProvider.Set(ctx, cacheKey, encodedTicket, getTicketByIDTTL); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			fmt.Sprintf("Failed to cache Ticket with id=%d", id),
+			err,
+		)
+	}
+
+	return ticket, nil
+}
+
+func (c *CacheDecorator) GetTickets(
+	ctx context.Context,
+	pagination *entities.Pagination,
+	filters *entities.TicketsFilters,
+) ([]entities.Ticket, error) {
+	paginationHash, err := rxhash.HashStruct(pagination)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to get cached Tickets",
+			err,
+		)
+
+		return c.UseCases.GetTickets(ctx, pagination, filters)
+	}
+
+	filtersHash, err := rxhash.HashStruct(filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to get cached Tickets",
+			err,
+		)
+
+		return c.UseCases.GetTickets(ctx, pagination, filters)
+	}
+
+	cacheKey := fmt.Sprintf(
+		"%s:%s_%s",
+		getTicketsPrefix,
+		paginationHash,
+		filtersHash,
+	)
+
+	if _, err = c.cacheProvider.Ping(ctx); err == nil {
+		encodedTickets, err := c.cacheProvider.Get(ctx, cacheKey)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				"Failed to get cached Tickets",
+				err,
+			)
+
+			return c.UseCases.GetTickets(ctx, pagination, filters)
+		}
+
+		var tickets []entities.Ticket
+		if err = json.Unmarshal([]byte(encodedTickets), &tickets); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				"Failed to get cached Tickets",
+				err,
+			)
+
+			return c.UseCases.GetTickets(ctx, pagination, filters)
+		}
+
+		return tickets, nil
+	}
+
+	tickets, err := c.UseCases.GetTickets(ctx, pagination, filters)
+	if err != nil {
+		return nil, err
+	}
+
+	encodedTickets, err := json.Marshal(tickets)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to cache Tickets",
+			err,
+		)
+
+		return tickets, nil
+	}
+
+	if err = c.cacheProvider.Set(ctx, cacheKey, encodedTickets, getTicketsTTL); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to cache Tickets",
+			err,
+		)
+	}
+
+	return tickets, nil
+}
+
+func (c *CacheDecorator) GetUserTickets(
+	ctx context.Context,
+	userID uint64,
+	pagination *entities.Pagination,
+	filters *entities.TicketsFilters,
+) ([]entities.Ticket, error) {
+	paginationHash, err := rxhash.HashStruct(pagination)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			fmt.Sprintf("Failed to get cached Tickets for User with id=%d", userID),
+			err,
+		)
+
+		return c.UseCases.GetUserTickets(ctx, userID, pagination, filters)
+	}
+
+	filtersHash, err := rxhash.HashStruct(filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			fmt.Sprintf("Failed to get cached Tickets for User with id=%d", userID),
+			err,
+		)
+
+		return c.UseCases.GetUserTickets(ctx, userID, pagination, filters)
+	}
+
+	cacheKey := fmt.Sprintf(
+		"%s:%d_%s_%s",
+		getUserTicketsPrefix,
+		userID,
+		paginationHash,
+		filtersHash,
+	)
+
+	if _, err = c.cacheProvider.Ping(ctx); err == nil {
+		encodedTickets, err := c.cacheProvider.Get(ctx, cacheKey)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get cached Tickets for User with id=%d", userID),
+				err,
+			)
+
+			return c.UseCases.GetUserTickets(ctx, userID, pagination, filters)
+		}
+
+		var tickets []entities.Ticket
+		if err = json.Unmarshal([]byte(encodedTickets), &tickets); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get cached Tickets for User with id=%d", userID),
+				err,
+			)
+
+			return c.UseCases.GetUserTickets(ctx, userID, pagination, filters)
+		}
+
+		return tickets, nil
+	}
+
+	tickets, err := c.UseCases.GetUserTickets(ctx, userID, pagination, filters)
+	if err != nil {
+		return nil, err
+	}
+
+	encodedTickets, err := json.Marshal(tickets)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			fmt.Sprintf("Failed to cache Tickets for User with id=%d", userID),
+			err,
+		)
+
+		return tickets, nil
+	}
+
+	if err = c.cacheProvider.Set(ctx, cacheKey, encodedTickets, getUserTicketsTTL); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			fmt.Sprintf("Failed to cache Tickets for User with id=%d", userID),
+			err,
+		)
+	}
+
+	return tickets, nil
+}
+
 //func (c *CacheDecorator) CountTickets(ctx context.Context, filters *entities.TicketsFilters) (uint64, error) {
 //
 //}
