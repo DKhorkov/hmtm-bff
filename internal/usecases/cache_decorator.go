@@ -15,42 +15,49 @@ import (
 )
 
 const (
+	// Prefixes:
 	getUserByIDPrefix       = "get_user_by_id"
-	getUserByIDTTL          = time.Hour * 24
 	getUserByEmailPrefix    = "get_user_by_email"
-	getUserByEmailTTL       = time.Hour * 24
 	getUsersPrefix          = "users"
-	getUsersTTL             = time.Hour
 	getToysPrefix           = "toys"
-	getToysTTL              = time.Minute * 5
 	countToysPrefix         = "toys_count"
-	countToysTTL            = time.Minute * 5
 	getMasterToysPrefix     = "master_toys"
-	getMasterToysTTL        = time.Hour * 6
 	countMasterToysPrefix   = "master_toys_count"
-	countMasterToysTTL      = time.Hour * 6
 	getToyByIDPrefix        = "get_toy_by_id"
-	getToyByIDTTL           = time.Hour * 24
 	getMastersPrefix        = "get_masters"
-	getMastersTTL           = time.Hour * 6
 	getMasterByIDPrefix     = "get_master_by_id"
-	getMasterByIDTTL        = time.Hour * 24
 	getMasterByUserIDPrefix = "get_master_by_user_id"
-	getMasterByUserIDTTL    = time.Hour * 24
 	getCategoriesPrefix     = "get_categories"
-	getCategoriesTTL        = time.Hour * 24
 	getCategoryByIDPrefix   = "get_category_by_id"
-	getCategoryByIDTTL      = time.Hour * 24
 	getTagsPrefix           = "get_tags"
-	getTagsTTL              = time.Hour * 24
 	getTagByIDPrefix        = "get_tag_by_id"
-	getTagByIDTTL           = time.Hour * 24
 	getTicketByIDPrefix     = "get_ticket_by_id"
-	getTicketByIDTTL        = time.Hour * 24
 	getTicketsPrefix        = "get_tickets"
-	getTicketsTTL           = time.Minute * 5
 	getUserTicketsPrefix    = "get_user_tickets"
-	getUserTicketsTTL       = time.Minute * 5
+	countTicketsPrefix      = "tickets_count"
+	countUserTicketsPrefix  = "user_tickets_count"
+
+	// TTls:
+	getUserByIDTTL       = time.Hour * 24
+	getUserByEmailTTL    = time.Hour * 24
+	getUsersTTL          = time.Minute * 5
+	getToysTTL           = time.Minute * 5
+	countToysTTL         = time.Minute * 5
+	getMasterToysTTL     = time.Hour * 6
+	countMasterToysTTL   = time.Hour * 6
+	getToyByIDTTL        = time.Hour * 24
+	getMastersTTL        = time.Hour * 6
+	getMasterByIDTTL     = time.Hour * 24
+	getMasterByUserIDTTL = time.Hour * 24
+	getCategoriesTTL     = time.Hour * 24
+	getCategoryByIDTTL   = time.Hour * 24
+	getTagsTTL           = time.Hour * 24
+	getTagByIDTTL        = time.Hour * 24
+	getTicketByIDTTL     = time.Hour * 24
+	getTicketsTTL        = time.Minute * 5
+	getUserTicketsTTL    = time.Minute * 5
+	countTicketsTTL      = time.Minute * 5
+	countUserTicketsTTL  = time.Hour * 6
 )
 
 func NewCacheDecorator(
@@ -1288,34 +1295,112 @@ func (c *CacheDecorator) GetUserTickets(
 	return tickets, nil
 }
 
-//func (c *CacheDecorator) CountTickets(ctx context.Context, filters *entities.TicketsFilters) (uint64, error) {
-//
-//}
-//
-//func (c *CacheDecorator) CountUserTickets(
-//	ctx context.Context,
-//	userID uint64,
-//	filters *entities.TicketsFilters,
-//) (uint64, error) {
-//
-//}
-//
-//func (c *CacheDecorator) GetRespondByID(
-//	ctx context.Context,
-//	id uint64,
-//	accessToken string,
-//) (*entities.Respond, error) {
-//
-//}
-//
-//func (c *CacheDecorator) GetTicketResponds(
-//	ctx context.Context,
-//	ticketID uint64,
-//	accessToken string,
-//) ([]entities.Respond, error) {
-//
-//}
-//
+func (c *CacheDecorator) CountTickets(ctx context.Context, filters *entities.TicketsFilters) (uint64, error) {
+	filtersHash, err := rxhash.HashStruct(filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to get cached Tickets counter",
+			err,
+		)
+
+		return c.UseCases.CountTickets(ctx, filters)
+	}
+
+	cacheKey := fmt.Sprintf("%s:%s", countTicketsPrefix, filtersHash)
+	if _, err = c.cacheProvider.Ping(ctx); err == nil {
+		strCounter, err := c.cacheProvider.Get(ctx, cacheKey)
+		counter, err := strconv.ParseUint(strCounter, 10, 64)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				"Failed to get cached Tickets counter",
+				err,
+			)
+
+			return c.UseCases.CountTickets(ctx, filters)
+		}
+
+		return counter, nil
+	}
+
+	counter, err := c.UseCases.CountTickets(ctx, filters)
+	if err != nil {
+		return 0, err
+	}
+
+	if err = c.cacheProvider.Set(ctx, cacheKey, counter, countTicketsTTL); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to cache Tickets counter",
+			err,
+		)
+	}
+
+	return counter, nil
+}
+
+func (c *CacheDecorator) CountUserTickets(
+	ctx context.Context,
+	userID uint64,
+	filters *entities.TicketsFilters,
+) (uint64, error) {
+	filtersHash, err := rxhash.HashStruct(filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			fmt.Sprintf("Failed to get cached Tickets counter for User with id=%d", userID),
+			err,
+		)
+
+		return c.UseCases.CountUserTickets(ctx, userID, filters)
+	}
+
+	cacheKey := fmt.Sprintf(
+		"%s:%d_%s",
+		countUserTicketsPrefix,
+		userID,
+		filtersHash,
+	)
+
+	if _, err = c.cacheProvider.Ping(ctx); err == nil {
+		strCounter, err := c.cacheProvider.Get(ctx, cacheKey)
+		counter, err := strconv.ParseUint(strCounter, 10, 64)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get cached Tickets counter for User with id=%d", userID),
+				err,
+			)
+
+			return c.UseCases.CountUserTickets(ctx, userID, filters)
+		}
+
+		return counter, nil
+	}
+
+	counter, err := c.UseCases.CountUserTickets(ctx, userID, filters)
+	if err != nil {
+		return 0, err
+	}
+
+	if err = c.cacheProvider.Set(ctx, cacheKey, counter, countUserTicketsTTL); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			fmt.Sprintf("Failed to cache Tickets counter for User with id=%d", userID),
+			err,
+		)
+	}
+
+	return counter, nil
+}
+
 //func (c *CacheDecorator) UpdateUserProfile(
 //	ctx context.Context,
 //	rawUserProfileData entities.RawUpdateUserProfileDTO,
