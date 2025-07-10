@@ -1401,49 +1401,237 @@ func (c *CacheDecorator) CountUserTickets(
 	return counter, nil
 }
 
-//func (c *CacheDecorator) UpdateUserProfile(
-//	ctx context.Context,
-//	rawUserProfileData entities.RawUpdateUserProfileDTO,
-//) error {
-//
-//}
-//
-//func (c *CacheDecorator) UpdateToy(
-//	ctx context.Context,
-//	rawToyData entities.RawUpdateToyDTO,
-//) error {
-//
-//}
-//
-//func (c *CacheDecorator) DeleteToy(ctx context.Context, accessToken string, id uint64) error {
-//
-//}
-//
-//func (c *CacheDecorator) UpdateRespond(
-//	ctx context.Context,
-//	rawRespondData entities.RawUpdateRespondDTO,
-//) error {
-//
-//}
-//
-//func (c *CacheDecorator) DeleteRespond(ctx context.Context, accessToken string, id uint64) error {
-//
-//}
-//
-//func (c *CacheDecorator) UpdateMaster(
-//	ctx context.Context,
-//	rawMasterData entities.RawUpdateMasterDTO,
-//) error {
-//
-//}
-//
-//func (c *CacheDecorator) UpdateTicket(
-//	ctx context.Context,
-//	rawTicketData entities.RawUpdateTicketDTO,
-//) error {
-//
-//}
-//
-//func (c *CacheDecorator) DeleteTicket(ctx context.Context, accessToken string, id uint64) error {
-//
-//}
+func (c *CacheDecorator) UpdateUserProfile(
+	ctx context.Context,
+	rawUserProfileData entities.RawUpdateUserProfileDTO,
+) error {
+	err := c.UseCases.UpdateUserProfile(ctx, rawUserProfileData)
+	if err == nil {
+		var user *entities.User
+		user, err = c.UseCases.GetMe(ctx, rawUserProfileData.AccessToken)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get User with AccessToken=%s to delete cache", rawUserProfileData.AccessToken),
+				err,
+			)
+
+			return nil
+		}
+
+		patterns := []string{
+			fmt.Sprintf("%s:%d", getUserByIDPrefix, user.ID),
+			fmt.Sprintf("%s:%s", getUserByEmailPrefix, user.Email),
+		}
+
+		for _, pattern := range patterns {
+			if cacheErr := c.cacheProvider.DelByPattern(ctx, pattern, nil); cacheErr != nil {
+				logging.LogErrorContext(
+					ctx,
+					c.logger,
+					fmt.Sprintf("Failed to delete cache by pattern %s", pattern),
+					err,
+				)
+			}
+		}
+	}
+
+	return err
+}
+
+func (c *CacheDecorator) UpdateToy(
+	ctx context.Context,
+	rawToyData entities.RawUpdateToyDTO,
+) error {
+	err := c.UseCases.UpdateToy(ctx, rawToyData)
+	if err == nil {
+		var toy *entities.Toy
+		toy, err = c.UseCases.GetToyByID(ctx, rawToyData.ID)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get Toy with ID=%d to delete cache", toy.ID),
+				err,
+			)
+
+			return nil
+		}
+
+		patterns := []string{
+			fmt.Sprintf("%s:%d", getToyByIDPrefix, toy.ID),
+			fmt.Sprintf("%s:%d*", getMasterToysPrefix, toy.MasterID),
+			fmt.Sprintf("%s:%d*", countMasterToysPrefix, toy.MasterID),
+		}
+
+		for _, pattern := range patterns {
+			if cacheErr := c.cacheProvider.DelByPattern(ctx, pattern, nil); cacheErr != nil {
+				logging.LogErrorContext(
+					ctx,
+					c.logger,
+					fmt.Sprintf("Failed to delete cache by pattern %s", pattern),
+					err,
+				)
+			}
+		}
+	}
+
+	return err
+}
+
+func (c *CacheDecorator) DeleteToy(ctx context.Context, accessToken string, id uint64) error {
+	err := c.UseCases.DeleteToy(ctx, accessToken, id)
+	if err == nil {
+		var toy *entities.Toy
+		toy, err = c.UseCases.GetToyByID(ctx, id)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get Toy with ID=%d to delete cache", id),
+				err,
+			)
+
+			return nil
+		}
+
+		patterns := []string{
+			fmt.Sprintf("%s:%d", getToyByIDPrefix, toy.ID),
+			fmt.Sprintf("%s:%d*", getMasterToysPrefix, toy.MasterID),
+			fmt.Sprintf("%s:%d*", countMasterToysPrefix, toy.MasterID),
+		}
+
+		for _, pattern := range patterns {
+			if cacheErr := c.cacheProvider.DelByPattern(ctx, pattern, nil); cacheErr != nil {
+				logging.LogErrorContext(
+					ctx,
+					c.logger,
+					fmt.Sprintf("Failed to delete cache by pattern %s", pattern),
+					err,
+				)
+			}
+		}
+	}
+
+	return err
+}
+
+func (c *CacheDecorator) UpdateMaster(
+	ctx context.Context,
+	rawMasterData entities.RawUpdateMasterDTO,
+) error {
+	err := c.UseCases.UpdateMaster(ctx, rawMasterData)
+	if err == nil {
+		var master *entities.Master
+		master, err = c.UseCases.GetMasterByID(ctx, rawMasterData.ID)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get Master with ID=%d to delete cache", rawMasterData.ID),
+				err,
+			)
+
+			return nil
+		}
+
+		patterns := []string{
+			fmt.Sprintf("%s:%d", getMasterByIDPrefix, master.ID),
+			fmt.Sprintf("%s:%d", getMasterByUserIDPrefix, master.UserID),
+			fmt.Sprintf("%s:%d*", getMasterToysPrefix, master.ID),
+			fmt.Sprintf("%s:%d*", countMasterToysPrefix, master.ID),
+			fmt.Sprintf("%s*", getMastersPrefix),
+		}
+
+		for _, pattern := range patterns {
+			if cacheErr := c.cacheProvider.DelByPattern(ctx, pattern, nil); cacheErr != nil {
+				logging.LogErrorContext(
+					ctx,
+					c.logger,
+					fmt.Sprintf("Failed to delete cache by pattern %s", pattern),
+					err,
+				)
+			}
+		}
+	}
+
+	return err
+}
+
+func (c *CacheDecorator) UpdateTicket(
+	ctx context.Context,
+	rawTicketData entities.RawUpdateTicketDTO,
+) error {
+	err := c.UseCases.UpdateTicket(ctx, rawTicketData)
+	if err == nil {
+		var ticket *entities.Ticket
+		ticket, err = c.UseCases.GetTicketByID(ctx, rawTicketData.ID)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get Ticket with ID=%d to delete cache", rawTicketData.ID),
+				err,
+			)
+
+			return nil
+		}
+
+		patterns := []string{
+			fmt.Sprintf("%s:%d", getTicketByIDPrefix, ticket.ID),
+			fmt.Sprintf("%s:%d", getUserTicketsPrefix, ticket.UserID),
+			fmt.Sprintf("%s:%d*", countUserTicketsPrefix, ticket.UserID),
+		}
+
+		for _, pattern := range patterns {
+			if cacheErr := c.cacheProvider.DelByPattern(ctx, pattern, nil); cacheErr != nil {
+				logging.LogErrorContext(
+					ctx,
+					c.logger,
+					fmt.Sprintf("Failed to delete cache by pattern %s", pattern),
+					err,
+				)
+			}
+		}
+	}
+
+	return err
+}
+
+func (c *CacheDecorator) DeleteTicket(ctx context.Context, accessToken string, id uint64) error {
+	err := c.UseCases.DeleteTicket(ctx, accessToken, id)
+	if err == nil {
+		var ticket *entities.Ticket
+		ticket, err = c.UseCases.GetTicketByID(ctx, id)
+		if err != nil {
+			logging.LogErrorContext(
+				ctx,
+				c.logger,
+				fmt.Sprintf("Failed to get Ticket with ID=%d to delete cache", id),
+				err,
+			)
+
+			return nil
+		}
+
+		patterns := []string{
+			fmt.Sprintf("%s:%d", getTicketByIDPrefix, ticket.ID),
+			fmt.Sprintf("%s:%d", getUserTicketsPrefix, ticket.UserID),
+			fmt.Sprintf("%s:%d*", countUserTicketsPrefix, ticket.UserID),
+		}
+
+		for _, pattern := range patterns {
+			if cacheErr := c.cacheProvider.DelByPattern(ctx, pattern, nil); cacheErr != nil {
+				logging.LogErrorContext(
+					ctx,
+					c.logger,
+					fmt.Sprintf("Failed to delete cache by pattern %s", pattern),
+					err,
+				)
+			}
+		}
+	}
+
+	return err
+}
