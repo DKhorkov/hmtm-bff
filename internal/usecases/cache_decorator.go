@@ -1475,7 +1475,7 @@ func (c *CacheDecorator) UpdateToy(
 			logging.LogErrorContext(
 				ctx,
 				c.logger,
-				fmt.Sprintf("Failed to get Toy with ID=%d to delete cache", toy.ID),
+				fmt.Sprintf("Failed to get Toy with ID=%d to delete cache", rawToyData.ID),
 				err,
 			)
 
