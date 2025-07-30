@@ -29,6 +29,7 @@ go.work.sum
 
 # Local files^
 *.log
+*.rdb
 logs/
 *.db
 bench.txt

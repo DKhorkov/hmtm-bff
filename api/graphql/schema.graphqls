@@ -170,35 +170,35 @@ input MyEmailCommunicationsInput {
 type Query {
     # SSO queries:
     users(input: UsersInput): [User!]
-    user(id: ID!): User!
-    userByEmail(email: String!): User!
-    me: User!
+    user(id: ID!): User
+    userByEmail(email: String!): User
+    me: User
 
     # Toys queries:
-    master(id: ID!): Master!
-    masterByUser(userId: ID!): Master!
+    master(id: ID!): Master
+    masterByUser(userId: ID!): Master
     masters(input: MastersInput): [Master!]
     masterToys(input: MasterToysInput!): [Toy!]
     masterToysCounter(masterId: ID!, filters: ToysFilters): Int!
-    toy(id: ID!): Toy!
+    toy(id: ID!): Toy
     toys(input: ToysInput): [Toy!]
     toysCounter(filters: ToysFilters): Int!
     myToys(input: MyToysInput): [Toy!]
     myToysCounter(filters: ToysFilters): Int!
-    tag(id: ID!): Tag!
+    tag(id: ID!): Tag
     tags: [Tag!]
-    category(id: ID!): Category!
+    category(id: ID!): Category
     categories: [Category!]
 
     # Tickets queries:
-    ticket(id: ID!): Ticket!
+    ticket(id: ID!): Ticket
     tickets(input: TicketsInput): [Ticket!]
     ticketsCounter(filters: TicketsFilters): Int!
     userTickets(input: UserTicketsInput!): [Ticket!]
     userTicketsCounter(userId: ID!, filters: TicketsFilters): Int!
     myTickets(input: MyTicketsInput): [Ticket!]
     myTicketsCounter(filters: TicketsFilters): Int!
-    respond(id: ID!): Respond!
+    respond(id: ID!): Respond
     ticketResponds(ticketId: ID!): [Respond!]
     myResponds: [Respond!]
 

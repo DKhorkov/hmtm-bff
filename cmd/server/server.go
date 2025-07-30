@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/DKhorkov/libs/cache"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
 
@@ -111,15 +112,28 @@ func main() {
 	notificationsRepository := repositories.NewNotificationsRepository(notificationsClient)
 	notificationsService := services.NewNotificationsService(notificationsRepository, logger)
 
-	useCases := usecases.New(
-		ssoService,
-		toysService,
-		fileStorageService,
-		ticketsService,
-		notificationsService,
-		settings.Validation,
+	cacheProvider, err := cache.New(
+		cache.WithHost(settings.Cache.Host),
+		cache.WithPort(settings.Cache.Port),
+		cache.WithPassword(settings.Cache.Password),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	useCases := usecases.NewCacheDecorator(
+		usecases.New(
+			ssoService,
+			toysService,
+			fileStorageService,
+			ticketsService,
+			notificationsService,
+			settings.Validation,
+			logger,
+			traceProvider,
+		),
+		cacheProvider,
 		logger,
-		traceProvider,
 	)
 
 	controller := graphqlcontroller.New(

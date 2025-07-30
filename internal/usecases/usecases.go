@@ -337,10 +337,7 @@ func (useCases *UseCases) GetAllCategories(ctx context.Context) ([]entities.Cate
 	return useCases.toysService.GetAllCategories(ctx)
 }
 
-func (useCases *UseCases) GetCategoryByID(
-	ctx context.Context,
-	id uint32,
-) (*entities.Category, error) {
+func (useCases *UseCases) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
 	return useCases.toysService.GetCategoryByID(ctx, id)
 }
 
