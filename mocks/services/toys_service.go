@@ -71,6 +71,21 @@ func (mr *MockToysServiceMockRecorder) CountMasterToys(ctx, masterID, filters an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMasterToys", reflect.TypeOf((*MockToysService)(nil).CountMasterToys), ctx, masterID, filters)
 }
 
+// CountMasters mocks base method.
+func (m *MockToysService) CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountMasters", ctx, filters)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountMasters indicates an expected call of CountMasters.
+func (mr *MockToysServiceMockRecorder) CountMasters(ctx, filters any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMasters", reflect.TypeOf((*MockToysService)(nil).CountMasters), ctx, filters)
+}
+
 // CountToys mocks base method.
 func (m *MockToysService) CountToys(ctx context.Context, filters *entities.ToysFilters) (uint64, error) {
 	m.ctrl.T.Helper()
@@ -221,18 +236,18 @@ func (mr *MockToysServiceMockRecorder) GetMasterToys(ctx, masterID, pagination, 
 }
 
 // GetMasters mocks base method.
-func (m *MockToysService) GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error) {
+func (m *MockToysService) GetMasters(ctx context.Context, pagination *entities.Pagination, filters *entities.MastersFilters) ([]entities.Master, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMasters", ctx, pagination)
+	ret := m.ctrl.Call(m, "GetMasters", ctx, pagination, filters)
 	ret0, _ := ret[0].([]entities.Master)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMasters indicates an expected call of GetMasters.
-func (mr *MockToysServiceMockRecorder) GetMasters(ctx, pagination any) *gomock.Call {
+func (mr *MockToysServiceMockRecorder) GetMasters(ctx, pagination, filters any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasters", reflect.TypeOf((*MockToysService)(nil).GetMasters), ctx, pagination)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasters", reflect.TypeOf((*MockToysService)(nil).GetMasters), ctx, pagination, filters)
 }
 
 // GetTagByID mocks base method.

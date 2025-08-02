@@ -3797,6 +3797,10 @@ func TestQueryResolver_Masters(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &entities.MastersFilters{
+					Search:              pointers.New("test"),
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
@@ -3806,6 +3810,10 @@ func TestQueryResolver_Masters(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(mockMasters, nil).
@@ -3820,6 +3828,10 @@ func TestQueryResolver_Masters(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &entities.MastersFilters{
+					Search:              pointers.New("test"),
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
@@ -3829,6 +3841,10 @@ func TestQueryResolver_Masters(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return([]entities.Master{}, nil).
@@ -3843,6 +3859,10 @@ func TestQueryResolver_Masters(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &entities.MastersFilters{
+					Search:              pointers.New("test"),
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(useCases *mockusecases.MockUseCases) {
 				useCases.
@@ -3852,6 +3872,10 @@ func TestQueryResolver_Masters(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("test")).
@@ -3887,6 +3911,90 @@ func TestQueryResolver_Masters(t *testing.T) {
 			}
 
 			require.Len(t, actual, len(tc.expected))
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestQueryResolver_MastersCounter(t *testing.T) {
+	testCases := []struct {
+		name          string
+		filters       *entities.MastersFilters
+		setupMocks    func(useCases *mockusecases.MockUseCases)
+		expected      int
+		expectedError error
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name: "use case error",
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases) {
+				useCases.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("error")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	resolver := &queryResolver{
+		Resolver: NewResolver(
+			useCases,
+			logger,
+			config.CookiesConfig{},
+		),
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			testCtx := context.Background()
+
+			if tc.setupMocks != nil {
+				tc.setupMocks(useCases)
+			}
+
+			actual, err := resolver.MastersCounter(testCtx, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
 			require.Equal(t, tc.expected, actual)
 		})
 	}

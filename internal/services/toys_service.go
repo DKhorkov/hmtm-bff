@@ -165,8 +165,9 @@ func (service *ToysService) GetToyByID(ctx context.Context, id uint64) (*entitie
 func (service *ToysService) GetMasters(
 	ctx context.Context,
 	pagination *entities.Pagination,
+	filters *entities.MastersFilters,
 ) ([]entities.Master, error) {
-	masters, err := service.toysRepository.GetMasters(ctx, pagination)
+	masters, err := service.toysRepository.GetMasters(ctx, pagination, filters)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -177,6 +178,20 @@ func (service *ToysService) GetMasters(
 	}
 
 	return masters, err
+}
+
+func (service *ToysService) CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error) {
+	count, err := service.toysRepository.CountMasters(ctx, filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			"Error occurred while trying to count Masters",
+			err,
+		)
+	}
+
+	return count, err
 }
 
 func (service *ToysService) GetMasterByID(

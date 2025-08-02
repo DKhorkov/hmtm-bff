@@ -61,7 +61,8 @@ type MasterToysInput struct {
 }
 
 type MastersInput struct {
-	Pagination *entities.Pagination `json:"pagination,omitempty"`
+	Pagination *entities.Pagination     `json:"pagination,omitempty"`
+	Filters    *entities.MastersFilters `json:"filters,omitempty"`
 }
 
 type Mutation struct {

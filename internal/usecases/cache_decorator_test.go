@@ -1595,11 +1595,13 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 	decorator := NewCacheDecorator(useCasesMock, cacheMock, loggerMock)
 
 	pagination := &entities.Pagination{Offset: pointers.New[uint64](1), Limit: pointers.New[uint64](10)}
+	filters := &entities.MastersFilters{Search: pointers.New("test"), CreatedAtOrderByAsc: pointers.New(true)}
 	masters := []entities.Master{{ID: 1}}
 
 	testCases := []struct {
 		name            string
 		pagination      *entities.Pagination
+		filters         *entities.MastersFilters
 		cacheValue      string
 		expectedMasters []entities.Master
 		expectedError   error
@@ -1608,6 +1610,7 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 		{
 			name:            "success from cache",
 			pagination:      pagination,
+			filters:         filters,
 			cacheValue:      `[{"id":1,"userId":1}]`,
 			expectedMasters: masters,
 			setupMocks: func() {
@@ -1629,6 +1632,7 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 		{
 			name:            "success from db",
 			pagination:      pagination,
+			filters:         filters,
 			expectedMasters: masters,
 			setupMocks: func() {
 				cacheMock.
@@ -1652,7 +1656,7 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 
 				useCasesMock.
 					EXPECT().
-					GetMasters(gomock.Any(), pagination).
+					GetMasters(gomock.Any(), pagination, filters).
 					Return(masters, nil).
 					Times(1)
 
@@ -1666,6 +1670,7 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 		{
 			name:            "cache ping error, success from db",
 			pagination:      pagination,
+			filters:         filters,
 			expectedMasters: masters,
 			setupMocks: func() {
 				cacheMock.
@@ -1681,7 +1686,7 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 
 				useCasesMock.
 					EXPECT().
-					GetMasters(gomock.Any(), pagination).
+					GetMasters(gomock.Any(), pagination, filters).
 					Return(masters, nil).
 					Times(1)
 			},
@@ -1689,6 +1694,7 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 		{
 			name:          "db error",
 			pagination:    pagination,
+			filters:       filters,
 			expectedError: errors.New("db error"),
 			setupMocks: func() {
 				cacheMock.
@@ -1712,7 +1718,7 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 
 				useCasesMock.
 					EXPECT().
-					GetMasters(gomock.Any(), pagination).
+					GetMasters(gomock.Any(), pagination, filters).
 					Return(nil, errors.New("db error")).
 					Times(1)
 			},
@@ -1720,6 +1726,7 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 		{
 			name:            "set cache error",
 			pagination:      pagination,
+			filters:         filters,
 			expectedMasters: masters,
 			setupMocks: func() {
 				cacheMock.
@@ -1743,7 +1750,7 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 
 				useCasesMock.
 					EXPECT().
-					GetMasters(gomock.Any(), pagination).
+					GetMasters(gomock.Any(), pagination, filters).
 					Return(masters, nil).
 					Times(1)
 
@@ -1762,7 +1769,7 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 				tc.setupMocks()
 			}
 
-			result, err := decorator.GetMasters(context.Background(), tc.pagination)
+			result, err := decorator.GetMasters(context.Background(), tc.pagination, tc.filters)
 			if tc.expectedError != nil {
 				assert.Error(t, err)
 				assert.EqualError(t, err, tc.expectedError.Error())
@@ -1770,6 +1777,232 @@ func TestCacheDecorator_GetMasters(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedMasters, result)
+			}
+		})
+	}
+}
+
+func TestCacheDecorator_CountMasters(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	cacheMock := mockcache.NewMockProvider(ctrl)
+	loggerMock := mocklogging.NewMockLogger(ctrl)
+	useCasesMock := mockusecases.NewMockUseCases(ctrl)
+	decorator := NewCacheDecorator(useCasesMock, cacheMock, loggerMock)
+
+	filters := &entities.MastersFilters{Search: pointers.New("ticket")}
+	count := uint64(100)
+
+	testCases := []struct {
+		name          string
+		filters       *entities.MastersFilters
+		cacheValue    string
+		expectedCount uint64
+		expectedError error
+		setupMocks    func()
+	}{
+		{
+			name:          "success from cache",
+			filters:       filters,
+			cacheValue:    "100",
+			expectedCount: count,
+			setupMocks: func() {
+				cacheMock.
+					EXPECT().
+					Ping(gomock.Any()).
+					Return("", nil).
+					Times(1)
+
+				gomock.InOrder(
+					cacheMock.EXPECT().Get(gomock.Any(), gomock.Any()).DoAndReturn(
+						func(_ context.Context, key string) (string, error) {
+							return "100", nil
+						},
+					),
+				)
+			},
+		},
+		{
+			name:          "success from db",
+			filters:       filters,
+			expectedCount: count,
+			setupMocks: func() {
+				cacheMock.
+					EXPECT().
+					Ping(gomock.Any()).
+					Return("", nil).
+					Times(1)
+
+				gomock.InOrder(
+					cacheMock.EXPECT().Get(gomock.Any(), gomock.Any()).DoAndReturn(
+						func(_ context.Context, key string) (string, error) {
+							return "", errors.New("not found")
+						},
+					),
+				)
+
+				loggerMock.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+
+				useCasesMock.
+					EXPECT().
+					CountMasters(gomock.Any(), filters).
+					Return(count, nil).
+					Times(1)
+
+				cacheMock.
+					EXPECT().
+					Set(gomock.Any(), gomock.Any(), gomock.Any(), countTicketsTTL).
+					Return(nil).
+					Times(1)
+			},
+		},
+		{
+			name:          "cache ping error, success from db",
+			filters:       filters,
+			expectedCount: count,
+			setupMocks: func() {
+				cacheMock.
+					EXPECT().
+					Ping(gomock.Any()).
+					Return("", errors.New("cache unavailable")).
+					Times(1)
+
+				loggerMock.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+
+				useCasesMock.
+					EXPECT().
+					CountMasters(gomock.Any(), filters).
+					Return(count, nil).
+					Times(1)
+			},
+		},
+		{
+			name:          "db error",
+			filters:       filters,
+			expectedError: errors.New("db error"),
+			setupMocks: func() {
+				cacheMock.
+					EXPECT().
+					Ping(gomock.Any()).
+					Return("", nil).
+					Times(1)
+
+				gomock.InOrder(
+					cacheMock.EXPECT().Get(gomock.Any(), gomock.Any()).DoAndReturn(
+						func(_ context.Context, key string) (string, error) {
+							return "", errors.New("not found")
+						},
+					),
+				)
+
+				loggerMock.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+
+				useCasesMock.
+					EXPECT().
+					CountMasters(gomock.Any(), filters).
+					Return(uint64(0), errors.New("db error")).
+					Times(1)
+			},
+		},
+		{
+			name:          "set cache error",
+			filters:       filters,
+			expectedCount: count,
+			setupMocks: func() {
+				cacheMock.
+					EXPECT().
+					Ping(gomock.Any()).
+					Return("", nil).
+					Times(1)
+
+				gomock.InOrder(
+					cacheMock.EXPECT().Get(gomock.Any(), gomock.Any()).DoAndReturn(
+						func(_ context.Context, key string) (string, error) {
+							return "", errors.New("not found")
+						},
+					),
+				)
+
+				loggerMock.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(2)
+
+				useCasesMock.
+					EXPECT().
+					CountMasters(gomock.Any(), filters).
+					Return(count, nil).
+					Times(1)
+
+				cacheMock.
+					EXPECT().
+					Set(gomock.Any(), gomock.Any(), gomock.Any(), countTicketsTTL).
+					Return(errors.New("set cache error")).
+					Times(1)
+			},
+		},
+		{
+			name:          "parse error, success from db",
+			filters:       filters,
+			cacheValue:    "invalid",
+			expectedCount: count,
+			setupMocks: func() {
+				cacheMock.
+					EXPECT().
+					Ping(gomock.Any()).
+					Return("", nil).
+					Times(1)
+
+				gomock.InOrder(
+					cacheMock.EXPECT().Get(gomock.Any(), gomock.Any()).DoAndReturn(
+						func(_ context.Context, key string) (string, error) {
+							return "invalid", nil
+						},
+					),
+				)
+
+				loggerMock.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+
+				useCasesMock.
+					EXPECT().
+					CountMasters(gomock.Any(), filters).
+					Return(count, nil).
+					Times(1)
+
+				cacheMock.
+					EXPECT().
+					Set(gomock.Any(), gomock.Any(), gomock.Any(), countTicketsTTL).
+					Return(nil).
+					Times(1)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks()
+			}
+
+			result, err := decorator.CountMasters(context.Background(), tc.filters)
+			if tc.expectedError != nil {
+				assert.Error(t, err)
+				assert.EqualError(t, err, tc.expectedError.Error())
+				assert.Equal(t, uint64(0), result)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedCount, result)
 			}
 		})
 	}

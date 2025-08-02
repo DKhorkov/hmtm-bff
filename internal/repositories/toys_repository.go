@@ -267,12 +267,20 @@ func (repo *ToysRepository) GetToyByID(ctx context.Context, id uint64) (*entitie
 func (repo *ToysRepository) GetMasters(
 	ctx context.Context,
 	pagination *entities.Pagination,
+	filters *entities.MastersFilters,
 ) ([]entities.Master, error) {
 	in := &toys.GetMastersIn{}
 	if pagination != nil {
 		in.Pagination = &toys.Pagination{
 			Limit:  pagination.Limit,
 			Offset: pagination.Offset,
+		}
+	}
+
+	if filters != nil {
+		in.Filters = &toys.MastersFilters{
+			Search:              filters.Search,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
 		}
 	}
 
@@ -290,6 +298,26 @@ func (repo *ToysRepository) GetMasters(
 	}
 
 	return masters, nil
+}
+
+func (repo *ToysRepository) CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error) {
+	in := &toys.CountMastersIn{}
+	if filters != nil {
+		in.Filters = &toys.MastersFilters{
+			Search:              filters.Search,
+			CreatedAtOrderByAsc: filters.CreatedAtOrderByAsc,
+		}
+	}
+
+	response, err := repo.client.CountMasters(
+		ctx,
+		in,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.Count, nil
 }
 
 func (repo *ToysRepository) GetMasterByID(

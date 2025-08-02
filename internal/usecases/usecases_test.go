@@ -5211,6 +5211,7 @@ func TestUseCases_GetMasters(t *testing.T) {
 	testCases := []struct {
 		name       string
 		pagination *entities.Pagination
+		filters    *entities.MastersFilters
 		setupMocks func(
 			ssoService *mockservices.MockSsoService,
 			toysService *mockservices.MockToysService,
@@ -5228,6 +5229,10 @@ func TestUseCases_GetMasters(t *testing.T) {
 			pagination: &entities.Pagination{
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
 			},
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
@@ -5259,6 +5264,10 @@ func TestUseCases_GetMasters(t *testing.T) {
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
 						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
 					).
 					Return(masters, nil).
 					Times(1)
@@ -5283,6 +5292,10 @@ func TestUseCases_GetMasters(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
 				toysService *mockservices.MockToysService,
@@ -5300,6 +5313,10 @@ func TestUseCases_GetMasters(t *testing.T) {
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
 						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
 					).
 					Return([]entities.Master{}, nil).
 					Times(1)
@@ -5312,6 +5329,10 @@ func TestUseCases_GetMasters(t *testing.T) {
 			pagination: &entities.Pagination{
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
 			},
 			setupMocks: func(
 				_ *mockservices.MockSsoService,
@@ -5329,6 +5350,10 @@ func TestUseCases_GetMasters(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("database error")).
@@ -5372,7 +5397,137 @@ func TestUseCases_GetMasters(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetMasters(ctx, tc.pagination)
+			actual, err := useCases.GetMasters(ctx, tc.pagination, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_CountMasters(t *testing.T) {
+	testCases := []struct {
+		name       string
+		filters    *entities.MastersFilters
+		setupMocks func(
+			ssoService *mockservices.MockSsoService,
+			toysService *mockservices.MockToysService,
+			fileStorageService *mockservices.MockFileStorageService,
+			ticketsService *mockservices.MockTicketsService,
+			notificationsService *mockservices.MockNotificationsService,
+			logger *mocklogger.MockLogger,
+			traceProvider *tracingmock.MockProvider,
+		)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				_ *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockFileStorageService,
+				_ *mockservices.MockTicketsService,
+				_ *mockservices.MockNotificationsService,
+				_ *mocklogger.MockLogger,
+				_ *tracingmock.MockProvider,
+			) {
+				toysService.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected:      1,
+			errorExpected: false,
+		},
+		{
+			name: "error from service",
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				_ *mockservices.MockSsoService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockFileStorageService,
+				_ *mockservices.MockTicketsService,
+				_ *mockservices.MockNotificationsService,
+				_ *mocklogger.MockLogger,
+				_ *tracingmock.MockProvider,
+			) {
+				toysService.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("error")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name: "too long search query",
+			filters: &entities.MastersFilters{
+				Search: pointers.New("Toy is very interesting and some more information so there is too much symbols"),
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ticketsService := mockservices.NewMockTicketsService(ctrl)
+	notificationsService := mockservices.NewMockNotificationsService(ctrl)
+	fileStorageService := mockservices.NewMockFileStorageService(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	traceProvider := tracingmock.NewMockProvider(ctrl)
+	useCases := New(
+		ssoService,
+		toysService,
+		fileStorageService,
+		ticketsService,
+		notificationsService,
+		validationConfig,
+		logger,
+		traceProvider,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					ssoService,
+					toysService,
+					fileStorageService,
+					ticketsService,
+					notificationsService,
+					logger,
+					traceProvider,
+				)
+			}
+
+			actual, err := useCases.CountMasters(ctx, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {

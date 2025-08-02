@@ -83,6 +83,26 @@ func (mr *MockToysClientMockRecorder) CountMasterToys(ctx, in any, opts ...any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMasterToys", reflect.TypeOf((*MockToysClient)(nil).CountMasterToys), varargs...)
 }
 
+// CountMasters mocks base method.
+func (m *MockToysClient) CountMasters(ctx context.Context, in *toys.CountMastersIn, opts ...grpc.CallOption) (*toys.CountOut, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CountMasters", varargs...)
+	ret0, _ := ret[0].(*toys.CountOut)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountMasters indicates an expected call of CountMasters.
+func (mr *MockToysClientMockRecorder) CountMasters(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMasters", reflect.TypeOf((*MockToysClient)(nil).CountMasters), varargs...)
+}
+
 // CountToys mocks base method.
 func (m *MockToysClient) CountToys(ctx context.Context, in *toys.CountToysIn, opts ...grpc.CallOption) (*toys.CountOut, error) {
 	m.ctrl.T.Helper()

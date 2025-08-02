@@ -117,6 +117,11 @@ input ToysFilters {
     createdAtOrderByAsc: Boolean
 }
 
+input MastersFilters {
+    search: String
+    createdAtOrderByAsc: Boolean
+}
+
 input TicketsFilters {
     search: String
     priceCeil: Float
@@ -145,6 +150,7 @@ input MasterToysInput {
 
 input MastersInput {
     pagination: Pagination
+    filters: MastersFilters
 }
 
 input TicketsInput {
@@ -178,6 +184,7 @@ type Query {
     master(id: ID!): Master
     masterByUser(userId: ID!): Master
     masters(input: MastersInput): [Master!]
+    mastersCounter(filters: MastersFilters): Int!
     masterToys(input: MasterToysInput!): [Toy!]
     masterToysCounter(masterId: ID!, filters: ToysFilters): Int!
     toy(id: ID!): Toy
