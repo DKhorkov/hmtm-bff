@@ -52,7 +52,12 @@ type UseCases interface {
 		filters *entities.ToysFilters,
 	) ([]entities.Toy, error)
 	CountMyToys(ctx context.Context, accessToken string, filters *entities.ToysFilters) (uint64, error)
-	GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error)
+	GetMasters(
+		ctx context.Context,
+		pagination *entities.Pagination,
+		filters *entities.MastersFilters,
+	) ([]entities.Master, error)
+	CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error)
 	GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error)
 	GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error)
 	RegisterMaster(

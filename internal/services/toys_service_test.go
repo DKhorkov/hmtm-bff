@@ -968,6 +968,7 @@ func TestToysService_GetMasters(t *testing.T) {
 	testCases := []struct {
 		name            string
 		pagination      *entities.Pagination
+		filters         *entities.MastersFilters
 		setupMocks      func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger)
 		expectedMasters []entities.Master
 		errorExpected   bool
@@ -978,6 +979,10 @@ func TestToysService_GetMasters(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
 					EXPECT().
@@ -986,6 +991,10 @@ func TestToysService_GetMasters(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return([]entities.Master{
@@ -1016,6 +1025,10 @@ func TestToysService_GetMasters(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
 				toysRepository.
 					EXPECT().
@@ -1024,6 +1037,10 @@ func TestToysService_GetMasters(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("fetch failed")).
@@ -1045,7 +1062,7 @@ func TestToysService_GetMasters(t *testing.T) {
 				tc.setupMocks(toysRepository, logger)
 			}
 
-			masters, err := service.GetMasters(context.Background(), tc.pagination)
+			masters, err := service.GetMasters(context.Background(), tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, masters)
@@ -1053,6 +1070,86 @@ func TestToysService_GetMasters(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, tc.expectedMasters, masters)
 			}
+		})
+	}
+}
+
+func TestToysService_CountMasters(t *testing.T) {
+	testCases := []struct {
+		name          string
+		filters       *entities.MastersFilters
+		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
+				toysRepository.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name: "error",
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *mocklogging.MockLogger) {
+				toysRepository.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("error")).
+					Times(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	toysRepository := mockrepositories.NewMockToysRepository(ctrl)
+	logger := mocklogging.NewMockLogger(ctrl)
+	service := NewToysService(toysRepository, logger)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(toysRepository, logger)
+			}
+
+			actual, err := service.CountMasters(context.Background(), tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
 		})
 	}
 }

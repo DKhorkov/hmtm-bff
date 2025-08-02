@@ -71,6 +71,21 @@ func (mr *MockToysRepositoryMockRecorder) CountMasterToys(ctx, masterID, filters
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMasterToys", reflect.TypeOf((*MockToysRepository)(nil).CountMasterToys), ctx, masterID, filters)
 }
 
+// CountMasters mocks base method.
+func (m *MockToysRepository) CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountMasters", ctx, filters)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountMasters indicates an expected call of CountMasters.
+func (mr *MockToysRepositoryMockRecorder) CountMasters(ctx, filters any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMasters", reflect.TypeOf((*MockToysRepository)(nil).CountMasters), ctx, filters)
+}
+
 // CountToys mocks base method.
 func (m *MockToysRepository) CountToys(ctx context.Context, filters *entities.ToysFilters) (uint64, error) {
 	m.ctrl.T.Helper()
@@ -221,18 +236,18 @@ func (mr *MockToysRepositoryMockRecorder) GetMasterToys(ctx, masterID, paginatio
 }
 
 // GetMasters mocks base method.
-func (m *MockToysRepository) GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error) {
+func (m *MockToysRepository) GetMasters(ctx context.Context, pagination *entities.Pagination, filters *entities.MastersFilters) ([]entities.Master, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMasters", ctx, pagination)
+	ret := m.ctrl.Call(m, "GetMasters", ctx, pagination, filters)
 	ret0, _ := ret[0].([]entities.Master)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMasters indicates an expected call of GetMasters.
-func (mr *MockToysRepositoryMockRecorder) GetMasters(ctx, pagination any) *gomock.Call {
+func (mr *MockToysRepositoryMockRecorder) GetMasters(ctx, pagination, filters any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasters", reflect.TypeOf((*MockToysRepository)(nil).GetMasters), ctx, pagination)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasters", reflect.TypeOf((*MockToysRepository)(nil).GetMasters), ctx, pagination, filters)
 }
 
 // GetTagByID mocks base method.

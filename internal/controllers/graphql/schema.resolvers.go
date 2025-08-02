@@ -626,11 +626,14 @@ func (r *queryResolver) MasterByUser(ctx context.Context, userID string) (*entit
 // Masters is the resolver for the masters field.
 func (r *queryResolver) Masters(ctx context.Context, input *graphqlapi.MastersInput) ([]*entities.Master, error) {
 	var pagination *entities.Pagination
+	var filters *entities.MastersFilters
+
 	if input != nil {
 		pagination = input.Pagination
+		filters = input.Filters
 	}
 
-	masters, err := r.useCases.GetMasters(ctx, pagination)
+	masters, err := r.useCases.GetMasters(ctx, pagination, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -641,6 +644,16 @@ func (r *queryResolver) Masters(ctx context.Context, input *graphqlapi.MastersIn
 	}
 
 	return response, nil
+}
+
+// MastersCounter is the resolver for the mastersCounter field.
+func (r *queryResolver) MastersCounter(ctx context.Context, filters *entities.MastersFilters) (int, error) {
+	count, err := r.useCases.CountMasters(ctx, filters)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }
 
 // MasterToys is the resolver for the masterToys field.
@@ -691,7 +704,6 @@ func (r *queryResolver) Toy(ctx context.Context, id string) (*entities.Toy, erro
 // Toys is the resolver for the toys field.
 func (r *queryResolver) Toys(ctx context.Context, input *graphqlapi.ToysInput) ([]*entities.Toy, error) {
 	var pagination *entities.Pagination
-
 	var filters *entities.ToysFilters
 
 	if input != nil {

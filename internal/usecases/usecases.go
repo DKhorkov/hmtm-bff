@@ -304,8 +304,22 @@ func (useCases *UseCases) GetToyByID(ctx context.Context, id uint64) (*entities.
 	return useCases.toysService.GetToyByID(ctx, id)
 }
 
-func (useCases *UseCases) GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error) {
-	return useCases.toysService.GetMasters(ctx, pagination)
+func (useCases *UseCases) GetMasters(
+	ctx context.Context,
+	pagination *entities.Pagination,
+	filters *entities.MastersFilters,
+) ([]entities.Master, error) {
+	return useCases.toysService.GetMasters(ctx, pagination, filters)
+}
+
+func (useCases *UseCases) CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error) {
+	if filters != nil && filters.Search != nil && len(*filters.Search) > searchQueryLengthLimit {
+		return 0, &customerrors.LimitExceededError{
+			Message: fmt.Sprintf("Too long search query. Limit is %d symbols", searchQueryLengthLimit),
+		}
+	}
+
+	return useCases.toysService.CountMasters(ctx, filters)
 }
 
 func (useCases *UseCases) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {

@@ -22,6 +22,7 @@ const (
 	getUsersPrefix          = "users"
 	getToysPrefix           = "toys"
 	countToysPrefix         = "toys_count"
+	countMastersPrefix      = "masters_count"
 	getMasterToysPrefix     = "master_toys"
 	countMasterToysPrefix   = "master_toys_count"
 	getToyByIDPrefix        = "get_toy_by_id"
@@ -44,6 +45,7 @@ const (
 	getUsersTTL          = time.Minute * 5
 	getToysTTL           = time.Minute * 5
 	countToysTTL         = time.Minute * 5
+	countMastersTTL      = time.Minute * 5
 	getMasterToysTTL     = time.Hour * 6
 	countMasterToysTTL   = time.Hour * 6
 	getToyByIDTTL        = time.Hour * 24
@@ -628,7 +630,11 @@ func (c *CacheDecorator) GetToyByID(ctx context.Context, id uint64) (*entities.T
 	return toy, nil
 }
 
-func (c *CacheDecorator) GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error) {
+func (c *CacheDecorator) GetMasters(
+	ctx context.Context,
+	pagination *entities.Pagination,
+	filters *entities.MastersFilters,
+) ([]entities.Master, error) {
 	if _, err := c.cacheProvider.Ping(ctx); err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -637,7 +643,7 @@ func (c *CacheDecorator) GetMasters(ctx context.Context, pagination *entities.Pa
 			err,
 		)
 
-		return c.UseCases.GetMasters(ctx, pagination)
+		return c.UseCases.GetMasters(ctx, pagination, filters)
 	}
 
 	paginationHash, err := rxhash.HashStruct(pagination)
@@ -649,7 +655,7 @@ func (c *CacheDecorator) GetMasters(ctx context.Context, pagination *entities.Pa
 			err,
 		)
 
-		return c.UseCases.GetMasters(ctx, pagination)
+		return c.UseCases.GetMasters(ctx, pagination, filters)
 	}
 
 	cacheKey := fmt.Sprintf("%s:%s", getMastersPrefix, paginationHash)
@@ -668,7 +674,7 @@ func (c *CacheDecorator) GetMasters(ctx context.Context, pagination *entities.Pa
 		err,
 	)
 
-	masters, err := c.UseCases.GetMasters(ctx, pagination)
+	masters, err := c.UseCases.GetMasters(ctx, pagination, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -695,6 +701,62 @@ func (c *CacheDecorator) GetMasters(ctx context.Context, pagination *entities.Pa
 	}
 
 	return masters, nil
+}
+
+func (c *CacheDecorator) CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error) {
+	if _, err := c.cacheProvider.Ping(ctx); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Cache provider error",
+			err,
+		)
+
+		return c.UseCases.CountMasters(ctx, filters)
+	}
+
+	filtersHash, err := rxhash.HashStruct(filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to get cached Masters counter",
+			err,
+		)
+
+		return c.UseCases.CountMasters(ctx, filters)
+	}
+
+	cacheKey := fmt.Sprintf("%s:%s", countMastersPrefix, filtersHash)
+	strCounter, err := c.cacheProvider.Get(ctx, cacheKey)
+	if err == nil {
+		if counter, err := strconv.ParseUint(strCounter, 10, 64); err == nil {
+			return counter, nil
+		}
+	}
+
+	logging.LogErrorContext(
+		ctx,
+		c.logger,
+		"Failed to get cached Masters counter",
+		err,
+	)
+
+	counter, err := c.UseCases.CountMasters(ctx, filters)
+	if err != nil {
+		return 0, err
+	}
+
+	if err = c.cacheProvider.Set(ctx, cacheKey, counter, countMastersTTL); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to cache Masters counter",
+			err,
+		)
+	}
+
+	return counter, nil
 }
 
 func (c *CacheDecorator) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {

@@ -1006,6 +1006,7 @@ func TestToysRepository_GetMasters(t *testing.T) {
 	testCases := []struct {
 		name            string
 		pagination      *entities.Pagination
+		filters         *entities.MastersFilters
 		setupMocks      func(toysClient *mockclients.MockToysClient)
 		expectedMasters []entities.Master
 		errorExpected   bool
@@ -1016,6 +1017,10 @@ func TestToysRepository_GetMasters(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
@@ -1025,6 +1030,10 @@ func TestToysRepository_GetMasters(t *testing.T) {
 							Pagination: &toys.Pagination{
 								Limit:  pointers.New[uint64](1),
 								Offset: pointers.New[uint64](1),
+							},
+							Filters: &toys.MastersFilters{
+								Search:              pointers.New("test"),
+								CreatedAtOrderByAsc: pointers.New(true),
 							},
 						},
 					).
@@ -1060,6 +1069,10 @@ func TestToysRepository_GetMasters(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(toysClient *mockclients.MockToysClient) {
 				toysClient.
 					EXPECT().
@@ -1069,6 +1082,10 @@ func TestToysRepository_GetMasters(t *testing.T) {
 							Pagination: &toys.Pagination{
 								Limit:  pointers.New[uint64](1),
 								Offset: pointers.New[uint64](1),
+							},
+							Filters: &toys.MastersFilters{
+								Search:              pointers.New("test"),
+								CreatedAtOrderByAsc: pointers.New(true),
 							},
 						},
 					).
@@ -1086,7 +1103,7 @@ func TestToysRepository_GetMasters(t *testing.T) {
 				tc.setupMocks(toysClient)
 			}
 
-			masters, err := repo.GetMasters(context.Background(), tc.pagination)
+			masters, err := repo.GetMasters(context.Background(), tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Nil(t, masters)
@@ -1094,6 +1111,90 @@ func TestToysRepository_GetMasters(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, tc.expectedMasters, masters)
 			}
+		})
+	}
+}
+
+func TestToysRepository_CountMasters(t *testing.T) {
+	testCases := []struct {
+		name          string
+		filters       *entities.MastersFilters
+		setupMocks    func(toysClient *mockclients.MockToysClient)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(toysClient *mockclients.MockToysClient) {
+				toysClient.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&toys.CountMastersIn{
+							Filters: &toys.MastersFilters{
+								Search:              pointers.New("test"),
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
+					).
+					Return(
+						&toys.CountOut{Count: 1},
+						nil,
+					).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name: "error",
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(toysClient *mockclients.MockToysClient) {
+				toysClient.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&toys.CountMastersIn{
+							Filters: &toys.MastersFilters{
+								Search:              pointers.New("test"),
+								CreatedAtOrderByAsc: pointers.New(true),
+							},
+						},
+					).
+					Return(
+						&toys.CountOut{Count: 0},
+						errors.New("error"),
+					).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	toysClient := mockclients.NewMockToysClient(ctrl)
+	repo := NewToysRepository(toysClient)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(toysClient)
+			}
+
+			actual, err := repo.CountMasters(context.Background(), tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
 		})
 	}
 }

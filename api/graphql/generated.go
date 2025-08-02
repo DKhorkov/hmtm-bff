@@ -108,6 +108,7 @@ type ComplexityRoot struct {
 		MasterToys                   func(childComplexity int, input MasterToysInput) int
 		MasterToysCounter            func(childComplexity int, masterID string, filters *entities.ToysFilters) int
 		Masters                      func(childComplexity int, input *MastersInput) int
+		MastersCounter               func(childComplexity int, filters *entities.MastersFilters) int
 		Me                           func(childComplexity int) int
 		MyEmailCommunications        func(childComplexity int, input *MyEmailCommunicationsInput) int
 		MyEmailCommunicationsCounter func(childComplexity int) int
@@ -244,6 +245,7 @@ type QueryResolver interface {
 	Master(ctx context.Context, id string) (*entities.Master, error)
 	MasterByUser(ctx context.Context, userID string) (*entities.Master, error)
 	Masters(ctx context.Context, input *MastersInput) ([]*entities.Master, error)
+	MastersCounter(ctx context.Context, filters *entities.MastersFilters) (int, error)
 	MasterToys(ctx context.Context, input MasterToysInput) ([]*entities.Toy, error)
 	MasterToysCounter(ctx context.Context, masterID string, filters *entities.ToysFilters) (int, error)
 	Toy(ctx context.Context, id string) (*entities.Toy, error)
@@ -719,6 +721,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Masters(childComplexity, args["input"].(*MastersInput)), true
+
+	case "Query.mastersCounter":
+		if e.complexity.Query.MastersCounter == nil {
+			break
+		}
+
+		args, err := ec.field_Query_mastersCounter_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.MastersCounter(childComplexity, args["filters"].(*entities.MastersFilters)), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -1357,6 +1371,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputForgetPasswordInput,
 		ec.unmarshalInputLoginUserInput,
 		ec.unmarshalInputMasterToysInput,
+		ec.unmarshalInputMastersFilters,
 		ec.unmarshalInputMastersInput,
 		ec.unmarshalInputMyEmailCommunicationsInput,
 		ec.unmarshalInputMyTicketsInput,
@@ -2319,6 +2334,38 @@ func (ec *executionContext) field_Query_master_argsID(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_mastersCounter_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_mastersCounter_argsFilters(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["filters"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_mastersCounter_argsFilters(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*entities.MastersFilters, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["filters"]
+	if !ok {
+		var zeroVal *entities.MastersFilters
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
+	if tmp, ok := rawArgs["filters"]; ok {
+		return ec.unmarshalOMastersFilters2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMastersFilters(ctx, tmp)
+	}
+
+	var zeroVal *entities.MastersFilters
 	return zeroVal, nil
 }
 
@@ -5202,6 +5249,61 @@ func (ec *executionContext) fieldContext_Query_masters(ctx context.Context, fiel
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_masters_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_mastersCounter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_mastersCounter(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().MastersCounter(rctx, fc.Args["filters"].(*entities.MastersFilters))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_mastersCounter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_mastersCounter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -11300,6 +11402,40 @@ func (ec *executionContext) unmarshalInputMasterToysInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputMastersFilters(ctx context.Context, obj interface{}) (entities.MastersFilters, error) {
+	var it entities.MastersFilters
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"search", "createdAtOrderByAsc"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "search":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Search = data
+		case "createdAtOrderByAsc":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtOrderByAsc"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtOrderByAsc = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputMastersInput(ctx context.Context, obj interface{}) (MastersInput, error) {
 	var it MastersInput
 	asMap := map[string]interface{}{}
@@ -11307,7 +11443,7 @@ func (ec *executionContext) unmarshalInputMastersInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"pagination"}
+	fieldsInOrder := [...]string{"pagination", "filters"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11321,6 +11457,13 @@ func (ec *executionContext) unmarshalInputMastersInput(ctx context.Context, obj 
 				return it, err
 			}
 			it.Pagination = data
+		case "filters":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
+			data, err := ec.unmarshalOMastersFilters2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMastersFilters(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Filters = data
 		}
 	}
 
@@ -12767,6 +12910,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_masters(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "mastersCounter":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_mastersCounter(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -15279,6 +15444,14 @@ func (ec *executionContext) marshalOMaster2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑb
 		return graphql.Null
 	}
 	return ec._Master(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOMastersFilters2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋinternalᚋentitiesᚐMastersFilters(ctx context.Context, v interface{}) (*entities.MastersFilters, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputMastersFilters(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOMastersInput2ᚖgithubᚗcomᚋDKhorkovᚋhmtmᚑbffᚋapiᚋgraphqlᚐMastersInput(ctx context.Context, v interface{}) (*MastersInput, error) {

@@ -6,8 +6,8 @@ github.com/DKhorkov/hmtm-sso v1.6.0 h1:YF8EUDzl1pzoP2H+N0kCzaWE48luCg8Nb6HoCEDMT
 github.com/DKhorkov/hmtm-sso v1.6.0/go.mod h1:ZMDhaoSQztRN+3vUICy8MZbkAVqp4yuW5DfuKCiav6M=
 github.com/DKhorkov/hmtm-tickets v1.3.0 h1:lDA7l2KSGkrjtzBBITWhd8SShEcx/ydJLyd3xb36q4M=
 github.com/DKhorkov/hmtm-tickets v1.3.0/go.mod h1:cPZpUp6cMuU/FgQTIQpMT+g2r+1X+4UYW2EcfSQzzkw=
-github.com/DKhorkov/hmtm-toys v1.5.1 h1:NK/7ZWnsQBWlqAg2edUOEiVBZxpvisKJVXiT3uigvGU=
-github.com/DKhorkov/hmtm-toys v1.5.1/go.mod h1:z/vcX3oWm7LWhhvYS0cDi6DNmkPSuLoYdo7Skh6nkJo=
+github.com/DKhorkov/hmtm-toys v1.6.0 h1:sZZfl152pvD4ATpcwWe1yT2m5PyIbqTCnfFCgPfrly0=
+github.com/DKhorkov/hmtm-toys v1.6.0/go.mod h1:z/vcX3oWm7LWhhvYS0cDi6DNmkPSuLoYdo7Skh6nkJo=
 github.com/DKhorkov/libs v1.11.1 h1:YzWYgfvkUbjdStkKtYGebrxPiSBTTZFFXR9MFyLywgY=
 github.com/DKhorkov/libs v1.11.1/go.mod h1:lj6T0uo0iWCc4DnlHF7+mhiWY0R+sC59G8GrDr75qGc=
 github.com/PuerkitoBio/goquery v1.9.3 h1:mpJr/ikUA9/GNJB/DBZcGeFDXUtosHRyRrwh7KGdTG0=
