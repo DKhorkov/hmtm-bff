@@ -204,8 +204,36 @@ Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDIxMTUzNjU
 POST http://localhost:8080/query
 Content-Type: application/json
 
+
 {
-  "query": "query { masters { id user { id displayName email emailConfirmed phone phoneConfirmed telegram telegramConfirmed avatar createdAt updatedAt } info createdAt updatedAt } }"
+  "query": "query GetMasters($input: MastersInput) { masters(input: $input) { id info createdAt updatedAt user { id displayName email avatar }}}",
+  "variables": {
+    "input": {
+      "pagination": {
+        "limit": 12,
+        "offset": 0
+      },
+      "filters": {
+        "search": "test",
+        "createdAtOrderByAsc": false
+      }
+    }
+  }
+}
+
+###
+
+POST http://localhost:8080/query
+Content-Type: application/json
+
+{
+  "query": "query CountMasters($filters: MastersFilters) { mastersCounter(filters: $filters) }",
+  "variables": {
+    "filters": {
+      "search": "test",
+      "createdAtOrderByAsc": true
+    }
+  }
 }
 
 ###
