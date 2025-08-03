@@ -8,8 +8,8 @@ github.com/DKhorkov/hmtm-tickets v1.3.0 h1:lDA7l2KSGkrjtzBBITWhd8SShEcx/ydJLyd3x
 github.com/DKhorkov/hmtm-tickets v1.3.0/go.mod h1:cPZpUp6cMuU/FgQTIQpMT+g2r+1X+4UYW2EcfSQzzkw=
 github.com/DKhorkov/hmtm-toys v1.6.0 h1:sZZfl152pvD4ATpcwWe1yT2m5PyIbqTCnfFCgPfrly0=
 github.com/DKhorkov/hmtm-toys v1.6.0/go.mod h1:z/vcX3oWm7LWhhvYS0cDi6DNmkPSuLoYdo7Skh6nkJo=
-github.com/DKhorkov/libs v1.11.1 h1:YzWYgfvkUbjdStkKtYGebrxPiSBTTZFFXR9MFyLywgY=
-github.com/DKhorkov/libs v1.11.1/go.mod h1:lj6T0uo0iWCc4DnlHF7+mhiWY0R+sC59G8GrDr75qGc=
+github.com/DKhorkov/libs v1.11.2 h1:DHPkYY/B6YwKayNHB1LT6iSPBPpvvvkGmBfCB7pjVr0=
+github.com/DKhorkov/libs v1.11.2/go.mod h1:lj6T0uo0iWCc4DnlHF7+mhiWY0R+sC59G8GrDr75qGc=
 github.com/PuerkitoBio/goquery v1.9.3 h1:mpJr/ikUA9/GNJB/DBZcGeFDXUtosHRyRrwh7KGdTG0=
 github.com/PuerkitoBio/goquery v1.9.3/go.mod h1:1ndLHPdTz+DyQPICCWYlYQMPl0oXZj0G6D4LCYA6u4U=
 github.com/agnivade/levenshtein v1.1.1 h1:QY8M92nrzkmr798gCo3kmMyqXFzdQVpxLlGPRBij0P8=
