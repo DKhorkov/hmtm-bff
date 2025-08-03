@@ -658,7 +658,25 @@ func (c *CacheDecorator) GetMasters(
 		return c.UseCases.GetMasters(ctx, pagination, filters)
 	}
 
-	cacheKey := fmt.Sprintf("%s:%s", getMastersPrefix, paginationHash)
+	filtersHash, err := rxhash.HashStruct(filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			c.logger,
+			"Failed to get cached Masters",
+			err,
+		)
+
+		return c.UseCases.GetMasters(ctx, pagination, filters)
+	}
+
+	cacheKey := fmt.Sprintf(
+		"%s:%s_%s",
+		getMastersPrefix,
+		paginationHash,
+		filtersHash,
+	)
+
 	mastersToDecode, err := c.cacheProvider.Get(ctx, cacheKey)
 	if err == nil {
 		var masters []entities.Master
